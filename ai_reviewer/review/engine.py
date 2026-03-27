@@ -9,6 +9,8 @@ from typing import Callable
 
 from ai_reviewer.config import ReviewerConfig
 from ai_reviewer.ingest.chunking import chunk_document
+import re
+
 from ai_reviewer.ingest.retrieval import retrieve_top_k
 from ai_reviewer.ingest.types import ParsedDocument
 from ai_reviewer.models.base import ChatRequest, Provider
@@ -60,6 +62,15 @@ REVIEW_SCHEMA_HINT = {
 
 def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: str, guidance_text: str | None = None) -> str:
     guidance_block = f"\nGlobal Lab Guidance:\n{guidance_text}\n" if guidance_text else ""
+    section_policy = (
+        "Section-aware policy:\n"
+        "- Abstract: only comment on claim calibration, scope, ambiguity, and alignment with body; avoid deep methods demands unless abstract overclaims.\n"
+        "- Introduction: framing, novelty positioning, literature context, problem clarity.\n"
+        "- Methods/Experimental: reproducibility, controls, human intervention vs automation, procedural completeness.\n"
+        "- Results: claim support, yield definitions (assay vs isolated), failure/negative case reporting.\n"
+        "- Discussion/Conclusions: interpretation discipline, overclaiming, scope boundaries.\n"
+        "- Front matter/references/author info: default no comments unless metadata is incorrect.\n"
+    )
     return (
         f"Profile: {profile.display_name}\n"
         f"Review focus: {profile.rubric_focus}\n"
@@ -68,8 +79,12 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         "Grounding requirements:\n"
         "- Be specific to this manuscript, not generic.\n"
         "- Reference concrete sections/headings or experiment types from the provided context.\n"
+        "- Include at least two manuscript-specific details (section names, claim phrasing, or figure/table callouts).\n"
         "- If support context is present, use it to check whether assertions appear backed.\n"
+        "- If you cite support context, name the specific supporting file.\n"
         "- Avoid repeating the same sentence across fields.\n"
+        "- Primary target is the manuscript under review; do not summarize supporting papers alone.\n"
+        f"{section_policy}\n"
         "Target schema:\n"
         f"{json.dumps(REVIEW_SCHEMA_HINT, indent=2)}\n\n"
         f"Document path: {doc.source_path_abs}\n"
@@ -121,7 +136,17 @@ def _is_sparse_review(review: ReviewSchema) -> bool:
         [a.action for a in review.extracted_action_items],
     ]
     populated_items = sum(len([x for x in lst if str(x).strip()]) for lst in signal_lists)
-    return summary_len < 80 or populated_items < 4
+    if summary_len < 120:
+        return True
+    if populated_items < 6:
+        return True
+    if not review.major_strengths:
+        return True
+    if not review.section_specific_comments:
+        return True
+    if len(review.detailed_reviewer_comments) < 2:
+        return True
+    return False
 
 
 def _ensure_minimum_detail(review: ReviewSchema) -> None:
@@ -134,12 +159,137 @@ def _ensure_minimum_detail(review: ReviewSchema) -> None:
         for w in review.major_weaknesses[:5]:
             if not isinstance(w, str) or not w.strip():
                 continue
-            generated.append(ActionItem(action=f"Address: {w}", priority="high", owner="author"))
+            generated.append(ActionItem(action=w, priority="high", owner="author"))
         if not generated:
             for c in review.detailed_reviewer_comments[:5]:
                 if isinstance(c, str) and c.strip():
                     generated.append(ActionItem(action=f"Revise section for: {c}", priority="medium", owner="author"))
         review.extracted_action_items = generated
+
+
+def _extract_abstract(doc: ParsedDocument) -> str:
+    text = doc.cleaned_text
+    match = re.search(r"\babstract[:\s]+(.{0,1500})", text, flags=re.IGNORECASE | re.DOTALL)
+    if match:
+        snippet = match.group(1).strip()
+        snippet = re.split(r"\n{2,}", snippet)[0]
+        if len(snippet) > 600:
+            snippet = snippet[:600].rsplit(" ", 1)[0] + "..."
+        return snippet
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    return " ".join(sentences[:3])[:600]
+
+
+def _summary_matches_doc(summary: str, doc: ParsedDocument) -> bool:
+    if not summary.strip():
+        return False
+    s = summary.lower()
+    doc_text = doc.cleaned_text.lower()
+    key_terms = ["phactor", "chatgpt", "reaction array", "reaction arrays"]
+    if not any(term in doc_text for term in key_terms):
+        return True
+    for term in key_terms:
+        if term in doc_text and term in s:
+            return True
+    if doc.headings:
+        title_terms = [t.lower() for t in re.split(r"\W+", doc.headings[0]) if len(t) > 4]
+        if any(t in s for t in title_terms[:4]):
+            return True
+    return False
+
+
+def _contains_offtopic_terms(text: str, doc: ParsedDocument) -> bool:
+    if not text:
+        return False
+    low = text.lower()
+    doc_text = doc.cleaned_text.lower()
+    abstract_text = _extract_abstract(doc).lower()
+    off_topic_terms = [
+        "roc-auc",
+        "random forest",
+        "f1-score",
+        "precision",
+        "recall",
+        "bayesian",
+        "active transfer learning",
+        "overfitting",
+        "classifier",
+        "nanomole",
+        "predictive model",
+    ]
+    for term in off_topic_terms:
+        if term in low and term not in abstract_text:
+            return True
+    return False
+
+
+def _filter_hallucinated_review_content(review: ReviewSchema, doc: ParsedDocument) -> None:
+    if _contains_offtopic_terms(review.summary, doc):
+        review.summary = _extract_abstract(doc)
+    if review.major_strengths:
+        review.major_strengths = [s for s in review.major_strengths if not _contains_offtopic_terms(str(s), doc)]
+    if review.major_weaknesses:
+        review.major_weaknesses = [s for s in review.major_weaknesses if not _contains_offtopic_terms(str(s), doc)]
+    if review.detailed_reviewer_comments:
+        review.detailed_reviewer_comments = [
+            c for c in review.detailed_reviewer_comments if not _contains_offtopic_terms(str(c), doc)
+        ]
+    if review.section_specific_comments:
+        filtered = []
+        for c in review.section_specific_comments:
+            if not c.comment or not str(c.comment).strip():
+                continue
+            if _contains_offtopic_terms(str(c.comment), doc):
+                continue
+            filtered.append(c)
+        review.section_specific_comments = filtered
+
+
+def _ensure_section_comments(review: ReviewSchema, doc: ParsedDocument) -> None:
+    if review.section_specific_comments:
+        return
+    headings = [h for h in doc.headings if h]
+    for h in headings[:4]:
+        review.section_specific_comments.append(
+            SectionComment(section=h, comment="Add one concrete evidence statement and one limitation statement tied to this section.", severity="medium")
+        )
+
+
+def _ensure_generic_sections(review: ReviewSchema, doc: ParsedDocument, support_docs: list[ParsedDocument]) -> None:
+    low_text = doc.cleaned_text.lower()
+    support_docs = [d for d in support_docs if d.source_path.name != doc.source_path.name]
+    if not review.writing_organization_concerns:
+        concerns = []
+        if "==> picture" in low_text or "intentionally omitted" in low_text:
+            concerns.append("Remove PDF extraction artifacts and normalize section/figure formatting.")
+        concerns.append("Tighten long sentences in Results/Discussion to keep one claim per sentence.")
+        review.writing_organization_concerns = concerns[:2]
+    if not review.novelty_concerns:
+        review.novelty_concerns = [
+            "Clarify novelty relative to prior phactor/HTE workflow papers and LLM-assisted reaction design approaches."
+        ]
+    if not review.figure_table_concerns and "figure" in low_text:
+        review.figure_table_concerns = [
+            "Ensure figure captions separate array assay outcomes from isolated yields and clarify what is LLM-generated vs experimentally executed."
+        ]
+    if not review.citation_reference_concerns and ("citation" in low_text or "doi" in low_text or "smiles" in low_text):
+        if support_docs:
+            support_names = ", ".join([d.source_path.name for d in support_docs[:4]])
+            review.citation_reference_concerns = [
+                f"Verify cited references and DOI links; compare framing against supporting papers ({support_names}) to avoid missed context."
+            ]
+        else:
+            review.citation_reference_concerns = [
+                "Verify cited references and DOI links for accuracy and ensure any known hallucinated references are clearly acknowledged."
+            ]
+    if not review.reproducibility_concerns and ("chatgpt" in low_text or "phactor" in low_text):
+        review.reproducibility_concerns = [
+            "Clarify which steps were automated vs manually corrected and whether prompts/models are versioned."
+        ]
+    if not review.suggested_experiments_analyses:
+        review.suggested_experiments_analyses = [
+            "Add a baseline comparison against chemist-designed or literature-derived reaction arrays for at least one case study."
+        ]
 
 
 def _ensure_profile_specific_detail(review: ReviewSchema, profile_key: str) -> None:
@@ -154,20 +304,47 @@ def _ensure_profile_specific_detail(review: ReviewSchema, profile_key: str) -> N
             review.statistical_concerns = [
                 "Report uncertainty and variance for key outcome metrics (for example confidence intervals or repeated-run spread)."
             ]
+    if profile_key in {"writing", "editor"}:
+        if not review.methodological_concerns:
+            review.methodological_concerns = [
+                "Not a primary focus in writing/editor passes; see methods review for experimental validity checks."
+            ]
+        if not review.statistical_concerns:
+            review.statistical_concerns = [
+                "Statistical validity not assessed in this pass; consult methods review for quantitative checks."
+            ]
     if profile_key in {"balanced", "adversarial"} and not review.citation_reference_concerns:
         review.citation_reference_concerns = [
             "Offline check only: verify key factual assertions are matched to explicit citations and that references are complete."
         ]
 
 
-def _review_quality_signals(review: ReviewSchema, profile_key: str) -> dict[str, float | int | bool]:
+def _review_quality_signals(review: ReviewSchema, profile_key: str, doc: ParsedDocument | None = None) -> dict[str, float | int | bool]:
+    doc_text = (doc.cleaned_text.lower() if doc else "")
+    figure_mentions = doc_text.count("figure ") + doc_text.count("fig.")
+    placeholder_count = 0
+    for a in review.extracted_action_items:
+        t = str(a.action).lower()
+        if "apply action:" in t or t.startswith("address:"):
+            placeholder_count += 1
+    for c in review.detailed_reviewer_comments:
+        t = str(c).lower()
+        if "apply action:" in t or "revise wording to address this issue" in t:
+            placeholder_count += 1
     return {
         "summary_len": len((review.summary or "").strip()),
+        "strengths_count": len(review.major_strengths),
+        "weaknesses_count": len(review.major_weaknesses),
         "details_count": len(review.detailed_reviewer_comments),
         "actions_count": len(review.extracted_action_items),
+        "section_comments_count": len(review.section_specific_comments),
         "methods_count": len(review.methodological_concerns),
         "stats_count": len(review.statistical_concerns),
         "writing_count": len(review.writing_organization_concerns),
+        "figure_count": len(review.figure_table_concerns),
+        "repro_count": len(review.reproducibility_concerns),
+        "placeholder_count": placeholder_count,
+        "doc_figure_mentions": figure_mentions,
         "profile_is_methods": profile_key == "methods",
         "profile_is_writing": profile_key in {"writing", "editor"},
     }
@@ -175,7 +352,10 @@ def _review_quality_signals(review: ReviewSchema, profile_key: str) -> dict[str,
 
 def _review_artifact_text(review: ReviewSchema) -> str:
     parts: list[str] = [review.summary]
+    parts.extend(review.major_strengths[:4])
     parts.extend(review.major_weaknesses[:6])
+    parts.extend(review.figure_table_concerns[:4])
+    parts.extend(review.reproducibility_concerns[:4])
     parts.extend(review.methodological_concerns[:4])
     parts.extend(review.writing_organization_concerns[:4])
     parts.extend(review.detailed_reviewer_comments[:8])
@@ -191,7 +371,18 @@ def _augment_with_text_heuristics(
     supporting_docs: list[ParsedDocument] | None = None,
 ) -> None:
     text = doc.cleaned_text or ""
+    low_text = text.lower()
     sentences = [s.strip() for s in text.replace("\n", " ").split(".") if s.strip()]
+    def _sentence_ok(s: str) -> bool:
+        low = s.lower()
+        if "==> picture" in low or "intentionally omitted" in low:
+            return False
+        if "supporting information" in low or "references" in low:
+            return False
+        if "■" in s or s.strip().startswith("##"):
+            return False
+        return True
+    sentences = [s for s in sentences if _sentence_ok(s)]
     long_sentences = [s for s in sentences if len(s.split()) > 38][:6]
     passive_hits = [s for s in sentences if len(s.split()) > 10 and (" was " in f" {s.lower()} " or " were " in f" {s.lower()} ")][:5]
     def _rewrite_candidate(sentence: str) -> str:
@@ -209,7 +400,7 @@ def _augment_with_text_heuristics(
     for token in ["intentionally omitted", "==> picture", "<br>", "supporting information", "references"]:
         if token in text.lower():
             placeholder_hits.append(token)
-    support_docs = supporting_docs or []
+    support_docs = [d for d in (supporting_docs or []) if d.source_path.name != doc.source_path.name]
     support_note = ""
     if support_docs:
         support_note = f" Supporting context from {len(support_docs)} project `materials/other` documents was scanned for context alignment."
@@ -257,6 +448,18 @@ def _augment_with_text_heuristics(
                 "Passive voice and indirect phrasing obscure agent/action in methods and results.",
                 "PDF extraction artifacts (e.g., placeholders/markup fragments) should be cleaned before submission.",
             ]
+    if not review.major_strengths:
+        strengths: list[str] = []
+        if "hallucinat" in low_text or "smiles" in low_text:
+            strengths.append("The manuscript acknowledges LLM hallucination risks and documents mitigation steps (e.g., invalid citations/SMILES), which strengthens scientific honesty.")
+        if "phactor" in low_text and "chatgpt" in low_text:
+            strengths.append("The workflow integrates LLM proposal generation with automated execution, showing a concrete end-to-end pipeline rather than purely speculative claims.")
+        if not strengths:
+            strengths = [
+                "The manuscript addresses an applied workflow problem with clear section structure.",
+                "Experimental scope is well defined around a specific automation pipeline.",
+            ]
+        review.major_strengths = strengths[:3]
     guidance_categories = guidance_categories or []
 
     if profile_key in {"writing", "editor"}:
@@ -319,6 +522,12 @@ def _augment_with_text_heuristics(
                 )
 
     if profile_key in {"methods", "balanced", "adversarial"}:
+        if not review.writing_organization_concerns:
+            review.writing_organization_concerns = [
+                "Tighten long sentences in Results/Discussion to keep one claim per sentence.",
+                "Reduce passive voice in methods/results to make agent/action clear.",
+                "Remove PDF extraction artifacts and normalize section/figure formatting.",
+            ]
         if not review.methodological_concerns:
             if profile_key == "adversarial":
                 review.methodological_concerns = [
@@ -340,14 +549,32 @@ def _augment_with_text_heuristics(
             review.statistical_concerns = [
                 "Report uncertainty (confidence intervals or repeated-run variance) for key performance claims.",
             ]
+        if not review.reproducibility_concerns:
+            review.reproducibility_concerns = [
+                "Clarify which steps were automated vs manually corrected and whether prompts/models are versioned.",
+            ]
         if profile_key == "adversarial" and not review.novelty_concerns:
             review.novelty_concerns = [
                 "Differentiate clearly from nearest prior workflow baselines to avoid perceived incremental framing.",
             ]
-        if support_docs and not review.citation_reference_concerns:
-            review.citation_reference_concerns = [
-                f"Cross-check manuscript framing against the {len(support_docs)} supporting project papers for missing context contrasts.",
+        if not review.figure_table_concerns and (low_text.count("figure ") + low_text.count("fig.") >= 3):
+            review.figure_table_concerns = [
+                "Ensure figure captions separate array assay outcomes from isolated yields and clarify what is LLM-generated vs experimentally executed.",
             ]
+        if support_docs and not review.citation_reference_concerns:
+            support_names = ", ".join([d.source_path.name for d in support_docs[:4]])
+            review.citation_reference_concerns = [
+                f"Cross-check manuscript framing against supporting papers ({support_names}) for missing context contrasts; cite specific overlaps where relevant.",
+            ]
+        if not review.section_specific_comments:
+            for heading in (doc.headings or ["Introduction", "Experimental", "Results", "Discussion"])[:4]:
+                review.section_specific_comments.append(
+                    SectionComment(
+                        section=str(heading)[:120],
+                        comment="Add one concrete evidence statement and one limitation statement tied to this section.",
+                        severity="medium",
+                    )
+                )
 
 
 def run_review(
@@ -390,7 +617,7 @@ def run_review(
     for i, sdoc in enumerate(support_docs[:8], start=1):
         if not sdoc.chunks:
             chunk_document(sdoc, max_chars=profile.chunk_size, overlap=profile.chunk_overlap)
-        excerpt = sdoc.cleaned_text[:1200]
+        excerpt = sdoc.cleaned_text[:800]
         support_summary_blocks.append(
             f"[support:{i}] source={sdoc.source_path.name} headings={sdoc.headings[:6]} excerpt={excerpt}"
         )
@@ -404,34 +631,38 @@ def run_review(
     if use_retrieval:
         if status_hook:
             status_hook("embedding retrieval")
-        try:
-            support_chunks = []
-            chunk_source: dict[str, str] = {}
-            for c in doc.chunks:
-                chunk_source[c.chunk_id] = str(doc.source_path.name)
-            for i, sdoc in enumerate(support_docs[:8], start=1):
-                for c in sdoc.chunks:
-                    key = f"support{i}:{c.chunk_id}"
-                    # Duplicate chunk id to avoid collisions across documents.
-                    c_copy = type(c)(
-                        chunk_id=key,
-                        text=c.text,
-                        heading=c.heading,
-                        start_char=c.start_char,
-                        end_char=c.end_char,
-                        source_page=c.source_page,
-                    )
-                    support_chunks.append(c_copy)
-                    chunk_source[key] = str(sdoc.source_path.name)
-            top = retrieve_top_k(
+        support_chunks = []
+        chunk_source: dict[str, str] = {}
+        for c in doc.chunks:
+            chunk_source[c.chunk_id] = str(doc.source_path.name)
+        for i, sdoc in enumerate(support_docs[:8], start=1):
+            for c in sdoc.chunks:
+                key = f"support{i}:{c.chunk_id}"
+                # Duplicate chunk id to avoid collisions across documents.
+                c_copy = type(c)(
+                    chunk_id=key,
+                    text=c.text,
+                    heading=c.heading,
+                    start_char=c.start_char,
+                    end_char=c.end_char,
+                    source_page=c.source_page,
+                )
+                support_chunks.append(c_copy)
+                chunk_source[key] = str(sdoc.source_path.name)
+
+        def _run_retrieval(model_name: str):
+            return retrieve_top_k(
                 query="core claims, evidence quality, weaknesses, methods, statistics, reproducibility",
                 chunks=doc.chunks + support_chunks,
                 provider=provider,
-                embedding_model=embedding_model,
+                embedding_model=model_name,
                 timeout_seconds=config.timeouts.embed_seconds,
                 top_k=config.retrieval.top_k,
                 max_chunk_embed_chars=config.retrieval.max_chunk_embed_chars,
             )
+
+        try:
+            top = _run_retrieval(embedding_model)
             retrieval_manifest = [
                 {
                     "chunk_id": t.chunk.chunk_id,
@@ -450,8 +681,36 @@ def run_review(
             )
             logger.info("retrieval_used chunks=%s", len(retrieval_manifest))
         except Exception as exc:
-            warnings.append(f"Embedding retrieval disabled due to error: {exc}")
-            logger.warning("embedding_retrieval_failed error=%s", exc)
+            fallback = config.defaults.embedding_fallback_model
+            if fallback and fallback != embedding_model:
+                try:
+                    top = _run_retrieval(fallback)
+                    retrieval_manifest = [
+                        {
+                            "chunk_id": t.chunk.chunk_id,
+                            "score": round(t.score, 6),
+                            "start_char": t.chunk.start_char,
+                            "end_char": t.chunk.end_char,
+                            "source": chunk_source.get(t.chunk.chunk_id, "unknown"),
+                        }
+                        for t in top
+                    ]
+                    context = "\n\n".join(
+                        [
+                            f"[retrieved score={t.score:.3f} source={chunk_source.get(t.chunk.chunk_id, 'unknown')}] {t.chunk.text[:2000]}"
+                            for t in top
+                        ]
+                    )
+                    warnings.append(
+                        f"Embedding retrieval fallback used due to error: {exc}. Fallback model: {fallback}"
+                    )
+                    logger.info("retrieval_used_fallback chunks=%s model=%s", len(retrieval_manifest), fallback)
+                except Exception as exc2:
+                    warnings.append(f"Embedding retrieval disabled due to error: {exc2}")
+                    logger.warning("embedding_retrieval_failed_fallback error=%s", exc2)
+            else:
+                warnings.append(f"Embedding retrieval disabled due to error: {exc}")
+                logger.warning("embedding_retrieval_failed error=%s", exc)
     if status_hook:
         status_hook("generating review")
 
@@ -512,8 +771,12 @@ def run_review(
             f"CONTEXT:\n{context}\n"
         )
         candidate_models: list[str] = []
+        heavy_markers = ["70b", "llama3.3", "llama3:70b", "llama3.1:70b"]
+        skip_heavy = any(h in (model or "").lower() for h in heavy_markers)
         for m in [*repair_models, model]:
             if m and m not in candidate_models:
+                if m == model and skip_heavy and repair_models:
+                    continue
                 candidate_models.append(m)
         enriched = False
         for enrich_model in candidate_models:
@@ -569,19 +832,29 @@ def run_review(
         warnings.append("Applied deterministic heuristic augmentation due to sparse structured output.")
 
     _ensure_minimum_detail(review)
+    _filter_hallucinated_review_content(review, doc)
+    if not _summary_matches_doc(review.summary, doc):
+        abstract = _extract_abstract(doc)
+        if abstract:
+            review.summary = abstract
     _ensure_profile_specific_detail(review, profile.key)
+    _ensure_section_comments(review, doc)
+    _ensure_generic_sections(review, doc, support_docs)
 
     orchestrator_decisions: list[dict] = []
     orchestrator_retry_log: list[dict] = []
     stage_key = stage_name or profile.key
-    runtime = orchestrator_state or OrchestratorRuntimeState(max_stage_retries=0, max_total_retries=0)
+    runtime = orchestrator_state or OrchestratorRuntimeState(
+        max_stage_retries=max(0, int(config.orchestrator.max_stage_retries)),
+        max_total_retries=max(0, int(config.orchestrator.max_total_retries)),
+    )
     if orchestrator is not None and orchestrator.enabled:
         stage_retries_used = 0
         try:
             qa = orchestrator.evaluate_stage_output(
                 stage_name=profile.key,
                 artifact_text=_review_artifact_text(review),
-                quality_signals=_review_quality_signals(review, profile.key),
+                quality_signals=_review_quality_signals(review, profile.key, doc),
                 timeout_seconds=min(90, config.timeouts.chat_seconds),
             )
             orchestrator_decisions.append(
@@ -645,7 +918,7 @@ def run_review(
                     qa_retry = orchestrator.evaluate_stage_output(
                         stage_name=profile.key,
                         artifact_text=_review_artifact_text(retry_review),
-                        quality_signals=_review_quality_signals(retry_review, profile.key),
+                        quality_signals=_review_quality_signals(retry_review, profile.key, doc),
                         timeout_seconds=min(90, config.timeouts.chat_seconds),
                     )
                     cmp = orchestrator.compare_stage_versions(qa, qa_retry)

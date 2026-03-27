@@ -23,6 +23,16 @@ def _approx_tokens(text: str) -> int:
     return max(1, int(len(text) / 4))
 
 
+def _normalize_duration(value: Any, fallback: float | None = None) -> float | None:
+    try:
+        v = float(value)
+    except Exception:
+        return fallback
+    if v > 1_000_000:
+        v = v / 1_000_000_000.0
+    return v
+
+
 class OllamaProvider(Provider):
     def __init__(
         self,
@@ -166,7 +176,7 @@ class OllamaProvider(Provider):
                 return ChatResponse(
                     content=content,
                     model=request.model,
-                    total_duration=payload.get("total_duration") or elapsed,
+                    total_duration=_normalize_duration(payload.get("total_duration"), elapsed),
                     eval_count=payload.get("eval_count"),
                     prompt_eval_count=payload.get("prompt_eval_count"),
                     retries_used=attempt - 1,
@@ -218,7 +228,7 @@ class OllamaProvider(Provider):
                 return EmbeddingResponse(
                     embedding=vector,
                     model=model,
-                    total_duration=payload.get("total_duration"),
+                    total_duration=_normalize_duration(payload.get("total_duration")),
                     retries_used=attempt - 1,
                     raw=payload,
                 )

@@ -35,7 +35,7 @@ class ChunkingConfig:
 class RetrievalConfig:
     enabled: bool = True
     top_k: int = 6
-    max_chunk_embed_chars: int = 6000
+    max_chunk_embed_chars: int = 3000
 
 
 @dataclass
@@ -250,7 +250,7 @@ def write_example_local_config(path: Path) -> None:
         "retrieval": {
             "enabled": True,
             "top_k": 6,
-            "max_chunk_embed_chars": 6000,
+            "max_chunk_embed_chars": 3000,
         },
         "compare": {
             "max_old_chars": 20000,

@@ -28,7 +28,7 @@ Legacy `ai_scientist/` code remains for provenance and optional use, but it is s
 ```powershell
 ollama serve
 ```
-2. Launch:
+2. Launch (Windows):
 - Double-click `launch_ai_reviewer.bat`, or
 - Run PowerShell launcher:
 ```powershell
@@ -41,12 +41,13 @@ powershell -ExecutionPolicy Bypass -File .\launchers\launch_ai_reviewer.ps1
 ```bash
 ollama serve
 ```
-2. Launch:
+2. Launch (macOS):
 ```bash
 chmod +x launch_ai_reviewer.command launchers/launch_ai_reviewer.sh launchers/launch_ai_reviewer.command
 ./launch_ai_reviewer.command
 ```
-You can also double-click `launch_ai_reviewer.command` in Finder.
+You can also double-click `launch_ai_reviewer.command` in Finder. Keep the launcher inside the repo folder.
+If you downloaded a zip from GitHub and double-click fails, run the `chmod` command above once to restore executable permissions.
 
 If macOS blocks first launch from downloaded files:
 ```bash

@@ -704,6 +704,30 @@ def run_deep_run(
             if isinstance(src, dict):
                 strengths.extend([str(x) for x in src.get("major_strengths", [])[:3]])
                 weaknesses.extend([str(x) for x in src.get("major_weaknesses", [])[:4]])
+        text = (manuscript_doc.cleaned_text or "").lower()
+        off_terms = ["ic50", "chk1", "mk2", "nanomole", "biological activity", "library screening", "inhibitor", "out-of-sample", "r²", "r2", "cross-validation", "transfer learning", "drug discovery"]
+        def _filter(items: list[str]) -> list[str]:
+            filtered = []
+            for item in items:
+                low = item.lower()
+                if any(term in low and term not in text for term in off_terms):
+                    continue
+                filtered.append(item)
+            return filtered
+        if "hallucinat" in text or "smiles" in text:
+            strengths.append("The manuscript explicitly acknowledges LLM hallucination risks and reports mitigation steps (e.g., invalid citations/SMILES).")
+        if "phactor" in text and "chatgpt" in text:
+            strengths.append("End-to-end workflow is demonstrated (LLM proposal generation mapped into phactor execution).")
+        if "first attempt" in text or "every instance tried" in text:
+            weaknesses.append("Claim language around first-attempt success may overstate generality without clarifying assay vs isolated yields or scope.")
+        if "doi" in text or "citation" in text:
+            weaknesses.append("Citation accuracy and DOI matching require explicit verification to avoid hallucinated references.")
+        if "prompt" in text or "chatgpt" in text:
+            weaknesses.append("Human-in-the-loop corrections and prompt iteration are not consistently quantified or separated from model output.")
+        if "figure" in text:
+            weaknesses.append("Figure captions should clearly separate array assay outcomes from isolated yields and clarify what is LLM-generated vs executed.")
+        strengths = _filter(strengths)
+        weaknesses = _filter(weaknesses)
         priority_actions = [f"Address: {w}" for w in weaknesses[:8] if w.strip()]
         priority_actions.extend([str(x) for x in (style_payload.get("alignment_actions", []) if isinstance(style_payload, dict) else [])[:3]])
         return {
@@ -885,9 +909,12 @@ def run_deep_run(
             doc=manuscript_doc,
             review=_Obj(review_for_comments),  # type: ignore[arg-type]
             output_dir=run_dir,
+            project_id=project_id,
         )
         _write_json(run_dir / "manuscript_comment_manifest.json", annotation)
         _write_json(run_dir / "docx_comment_manifest.json", annotation)
+        if isinstance(annotation.get("section_map"), list):
+            _write_json(run_dir / "section_map.json", annotation.get("section_map"))
         source_mode_payload = annotation.get("source_mode_artifact", {})
         if isinstance(source_mode_payload, dict):
             source_mode_payload["project_id"] = project_id

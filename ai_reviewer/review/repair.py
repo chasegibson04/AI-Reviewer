@@ -151,6 +151,10 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
                 norm_items.append({"action": item, "priority": "medium", "owner": "author"})
         payload["extracted_action_items"] = norm_items
 
+    if isinstance(payload.get("detailed_reviewer_comments"), dict):
+        payload["detailed_reviewer_comments"] = [
+            f"[{k}] {v}" for k, v in payload["detailed_reviewer_comments"].items() if str(v).strip()
+        ]
     if isinstance(payload.get("detailed_reviewer_comments"), list):
         norm_comments = []
         for item in payload["detailed_reviewer_comments"]:
@@ -169,6 +173,12 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
         if isinstance(payload["document_metadata"], dict) and "title" not in payload["document_metadata"]:
             payload["document_metadata"]["title"] = str(payload["title"])
 
+    if isinstance(payload.get("section_specific_comments"), dict):
+        payload["section_specific_comments"] = [
+            {"section": k, "comment": str(v), "severity": "medium"}
+            for k, v in payload["section_specific_comments"].items()
+            if str(v).strip()
+        ]
     if isinstance(payload.get("section_specific_comments"), list):
         norm_sections = []
         for item in payload["section_specific_comments"]:

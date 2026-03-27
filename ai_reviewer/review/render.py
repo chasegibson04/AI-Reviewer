@@ -7,6 +7,16 @@ from ai_reviewer.review.schema import ReviewSchema
 from ai_reviewer.review.docx_export import write_markdown_as_docx
 
 
+def _format_duration_seconds(value: float | None) -> str | None:
+    if value is None:
+        return None
+    v = float(value)
+    # Ollama may return nanoseconds; normalize for human readability.
+    if v > 1_000_000:
+        v = v / 1_000_000_000.0
+    return f"{v:.3f}s"
+
+
 def render_markdown(review: ReviewSchema, source_metadata: dict | None = None, warnings: list[str] | None = None) -> str:
     rec = review.recommendation
     debug = review.model_debug_metadata
@@ -82,8 +92,9 @@ def render_markdown(review: ReviewSchema, source_metadata: dict | None = None, w
     lines.append(f"- Model: {debug.model}")
     lines.append(f"- Temperature: {debug.temperature}")
     lines.append(f"- Parse Failures: {debug.parse_failures}")
-    if debug.total_duration is not None:
-        lines.append(f"- Total Duration: {debug.total_duration}")
+    dur = _format_duration_seconds(debug.total_duration)
+    if dur is not None:
+        lines.append(f"- Total Duration: {dur}")
     if debug.prompt_eval_count is not None:
         lines.append(f"- Prompt Eval Count: {debug.prompt_eval_count}")
     if debug.eval_count is not None:

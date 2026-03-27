@@ -489,8 +489,14 @@ def review(
                     doc=doc,
                     review=review_result.review,
                     output_dir=bundle,
+                    project_id=project_id,
                 )
                 (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")
+                if isinstance(annotation.get("section_map"), list):
+                    (bundle / "section_map.json").write_text(
+                        json.dumps(annotation.get("section_map"), indent=2),
+                        encoding="utf-8",
+                    )
                 source_mode_payload = annotation.get("source_mode_artifact", {})
                 if isinstance(source_mode_payload, dict):
                     source_mode_payload["project_id"] = project_id

@@ -24,6 +24,7 @@ retries:
 retrieval:
   enabled: true
   top_k: 6
+  max_chunk_embed_chars: 3000
 
 training:
   enabled: true

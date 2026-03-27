@@ -2,7 +2,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT=""
+if [ "${1:-}" != "" ]; then
+  REPO_ROOT="$1"
+else
+  REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
 LOG_DIR="$REPO_ROOT/outputs/launcher_logs"
 mkdir -p "$LOG_DIR"
 STAMP="$(date +%Y%m%d_%H%M%S)"
@@ -33,8 +38,25 @@ detect_macos_arch() {
 }
 
 test_ollama() {
-  curl -sf "http://127.0.0.1:11434/api/version" >/dev/null 2>&1
+  if command -v curl >/dev/null 2>&1; then
+    curl -sf "http://127.0.0.1:11434/api/version" >/dev/null 2>&1
+    return $?
+  fi
+  "$PYTHON_EXE" - <<'PY' >/dev/null 2>&1
+import sys, urllib.request
+try:
+    with urllib.request.urlopen("http://127.0.0.1:11434/api/version", timeout=2) as r:
+        sys.exit(0 if r.status == 200 else 1)
+except Exception:
+    sys.exit(1)
+PY
 }
+
+if [ ! -f "$REPO_ROOT/pyproject.toml" ]; then
+  log "ERROR: repo root not found at $REPO_ROOT"
+  log "Expected to find pyproject.toml. Ensure the launcher resides inside the AI-Reviewer repo."
+  exit 1
+fi
 
 cd "$REPO_ROOT"
 log "AI-Reviewer launcher (.sh/.command)"
@@ -55,8 +77,14 @@ if [ ! -x "$PYTHON_EXE" ]; then
 fi
 
 log "Verifying dependencies"
-"$PYTHON_EXE" -m pip install --upgrade pip >/dev/null 2>&1
-"$PYTHON_EXE" -m pip install -e ".[dev]" >/dev/null 2>&1
+if ! "$PYTHON_EXE" -m pip install --upgrade pip >> "$LOG_PATH" 2>&1; then
+  log "ERROR: pip upgrade failed. See $LOG_PATH"
+  exit 1
+fi
+if ! "$PYTHON_EXE" -m pip install -e ".[dev]" >> "$LOG_PATH" 2>&1; then
+  log "ERROR: dependency install failed. See $LOG_PATH"
+  exit 1
+fi
 
 if ! test_ollama; then
   log "Ollama not reachable. Attempting safe local start: ollama serve"

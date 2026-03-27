@@ -102,8 +102,45 @@ def create_commented_docx_copy(
 def create_docx_from_plain_text(text: str, output_docx: Path, title: str = "Manuscript") -> Path:
     doc = Document()
     doc.add_heading(title, level=1)
+
+    def _normalize_heading(raw: str) -> str:
+        cleaned = re.sub(r"^[■*\[\]]+", "", raw).strip()
+        cleaned = re.sub(r"\s+", " ", cleaned)
+        return cleaned.strip(":").strip()
+
+    def _is_heading_block(block: str) -> bool:
+        if len(block) > 80:
+            return False
+        low = block.lower().strip(":").strip()
+        if low in {
+            "abstract",
+            "introduction",
+            "experimental",
+            "methods",
+            "results",
+            "discussion",
+            "conclusion",
+            "conclusions",
+            "author contributions",
+            "funding",
+            "associated content",
+            "author information",
+            "abbreviations",
+            "references",
+            "keywords",
+        }:
+            return True
+        if block.isupper() and len(block.split()) <= 6:
+            return True
+        if re.match(r"^\[?[A-Z][A-Z\s-]{3,}\]?$", block):
+            return True
+        return False
+
     for block in [b.strip() for b in text.split("\n\n") if b.strip()]:
-        doc.add_paragraph(block)
+        if _is_heading_block(block):
+            doc.add_heading(_normalize_heading(block), level=2)
+        else:
+            doc.add_paragraph(block)
     output_docx.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(output_docx))
     return output_docx

@@ -24,6 +24,11 @@ GENERIC_PHRASES = [
     "future work",
     "this study is interesting",
     "overall, the manuscript",
+    "none provided",
+    "inspect raw_model_response",
+    "heuristic",
+    "revise wording to address this issue",
+    "apply action:",
 ]
 
 
@@ -84,9 +89,15 @@ class OrchestratorController:
         summary_len = int(quality_signals.get("summary_len", 0))
         details_count = int(quality_signals.get("details_count", 0))
         actions_count = int(quality_signals.get("actions_count", 0))
+        strengths_count = int(quality_signals.get("strengths_count", 0))
+        section_comments_count = int(quality_signals.get("section_comments_count", 0))
         methods_count = int(quality_signals.get("methods_count", 0))
         stats_count = int(quality_signals.get("stats_count", 0))
         writing_count = int(quality_signals.get("writing_count", 0))
+        figure_count = int(quality_signals.get("figure_count", 0))
+        repro_count = int(quality_signals.get("repro_count", 0))
+        placeholder_count = int(quality_signals.get("placeholder_count", 0))
+        doc_figure_mentions = int(quality_signals.get("doc_figure_mentions", 0))
         has_paper_terms = bool(re.search(r"phactor|reaction|chatgpt|chemical|assay", text))
 
         missing: list[MissingDimension] = []
@@ -94,25 +105,38 @@ class OrchestratorController:
             missing.append(MissingDimension.SPECIFICITY)
         if summary_len < 120:
             missing.append(MissingDimension.GROUNDING)
+        if strengths_count == 0:
+            missing.append(MissingDimension.REVIEWER_USEFULNESS)
         if details_count < 3:
             missing.append(MissingDimension.EDITORIAL_USEFULNESS)
         if actions_count < 3:
             missing.append(MissingDimension.ACTIONABILITY)
+        if section_comments_count < 2:
+            missing.append(MissingDimension.EDITORIAL_USEFULNESS)
         if stage_name == "methods" and (methods_count == 0 or stats_count == 0):
             missing.append(MissingDimension.REVIEWER_USEFULNESS)
         if stage_name in {"writing", "editor"} and writing_count == 0:
             missing.append(MissingDimension.EDITORIAL_USEFULNESS)
+        if stage_name in {"writing", "editor", "balanced", "adversarial", "methods"} and doc_figure_mentions >= 3 and figure_count == 0:
+            missing.append(MissingDimension.REVIEWER_USEFULNESS)
+        if repro_count == 0 and stage_name in {"methods", "balanced", "adversarial"}:
+            missing.append(MissingDimension.REVIEWER_USEFULNESS)
 
         score = 100.0
         score -= generic_hits * 10.0
         score -= 20.0 if summary_len < 120 else 0.0
+        score -= 12.0 if strengths_count == 0 else 0.0
         score -= 15.0 if details_count < 3 else 0.0
         score -= 15.0 if actions_count < 3 else 0.0
+        score -= 12.0 if section_comments_count < 2 else 0.0
+        score -= 15.0 if placeholder_count > 0 else 0.0
+        score -= 10.0 if (doc_figure_mentions >= 3 and figure_count == 0) else 0.0
+        score -= 8.0 if (stage_name in {"methods", "balanced", "adversarial"} and repro_count == 0) else 0.0
         if stage_name == "methods" and (methods_count == 0 or stats_count == 0):
             score -= 20.0
         score = max(0.0, min(100.0, score))
 
-        retry = score < 65.0 or bool(missing)
+        retry = score < 78.0 or bool(missing)
         return StageQualityAssessment(
             decision=DecisionLabel.RETRY if retry else DecisionLabel.ACCEPT,
             quality_score=score,
@@ -260,4 +284,3 @@ class OrchestratorController:
         if not self.enabled:
             return base
         return base
-
