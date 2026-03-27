@@ -43,8 +43,14 @@ ollama serve
 ```
 2. Launch:
 ```bash
-chmod +x launchers/launch_ai_reviewer.sh launchers/launch_ai_reviewer.command
-./launchers/launch_ai_reviewer.sh
+chmod +x launch_ai_reviewer.command launchers/launch_ai_reviewer.sh launchers/launch_ai_reviewer.command
+./launch_ai_reviewer.command
+```
+You can also double-click `launch_ai_reviewer.command` in Finder.
+
+If macOS blocks first launch from downloaded files:
+```bash
+xattr -dr com.apple.quarantine .
 ```
 3. Apple Silicon note (M1/M2/M3):
 - install Python and Ollama in native arm64 mode

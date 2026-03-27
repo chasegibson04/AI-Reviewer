@@ -17,3 +17,12 @@ def test_macos_launcher_has_strict_mode():
     text = Path("launchers/launch_ai_reviewer.sh").read_text(encoding="utf-8")
     assert "set -euo pipefail" in text
     assert "ai_reviewer launch" in text
+
+
+def test_macos_command_wrappers_call_shell_launcher():
+    nested = Path("launchers/launch_ai_reviewer.command").read_text(encoding="utf-8")
+    root = Path("launch_ai_reviewer.command").read_text(encoding="utf-8")
+    assert "/bin/bash" in nested
+    assert "launch_ai_reviewer.sh" in nested
+    assert "/bin/bash" in root
+    assert "launchers/launch_ai_reviewer.sh" in root

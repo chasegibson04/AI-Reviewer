@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TARGET="$SCRIPT_DIR/launch_ai_reviewer.sh"
+TARGET="$SCRIPT_DIR/launchers/launch_ai_reviewer.sh"
 
 if [ ! -f "$TARGET" ]; then
   echo "ERROR: launcher script not found: $TARGET"
