@@ -31,6 +31,7 @@ from ai_reviewer.review.compare import align_sections, detect_claim_changes
 from ai_reviewer.review.deep_run import DeepRunError, run_deep_run
 from ai_reviewer.review.docx_export import write_markdown_as_docx
 from ai_reviewer.review.engine import run_compare, run_review
+from ai_reviewer.review.citation_fetcher import fetch_citations_for_documents
 from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_output
 from ai_reviewer.review.evaluation import EVALUATION_PROFILES, run_published_paper_evaluation_sweep
 from ai_reviewer.review.profiles import get_profile
@@ -443,11 +444,12 @@ def review(
             )
         _exit("No parseable docs")
     lock_info = None
+    project_root = None
     if project_id and cfg.concurrency.enable_project_locks:
-        pdir, _ = _store().get_project(project_id)
+        project_root, _ = _store().get_project(project_id)
         try:
             lock_info = acquire_project_lock(
-                project_root=pdir,
+                project_root=project_root,
                 run_id=run_dir.name,
                 allow_same_project=cfg.concurrency.allow_same_project_concurrency,
                 ttl_seconds=cfg.concurrency.lock_ttl_seconds,
@@ -461,6 +463,11 @@ def review(
             )
         except LockError as exc:
             _exit(str(exc))
+    elif project_id:
+        project_root, _ = _store().get_project(project_id)
+
+    if project_id and project_root:
+        fetch_citations_for_documents(docs, project_root, cfg, logger, run_dir=run_dir)
 
     guidance_text, guidance_categories = _training_injection(cfg, logger, prof.key, disable_training_guidance)
     orchestrator = _build_orchestrator(cfg, provider, logger)
@@ -806,6 +813,11 @@ def deep_run_cmd(
             )
         except LockError as exc:
             _exit(str(exc))
+    else:
+        pdir, _ = _store().get_project(project)
+
+    docs, _, _, _ = _resolve_docs(None, project, manuscript_id)
+    fetch_citations_for_documents(docs, pdir, cfg, logger, run_dir=run_dir)
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)

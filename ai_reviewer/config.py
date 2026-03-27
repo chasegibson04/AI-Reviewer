@@ -98,6 +98,15 @@ class FigureReviewConfig:
 
 
 @dataclass
+class CitationFetchConfig:
+    enabled: bool = False
+    email: str = ""
+    max_papers: int = 500
+    max_refs_per_doc: int = 500
+    request_timeout_seconds: int = 20
+
+
+@dataclass
 class Defaults:
     balanced_review_model: str = "gemma3:27b"
     deep_review_model: str = "llama3.3:70b-instruct-q4_K_M"
@@ -126,6 +135,7 @@ class ReviewerConfig:
     orchestrator: OrchestratorConfig = field(default_factory=OrchestratorConfig)
     concurrency: ConcurrencyConfig = field(default_factory=ConcurrencyConfig)
     figure_review: FigureReviewConfig = field(default_factory=FigureReviewConfig)
+    citation_fetch: CitationFetchConfig = field(default_factory=CitationFetchConfig)
 
 
 DEFAULT_CONFIG = ReviewerConfig()
@@ -158,6 +168,7 @@ def _from_dict(raw: dict[str, Any]) -> ReviewerConfig:
         orchestrator=OrchestratorConfig(**merged.get("orchestrator", {})),
         concurrency=ConcurrencyConfig(**merged.get("concurrency", {})),
         figure_review=FigureReviewConfig(**merged.get("figure_review", {})),
+        citation_fetch=CitationFetchConfig(**merged.get("citation_fetch", {})),
     )
 
 
@@ -221,6 +232,11 @@ def _env_overrides() -> dict[str, Any]:
         ("AI_REVIEWER_FIGURE_REVIEW_FAIL_OPEN", ("figure_review", "fail_open"), _parse_bool),
         ("AI_REVIEWER_FIGURE_REVIEW_MIN_CONFIDENCE", ("figure_review", "min_confidence"), float),
         ("AI_REVIEWER_FIGURE_STYLE_CHECKS_ENABLED", ("figure_review", "style_checks_enabled"), _parse_bool),
+        ("AI_REVIEWER_CITATION_FETCH_ENABLED", ("citation_fetch", "enabled"), _parse_bool),
+        ("AI_REVIEWER_CITATION_FETCH_EMAIL", ("citation_fetch", "email"), str),
+        ("AI_REVIEWER_CITATION_FETCH_MAX_PAPERS", ("citation_fetch", "max_papers"), int),
+        ("AI_REVIEWER_CITATION_FETCH_MAX_REFS", ("citation_fetch", "max_refs_per_doc"), int),
+        ("AI_REVIEWER_CITATION_FETCH_TIMEOUT", ("citation_fetch", "request_timeout_seconds"), int),
     ]
 
     out: dict[str, Any] = {}
@@ -317,6 +333,13 @@ def write_example_local_config(path: Path) -> None:
             "enable_deeprun_qa": True,
             "log_decisions": True,
             "fail_open": True,
+        },
+        "citation_fetch": {
+            "enabled": False,
+            "email": "",
+            "max_papers": 500,
+            "max_refs_per_doc": 500,
+            "request_timeout_seconds": 20,
         },
     }
     path.parent.mkdir(parents=True, exist_ok=True)
