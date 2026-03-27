@@ -179,5 +179,6 @@ projects/
 .venv/
 .pytest_cache/
 training_materials/
+audits/
 temp_new.md
 temp_old.md

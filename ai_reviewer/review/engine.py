@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
+import statistics
 
 from ai_reviewer.config import ReviewerConfig
 from ai_reviewer.ingest.chunking import chunk_document
@@ -18,6 +19,7 @@ from ai_reviewer.orchestrator.controller import OrchestratorController, Orchestr
 from ai_reviewer.review.profiles import ReviewProfile
 from ai_reviewer.review.repair import ParseOutcome, parse_and_repair
 from ai_reviewer.review.render import write_review_bundle
+from ai_reviewer.figures.figure_review import run_figure_review
 from ai_reviewer.review.schema import ActionItem, CompareSchema, DebugMetadata, ReviewSchema, SectionComment
 
 
@@ -118,6 +120,72 @@ def _context_from_doc(doc: ParsedDocument, profile: ReviewProfile, config: Revie
     return "\n\n".join([f"[{c.chunk_id}] {c.text[:2000]}" for c in chunks[:8]])
 
 
+def _find_project_root(source_path: Path) -> Path | None:
+    parts = list(source_path.parts)
+    if "projects" not in parts:
+        return None
+    idx = parts.index("projects")
+    if idx + 1 >= len(parts):
+        return None
+    return Path(*parts[: idx + 2])
+
+
+def _estimate_duration_seconds(
+    project_root: Path | None,
+    profile_key: str,
+    model: str,
+    doc_length: int | None,
+) -> tuple[float | None, dict]:
+    if project_root is None:
+        return None, {}
+    runs_dir = project_root / "runs"
+    if not runs_dir.exists():
+        return None, {}
+    durations: list[float] = []
+    rates_per_char: list[float] = []
+    for run_dir in runs_dir.iterdir():
+        if not run_dir.is_dir():
+            continue
+        for meta_path in run_dir.rglob("run_metadata.json"):
+            try:
+                payload = json.loads(meta_path.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            if payload.get("profile") != profile_key:
+                continue
+            if payload.get("model") != model:
+                continue
+            dur = payload.get("duration_seconds")
+            if isinstance(dur, (int, float)) and dur > 0:
+                durations.append(float(dur))
+                if doc_length:
+                    source_path = meta_path.parent / "source_metadata.json"
+                    if source_path.exists():
+                        try:
+                            source_meta = json.loads(source_path.read_text(encoding="utf-8"))
+                        except Exception:
+                            source_meta = {}
+                        src_len = source_meta.get("cleaned_text_length")
+                        if isinstance(src_len, int) and src_len > 0:
+                            rates_per_char.append(float(dur) / float(src_len))
+    if not durations:
+        return None, {}
+    durations.sort()
+    median = durations[len(durations) // 2] if len(durations) % 2 == 1 else (durations[len(durations)//2 - 1] + durations[len(durations)//2]) / 2
+    basis: dict[str, float | int] = {
+        "count": len(durations),
+        "median_seconds": median,
+        "mean_seconds": statistics.fmean(durations) if len(durations) > 1 else durations[0],
+    }
+    if doc_length and rates_per_char:
+        rate_median = statistics.median(rates_per_char)
+        scaled = rate_median * float(doc_length)
+        basis["median_seconds_per_1k_chars"] = rate_median * 1000.0
+        basis["scaled_by_chars_seconds"] = scaled
+        return scaled, basis
+    return median, basis
+
+
 def _is_sparse_review(review: ReviewSchema) -> bool:
     summary_len = len((review.summary or "").strip())
     signal_lists = [
@@ -177,13 +245,27 @@ def _extract_abstract(doc: ParsedDocument) -> str:
             snippet = snippet[:600].rsplit(" ", 1)[0] + "..."
         return snippet
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-    return " ".join(sentences[:3])[:600]
+    front_matter_terms = [
+        "received",
+        "accepted",
+        "published online",
+        "check for updates",
+        "nature synthesis",
+        "article",
+        "doi.org",
+    ]
+    filtered = [s for s in sentences if not any(term in s.lower() for term in front_matter_terms)]
+    if not filtered:
+        filtered = sentences
+    return " ".join(filtered[:3])[:600]
 
 
 def _summary_matches_doc(summary: str, doc: ParsedDocument) -> bool:
     if not summary.strip():
         return False
     s = summary.lower()
+    if any(term in s for term in ["doi.org", "received", "accepted", "published online", "check for updates", "nature synthesis", "article"]):
+        return False
     doc_text = doc.cleaned_text.lower()
     key_terms = ["phactor", "chatgpt", "reaction array", "reaction arrays"]
     if not any(term in doc_text for term in key_terms):
@@ -204,18 +286,52 @@ def _contains_offtopic_terms(text: str, doc: ParsedDocument) -> bool:
     low = text.lower()
     doc_text = doc.cleaned_text.lower()
     abstract_text = _extract_abstract(doc).lower()
+    front_matter_terms = [
+        "received:",
+        "accepted:",
+        "published online",
+        "check for updates",
+        "nature synthesis",
+        "supplementary information",
+        "author contributions",
+        "competing interests",
+        "corresponding author",
+    ]
+    if any(term in low for term in front_matter_terms):
+        return True
     off_topic_terms = [
         "roc-auc",
         "random forest",
         "f1-score",
         "precision",
         "recall",
+        "cross-validation",
+        "out-of-sample",
         "bayesian",
         "active transfer learning",
         "overfitting",
         "classifier",
         "nanomole",
         "predictive model",
+        "ic50",
+        "r2",
+        "r²",
+        "mk2",
+        "chk1",
+        "inhibitor",
+        "drug discovery",
+        "hyperparameter",
+        "hyperparameters",
+        "extended data",
+        "received",
+        "accepted",
+        "published online",
+        "check for updates",
+        "nature synthesis",
+        "supplementary information",
+        "author contributions",
+        "competing interests",
+        "corresponding author",
     ]
     for term in off_topic_terms:
         if term in low and term not in abstract_text:
@@ -234,12 +350,36 @@ def _filter_hallucinated_review_content(review: ReviewSchema, doc: ParsedDocumen
         review.detailed_reviewer_comments = [
             c for c in review.detailed_reviewer_comments if not _contains_offtopic_terms(str(c), doc)
         ]
+    if review.extracted_action_items:
+        filtered_actions = []
+        for a in review.extracted_action_items:
+            if not a.action or _contains_offtopic_terms(str(a.action), doc):
+                continue
+            filtered_actions.append(a)
+        review.extracted_action_items = filtered_actions
+    if review.suggested_experiments_analyses:
+        review.suggested_experiments_analyses = [
+            s for s in review.suggested_experiments_analyses if not _contains_offtopic_terms(str(s), doc)
+        ]
     if review.section_specific_comments:
         filtered = []
         for c in review.section_specific_comments:
             if not c.comment or not str(c.comment).strip():
                 continue
             if _contains_offtopic_terms(str(c.comment), doc):
+                continue
+            section_name = str(getattr(c, "section", "") or "").lower()
+            if any(term in section_name for term in [
+                "nature synthesis",
+                "references",
+                "acknowledg",
+                "author contributions",
+                "author information",
+                "competing interests",
+                "supplementary information",
+                "additional information",
+                "data availability",
+            ]):
                 continue
             filtered.append(c)
         review.section_specific_comments = filtered
@@ -248,7 +388,22 @@ def _filter_hallucinated_review_content(review: ReviewSchema, doc: ParsedDocumen
 def _ensure_section_comments(review: ReviewSchema, doc: ParsedDocument) -> None:
     if review.section_specific_comments:
         return
-    headings = [h for h in doc.headings if h]
+    front_matter_terms = [
+        "nature synthesis",
+        "references",
+        "acknowledg",
+        "author contributions",
+        "author information",
+        "competing interests",
+        "supplementary information",
+        "additional information",
+        "data availability",
+    ]
+    headings = [
+        h
+        for h in doc.headings
+        if h and not any(term in h.lower() for term in front_matter_terms)
+    ]
     for h in headings[:4]:
         review.section_specific_comments.append(
             SectionComment(section=h, comment="Add one concrete evidence statement and one limitation statement tied to this section.", severity="medium")
@@ -270,7 +425,7 @@ def _ensure_generic_sections(review: ReviewSchema, doc: ParsedDocument, support_
         ]
     if not review.figure_table_concerns and "figure" in low_text:
         review.figure_table_concerns = [
-            "Ensure figure captions separate array assay outcomes from isolated yields and clarify what is LLM-generated vs experimentally executed."
+            "Ensure figure captions clearly identify what is shown, including axes, conditions, and how the figure supports nearby claims."
         ]
     if not review.citation_reference_concerns and ("citation" in low_text or "doi" in low_text or "smiles" in low_text):
         if support_docs:
@@ -559,7 +714,7 @@ def _augment_with_text_heuristics(
             ]
         if not review.figure_table_concerns and (low_text.count("figure ") + low_text.count("fig.") >= 3):
             review.figure_table_concerns = [
-                "Ensure figure captions separate array assay outcomes from isolated yields and clarify what is LLM-generated vs experimentally executed.",
+                "Ensure figure captions clearly identify what is shown, including axes, conditions, and how the figure supports nearby claims.",
             ]
         if support_docs and not review.citation_reference_concerns:
             support_names = ", ".join([d.source_path.name for d in support_docs[:4]])
@@ -841,6 +996,19 @@ def run_review(
     _ensure_section_comments(review, doc)
     _ensure_generic_sections(review, doc, support_docs)
 
+    figure_manifest = None
+    if config.figure_review.enabled:
+        try:
+            figure_manifest = run_figure_review(doc, bundle_dir, config.figure_review)
+            critique = figure_manifest.get("critique", {}) if isinstance(figure_manifest, dict) else {}
+            figure_items = critique.get("critique", []) if isinstance(critique, dict) else []
+            for item in figure_items[: config.figure_review.max_figures]:
+                issues = item.get("content_issues", [])
+                for issue in issues[:2]:
+                    review.figure_table_concerns.append(f"{item.get('figure_id')}: {issue}")
+        except Exception as exc:
+            warnings.append(f"figure_review_failed:{exc}")
+
     orchestrator_decisions: list[dict] = []
     orchestrator_retry_log: list[dict] = []
     stage_key = stage_name or profile.key
@@ -993,6 +1161,8 @@ def run_review(
         "ingest_timestamp": doc.ingest_timestamp,
     }
 
+    project_root = _find_project_root(doc.source_path_abs)
+    est_duration, est_basis = _estimate_duration_seconds(project_root, profile.key, model, len(doc.cleaned_text))
     run_metadata = {
         "profile": profile.key,
         "model": model,
@@ -1007,6 +1177,8 @@ def run_review(
         "repair_model": parse.used_repair_model,
         "parse_failure_types": [ft.value for ft in parse.failure_types],
         "duration_seconds": elapsed,
+        "estimated_duration_seconds": est_duration,
+        "estimate_basis": est_basis,
         "warnings_count": len(warnings),
         "guidance_injected": bool(guidance_text),
         "guidance_categories": guidance_categories or [],

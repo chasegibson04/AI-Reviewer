@@ -19,6 +19,7 @@ from ai_reviewer.benchmarks.runner import benchmark_models, write_benchmark_repo
 from ai_reviewer.config import load_config, write_example_local_config
 from ai_reviewer.ingest.loaders import parse_file, parse_path_with_failures
 from ai_reviewer.logging_utils import create_child_bundle, create_run_dir, configure_logging, write_run_metadata
+from ai_reviewer.ops.locks import LockError, acquire_project_lock, release_project_lock
 from ai_reviewer.models.base import ChatRequest, ProviderError
 from ai_reviewer.models.diagnostics import run_diagnostics
 from ai_reviewer.models.ollama_provider import OllamaProvider
@@ -440,6 +441,26 @@ def review(
                 "`--material-ids` for a non-manuscript target."
             )
         _exit("No parseable docs")
+    lock_info = None
+    if project_id and cfg.concurrency.enable_project_locks:
+        pdir, _ = _store().get_project(project_id)
+        try:
+            lock_info = acquire_project_lock(
+                project_root=pdir,
+                run_id=run_dir.name,
+                allow_same_project=cfg.concurrency.allow_same_project_concurrency,
+                ttl_seconds=cfg.concurrency.lock_ttl_seconds,
+            )
+            (run_dir / "artifacts" / "lock_info.json").write_text(
+                json.dumps(
+                    {"lock_path": str(lock_info.path), "acquired": lock_info.acquired, "metadata": lock_info.metadata},
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except LockError as exc:
+            _exit(str(exc))
+
     guidance_text, guidance_categories = _training_injection(cfg, logger, prof.key, disable_training_guidance)
     orchestrator = _build_orchestrator(cfg, provider, logger)
 
@@ -454,71 +475,78 @@ def review(
     )
     status = {"line": "Starting review pipeline..."}
     main_task_desc = "Reviewing documents"
-    with Live(console=console, auto_refresh=True, refresh_per_second=8) as live:
-        progress.start()
-        task_id = progress.add_task(main_task_desc, total=len(docs))
-        for idx, doc in enumerate(docs, start=1):
-            status["line"] = f"[{idx}/{len(docs)}] Preparing {doc.source_path.name}"
-            live.update(Group(Panel(status["line"], title="Status"), progress))
-            try:
-                bundle = create_child_bundle(run_dir, doc.source_path.stem, idx)
+    try:
+        with Live(console=console, auto_refresh=True, refresh_per_second=8) as live:
+            progress.start()
+            task_id = progress.add_task(main_task_desc, total=len(docs))
+            for idx, doc in enumerate(docs, start=1):
+                status["line"] = f"[{idx}/{len(docs)}] Preparing {doc.source_path.name}"
+                live.update(Group(Panel(status["line"], title="Status"), progress))
+                try:
+                    bundle = create_child_bundle(run_dir, doc.source_path.stem, idx)
 
-                def _status_hook(step: str):
-                    status["line"] = f"[{idx}/{len(docs)}] {doc.source_path.name}: {step}"
+                    def _status_hook(step: str):
+                        status["line"] = f"[{idx}/{len(docs)}] {doc.source_path.name}: {step}"
+                        live.update(Group(Panel(status["line"], title="Status"), progress))
+
+                    review_result = run_review(
+                        provider=provider,
+                        doc=doc,
+                        profile=prof,
+                        model=selected_model,
+                        repair_models=roles.repair_candidates,
+                        config=cfg,
+                        bundle_dir=bundle,
+                        embedding_model=selected_embed,
+                        strict_schema_override=strict_schema,
+                        logger=logger,
+                        guidance_text=guidance_text,
+                        guidance_categories=guidance_categories,
+                        status_hook=_status_hook,
+                        supporting_docs=supporting_docs,
+                        orchestrator=orchestrator,
+                    )
+                    annotation = build_annotated_manuscript_output(
+                        source_path=doc.source_path_abs,
+                        doc=doc,
+                        review=review_result.review,
+                        output_dir=bundle,
+                        project_id=project_id,
+                    )
+                    (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")
+                    if isinstance(annotation.get("section_map"), list):
+                        (bundle / "section_map.json").write_text(
+                            json.dumps(annotation.get("section_map"), indent=2),
+                            encoding="utf-8",
+                        )
+                    source_mode_payload = annotation.get("source_mode_artifact", {})
+                    if isinstance(source_mode_payload, dict):
+                        source_mode_payload["project_id"] = project_id
+                        (bundle / "source_mode.json").write_text(json.dumps(source_mode_payload, indent=2), encoding="utf-8")
+                    validation_payload = annotation.get("validation", {})
+                    if isinstance(validation_payload, dict):
+                        (bundle / "commented_docx_validation.json").write_text(
+                            json.dumps(validation_payload, indent=2),
+                            encoding="utf-8",
+                        )
+                    results.append({"source": str(doc.source_path), "bundle": str(bundle), "warnings": len(review_result.warnings)})
+                except Exception as exc:
+                    failures.append({"source": str(doc.source_path), "error": str(exc)})
+                    logger.exception("review failed for %s", doc.source_path)
+                    status["line"] = f"[{idx}/{len(docs)}] FAILED {doc.source_path.name}: {exc}"
                     live.update(Group(Panel(status["line"], title="Status"), progress))
-
-                review_result = run_review(
-                    provider=provider,
-                    doc=doc,
-                    profile=prof,
-                    model=selected_model,
-                    repair_models=roles.repair_candidates,
-                    config=cfg,
-                    bundle_dir=bundle,
-                    embedding_model=selected_embed,
-                    strict_schema_override=strict_schema,
-                    logger=logger,
-                    guidance_text=guidance_text,
-                    guidance_categories=guidance_categories,
-                    status_hook=_status_hook,
-                    supporting_docs=supporting_docs,
-                    orchestrator=orchestrator,
-                )
-                annotation = build_annotated_manuscript_output(
-                    source_path=doc.source_path_abs,
-                    doc=doc,
-                    review=review_result.review,
-                    output_dir=bundle,
-                    project_id=project_id,
-                )
-                (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")
-                if isinstance(annotation.get("section_map"), list):
-                    (bundle / "section_map.json").write_text(
-                        json.dumps(annotation.get("section_map"), indent=2),
-                        encoding="utf-8",
-                    )
-                source_mode_payload = annotation.get("source_mode_artifact", {})
-                if isinstance(source_mode_payload, dict):
-                    source_mode_payload["project_id"] = project_id
-                    (bundle / "source_mode.json").write_text(json.dumps(source_mode_payload, indent=2), encoding="utf-8")
-                validation_payload = annotation.get("validation", {})
-                if isinstance(validation_payload, dict):
-                    (bundle / "commented_docx_validation.json").write_text(
-                        json.dumps(validation_payload, indent=2),
-                        encoding="utf-8",
-                    )
-                results.append({"source": str(doc.source_path), "bundle": str(bundle), "warnings": len(review_result.warnings)})
-            except Exception as exc:
-                failures.append({"source": str(doc.source_path), "error": str(exc)})
-                logger.exception("review failed for %s", doc.source_path)
-                status["line"] = f"[{idx}/{len(docs)}] FAILED {doc.source_path.name}: {exc}"
-                live.update(Group(Panel(status["line"], title="Status"), progress))
-                if not continue_on_error:
-                    break
-            finally:
-                progress.advance(task_id, 1)
-                live.update(Group(Panel(status["line"], title="Status"), progress))
-        progress.stop()
+                    if not continue_on_error:
+                        break
+                finally:
+                    progress.advance(task_id, 1)
+                    live.update(Group(Panel(status["line"], title="Status"), progress))
+            progress.stop()
+    finally:
+        if lock_info:
+            try:
+                release_project_lock(lock_info)
+            except LockError:
+                logger.warning("lock_release_failed run_id=%s lock=%s", run_dir.name, lock_info.path)
 
     summary = {
         "command": "review",
@@ -754,6 +782,25 @@ def deep_run_cmd(
     selected_embed = embedding_model or roles.embedding_model
     if selected_embed not in emb:
         selected_embed = None
+    lock_info = None
+    if cfg.concurrency.enable_project_locks:
+        pdir, _ = _store().get_project(project)
+        try:
+            lock_info = acquire_project_lock(
+                project_root=pdir,
+                run_id=run_dir.name,
+                allow_same_project=cfg.concurrency.allow_same_project_concurrency,
+                ttl_seconds=cfg.concurrency.lock_ttl_seconds,
+            )
+            (run_dir / "artifacts" / "lock_info.json").write_text(
+                json.dumps(
+                    {"lock_path": str(lock_info.path), "acquired": lock_info.acquired, "metadata": lock_info.metadata},
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except LockError as exc:
+            _exit(str(exc))
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)
@@ -774,6 +821,12 @@ def deep_run_cmd(
     except Exception as exc:
         logger.exception("deep_run_failed")
         _exit(f"Deep run failed: {exc}")
+    finally:
+        if lock_info:
+            try:
+                release_project_lock(lock_info)
+            except LockError:
+                logger.warning("lock_release_failed run_id=%s lock=%s", run_dir.name, lock_info.path)
 
     verification = verify_deep_run(run_dir)
     status = result.status if verification.ok else "failed"

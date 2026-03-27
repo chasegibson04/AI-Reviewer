@@ -725,7 +725,7 @@ def run_deep_run(
         if "prompt" in text or "chatgpt" in text:
             weaknesses.append("Human-in-the-loop corrections and prompt iteration are not consistently quantified or separated from model output.")
         if "figure" in text:
-            weaknesses.append("Figure captions should clearly separate array assay outcomes from isolated yields and clarify what is LLM-generated vs executed.")
+            weaknesses.append("Figure captions should clearly identify axes, conditions, and how each panel supports nearby claims.")
         strengths = _filter(strengths)
         weaknesses = _filter(weaknesses)
         priority_actions = [f"Address: {w}" for w in weaknesses[:8] if w.strip()]

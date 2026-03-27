@@ -79,6 +79,25 @@ class OrchestratorConfig:
 
 
 @dataclass
+class ConcurrencyConfig:
+    enable_project_locks: bool = True
+    allow_same_project_concurrency: bool = False
+    lock_ttl_seconds: int = 4 * 3600
+
+
+@dataclass
+class FigureReviewConfig:
+    enabled: bool = False
+    model: str = "qwen2.5-vl:7b"
+    max_figures: int = 6
+    include_captions: bool = True
+    include_nearby_text: bool = True
+    fail_open: bool = True
+    min_confidence: float = 0.3
+    style_checks_enabled: bool = True
+
+
+@dataclass
 class Defaults:
     balanced_review_model: str = "gemma3:27b"
     deep_review_model: str = "llama3.3:70b-instruct-q4_K_M"
@@ -105,6 +124,8 @@ class ReviewerConfig:
     compare: CompareConfig = field(default_factory=CompareConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     orchestrator: OrchestratorConfig = field(default_factory=OrchestratorConfig)
+    concurrency: ConcurrencyConfig = field(default_factory=ConcurrencyConfig)
+    figure_review: FigureReviewConfig = field(default_factory=FigureReviewConfig)
 
 
 DEFAULT_CONFIG = ReviewerConfig()
@@ -135,6 +156,8 @@ def _from_dict(raw: dict[str, Any]) -> ReviewerConfig:
         compare=CompareConfig(**merged.get("compare", {})),
         training=TrainingConfig(**merged.get("training", {})),
         orchestrator=OrchestratorConfig(**merged.get("orchestrator", {})),
+        concurrency=ConcurrencyConfig(**merged.get("concurrency", {})),
+        figure_review=FigureReviewConfig(**merged.get("figure_review", {})),
     )
 
 
@@ -187,6 +210,17 @@ def _env_overrides() -> dict[str, Any]:
         ("AI_REVIEWER_ORCHESTRATOR_ENABLE_DEEPRUN_QA", ("orchestrator", "enable_deeprun_qa"), _parse_bool),
         ("AI_REVIEWER_ORCHESTRATOR_LOG_DECISIONS", ("orchestrator", "log_decisions"), _parse_bool),
         ("AI_REVIEWER_ORCHESTRATOR_FAIL_OPEN", ("orchestrator", "fail_open"), _parse_bool),
+        ("AI_REVIEWER_LOCKS_ENABLED", ("concurrency", "enable_project_locks"), _parse_bool),
+        ("AI_REVIEWER_ALLOW_SAME_PROJECT_CONCURRENCY", ("concurrency", "allow_same_project_concurrency"), _parse_bool),
+        ("AI_REVIEWER_LOCK_TTL_SECONDS", ("concurrency", "lock_ttl_seconds"), int),
+        ("AI_REVIEWER_FIGURE_REVIEW_ENABLED", ("figure_review", "enabled"), _parse_bool),
+        ("AI_REVIEWER_FIGURE_REVIEW_MODEL", ("figure_review", "model"), str),
+        ("AI_REVIEWER_FIGURE_REVIEW_MAX_FIGURES", ("figure_review", "max_figures"), int),
+        ("AI_REVIEWER_FIGURE_REVIEW_INCLUDE_CAPTIONS", ("figure_review", "include_captions"), _parse_bool),
+        ("AI_REVIEWER_FIGURE_REVIEW_INCLUDE_NEARBY_TEXT", ("figure_review", "include_nearby_text"), _parse_bool),
+        ("AI_REVIEWER_FIGURE_REVIEW_FAIL_OPEN", ("figure_review", "fail_open"), _parse_bool),
+        ("AI_REVIEWER_FIGURE_REVIEW_MIN_CONFIDENCE", ("figure_review", "min_confidence"), float),
+        ("AI_REVIEWER_FIGURE_STYLE_CHECKS_ENABLED", ("figure_review", "style_checks_enabled"), _parse_bool),
     ]
 
     out: dict[str, Any] = {}

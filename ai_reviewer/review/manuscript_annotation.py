@@ -34,6 +34,8 @@ def review_to_comment_entries(
         critique = str(sec.comment).strip()
         if not critique:
             continue
+        if "add one concrete evidence statement" in critique.lower():
+            continue
         entries.append(
             {
                 "paragraph_index": idx,
@@ -155,6 +157,8 @@ def review_to_comment_entries(
             if not text or len(text.split()) < 18:
                 continue
             low = text.lower()
+            if re.match(r"^abstract\b", low) or low.startswith("abstract:"):
+                continue
             if re.fullmatch(r"\d{3,5}", text.strip()):
                 continue
             if _is_placeholder_paragraph(low):
@@ -322,6 +326,10 @@ def _is_front_or_back_matter_text(text: str) -> bool:
     t = text.lower().strip()
     if not t:
         return True
+    if re.match(r"^\d+\s*[a-z].*\b(university|department|inc\.|corp\.|usa|uk|germany|france|switzerland)\b", t):
+        return True
+    if "present address" in t:
+        return True
     blocked = [
         "cite this",
         "associated content",
@@ -335,11 +343,20 @@ def _is_front_or_back_matter_text(text: str) -> bool:
         "received",
         "accepted",
         "published",
+        "check for updates",
+        "nature synthesis",
         "doi.org",
         "acs",
         "keywords",
         "corresponding author",
         "notes",
+        "american chemical society",
+        "org. process res. dev",
+        "organic process research",
+        "pubs.acs.org",
+        "article",
+        "copyright",
+        "©",
     ]
     return any(b in t for b in blocked)
 
@@ -349,6 +366,8 @@ def _is_placeholder_paragraph(text: str) -> bool:
     if "==> picture" in t or "intentionally omitted" in t:
         return True
     if "picture" in t and "omitted" in t:
+        return True
+    if "start of picture text" in t or "end of picture text" in t:
         return True
     if t.startswith("figure ") and "intentionally omitted" in t:
         return True
@@ -374,7 +393,18 @@ def _is_header_footer_text(text: str) -> bool:
     t = text.strip().lower()
     if not t:
         return False
-    if re.fullmatch(r"\d{3,5}", t):
+    digits = re.sub(r"[^0-9]", "", t)
+    if digits and 3 <= len(digits) <= 5 and len(t) <= len(digits) + 4:
+        return True
+    if "nature synthesis" in t:
+        return True
+    if "volume" in t and ("issue" in t or "november" in t or re.search(r"\b20\d{2}\b", t)):
+        return True
+    if "check for updates" in t:
+        return True
+    if re.search(r"\bvolume\s*\d+\b", t) and re.search(r"\b\d{4}\b", t):
+        return True
+    if re.search(r"\bvolume\s*\d+\b", t) and "|" in t:
         return True
     header_terms = [
         "pubs.acs.org",
@@ -382,6 +412,7 @@ def _is_header_footer_text(text: str) -> bool:
         "organic process research",
         "https://doi.org/10.1021",
         "doi.org/10.1021",
+        "doi.org/10.1038",
         "article",
     ]
     if any(term in t for term in header_terms) and len(t.split()) <= 6:
@@ -390,7 +421,8 @@ def _is_header_footer_text(text: str) -> bool:
 
 
 def _is_front_or_back_matter_heading(text: str) -> bool:
-    t = text.strip().lower()
+    t = re.sub(r"[^a-zA-Z ]", " ", text).lower()
+    t = re.sub(r"\s+", " ", t).strip()
     if not t:
         return False
     return bool(
@@ -444,6 +476,7 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
         and not _is_placeholder_paragraph(paragraphs[idx])
         and not _is_heading_paragraph(paragraphs[idx])
         and not _is_header_footer_text(paragraphs[idx])
+        and not _is_front_or_back_matter_text(paragraphs[idx])
     ]
     if not eligible:
         eligible = non_empty
@@ -453,8 +486,12 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
         if entry.get("locked_paragraph") and isinstance(entry.get("paragraph_index"), int):
             pidx = int(entry["paragraph_index"])
             if 0 <= pidx < len(paragraphs) and section_by_idx.get(pidx) not in {"front_matter", "references"}:
+                section = section_by_idx.get(pidx, "body")
+                issue_type = str(entry.get("issue_type", "")).lower()
+                if section == "abstract" and not entry.get("allow_abstract", False) and issue_type in {"grammar/style", "clarity", "redundancy"}:
+                    continue
                 entry["paragraph_excerpt"] = paragraphs[pidx][:180]
-                entry["section_hint"] = section_by_idx.get(pidx, "body")
+                entry["section_hint"] = section
                 used[pidx] = used.get(pidx, 0) + 1
                 continue
         critique = str(entry.get("critique", "")).lower()

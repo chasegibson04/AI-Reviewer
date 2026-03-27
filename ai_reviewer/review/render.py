@@ -17,7 +17,12 @@ def _format_duration_seconds(value: float | None) -> str | None:
     return f"{v:.3f}s"
 
 
-def render_markdown(review: ReviewSchema, source_metadata: dict | None = None, warnings: list[str] | None = None) -> str:
+def render_markdown(
+    review: ReviewSchema,
+    source_metadata: dict | None = None,
+    warnings: list[str] | None = None,
+    run_metadata: dict | None = None,
+) -> str:
     rec = review.recommendation
     debug = review.model_debug_metadata
 
@@ -95,6 +100,16 @@ def render_markdown(review: ReviewSchema, source_metadata: dict | None = None, w
     dur = _format_duration_seconds(debug.total_duration)
     if dur is not None:
         lines.append(f"- Total Duration: {dur}")
+    if run_metadata and run_metadata.get("estimated_duration_seconds") is not None:
+        est = _format_duration_seconds(run_metadata.get("estimated_duration_seconds"))
+        basis = run_metadata.get("estimate_basis", {})
+        basis_count = basis.get("count")
+        if basis.get("scaled_by_chars_seconds") is not None:
+            basis_note = f" (size-adjusted median from {basis_count} prior runs)" if basis_count else ""
+        else:
+            basis_note = f" (median of {basis_count} prior runs)" if basis_count else ""
+        if est is not None:
+            lines.append(f"- Estimated Duration: {est}{basis_note}")
     if debug.prompt_eval_count is not None:
         lines.append(f"- Prompt Eval Count: {debug.prompt_eval_count}")
     if debug.eval_count is not None:
@@ -111,8 +126,17 @@ def render_markdown(review: ReviewSchema, source_metadata: dict | None = None, w
     return "\n".join(lines).strip() + "\n"
 
 
-def render_text(review: ReviewSchema, source_metadata: dict | None = None, warnings: list[str] | None = None) -> str:
-    return render_markdown(review, source_metadata=source_metadata, warnings=warnings).replace("# ", "").replace("## ", "")
+def render_text(
+    review: ReviewSchema,
+    source_metadata: dict | None = None,
+    warnings: list[str] | None = None,
+    run_metadata: dict | None = None,
+) -> str:
+    return (
+        render_markdown(review, source_metadata=source_metadata, warnings=warnings, run_metadata=run_metadata)
+        .replace("# ", "")
+        .replace("## ", "")
+    )
 
 
 def write_review_bundle(
@@ -137,8 +161,8 @@ def write_review_bundle(
 
     source_metadata = source_metadata or {}
     run_metadata = run_metadata or {}
-    markdown = render_markdown(review, source_metadata=source_metadata, warnings=warnings)
-    plain_text = render_text(review, source_metadata=source_metadata, warnings=warnings)
+    markdown = render_markdown(review, source_metadata=source_metadata, warnings=warnings, run_metadata=run_metadata)
+    plain_text = render_text(review, source_metadata=source_metadata, warnings=warnings, run_metadata=run_metadata)
 
     (reports_dir / "review_report.md").write_text(markdown, encoding="utf-8")
     (reports_dir / "review_report.txt").write_text(plain_text, encoding="utf-8")
