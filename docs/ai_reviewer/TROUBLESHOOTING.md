@@ -22,6 +22,7 @@ Actions:
    - `ollama pull gemma3:27b`
    - `ollama pull llama3.3:70b-instruct-q4_K_M`
    - `ollama pull mxbai-embed-large:latest`
+   - Apple Silicon options (if installed): `qwen3:14b`, `qwen3:32b`, `qwen3-vl:8b`, `qwen2.5vl:7b`
 
 ## 3) Structured Output Failures
 
@@ -70,10 +71,11 @@ Actions:
 
 Actions:
 1. Check launcher log in `outputs/launcher_logs/`
-2. Run `python -m ai_reviewer.launcher_checks`
+2. The launcher now prints a tail of the log on failure
+2. If using `.venv`, run `.venv/bin/python -m ai_reviewer.launcher_checks`
 3. Run CLI directly:
-   - `python -m ai_reviewer diagnose`
-   - `python -m ai_reviewer launch`
+   - `.venv/bin/python -m ai_reviewer diagnose`
+   - `.venv/bin/python -m ai_reviewer launch`
 
 ## 8) Run Says Complete But You Cannot Find Files
 

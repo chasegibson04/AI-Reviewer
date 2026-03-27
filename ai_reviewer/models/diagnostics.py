@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-import platform
+from ai_reviewer.platform import detect_platform
 import shutil
 import sys
 from dataclasses import dataclass
@@ -50,8 +50,14 @@ def run_diagnostics(provider: Provider, config: ReviewerConfig, output_root: Pat
     venv_active = bool(os.getenv("VIRTUAL_ENV"))
     items.append(DiagnosticItem("venv", "checked" if venv_active else "warning", f"active={venv_active}"))
 
-    os_name = platform.system()
-    items.append(DiagnosticItem("platform", "checked", f"detected={os_name}"))
+    platform_info = detect_platform()
+    items.append(
+        DiagnosticItem(
+            "platform",
+            "checked",
+            f"os={platform_info.os_name} arch={platform_info.arch} mac_arm={platform_info.is_mac_arm}",
+        )
+    )
 
     dep_checks = {
         "typer": "typer",
@@ -85,6 +91,17 @@ def run_diagnostics(provider: Provider, config: ReviewerConfig, output_root: Pat
 
         items.append(DiagnosticItem("chat_models", "checked" if chat else "error", ", ".join(chat[:10]) or "none"))
         items.append(DiagnosticItem("embedding_models", "checked" if embed else "warning", ", ".join(embed[:10]) or "none"))
+        if platform_info.is_mac_arm:
+            mac_candidates = ["qwen3:14b", "gemma3:27b", "qwen3:32b", "qwen3-vl:8b", "qwen2.5vl:7b"]
+            present = [m for m in mac_candidates if m in installed]
+            status = "checked" if present else "warning"
+            items.append(
+                DiagnosticItem(
+                    "apple_silicon_models",
+                    status,
+                    f"present={present}" if present else "none detected",
+                )
+            )
 
         balanced_ok = roles.balanced_model in installed
         deep_ok = roles.deep_model in installed

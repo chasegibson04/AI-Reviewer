@@ -191,7 +191,8 @@ def _model_table(installed: list[str], cfg):
             rec.append("repair")
         if model == "gemma2:27b":
             rec.append("legacy")
-        table.add_row(model, "chat", cap.size_hint, ", ".join(rec))
+        model_type = "multimodal" if cap.kind == "multimodal" else "chat"
+        table.add_row(model, model_type, cap.size_hint, ", ".join(rec))
     for model in emb:
         cap = model_capability(model)
         rec = "default" if model == roles.embedding_model else ("fallback" if model == roles.embedding_fallback else "")

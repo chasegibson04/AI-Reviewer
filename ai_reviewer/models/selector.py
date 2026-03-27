@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ai_reviewer.config import ReviewerConfig
+from ai_reviewer.platform import detect_platform
 
 
 @dataclass
@@ -23,6 +24,7 @@ class ModelCapability:
 
 
 def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSelection:
+    platform_info = detect_platform()
     wanted_balanced = config.defaults.balanced_review_model
     wanted_deep = config.defaults.deep_review_model
     wanted_embed = config.defaults.embedding_model
@@ -32,17 +34,38 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
         wanted_balanced,
         "mistral-small3.2:latest",
         "gemma3:27b",
+        "qwen3:14b",
         "gemma3:12b",
         "phi4-reasoning:latest",
         "phi4-mini:latest",
     ]
     deep_priority = [
         wanted_deep,
+        "qwen3:32b",
         "phi4-reasoning:latest",
         "llama3.3:70b-instruct-q4_K_M",
         "mistral-small3.2:latest",
         "gemma3:27b",
+        "qwen3:14b",
     ]
+    if platform_info.is_mac_arm:
+        balanced_priority = [
+            wanted_balanced,
+            "qwen3:14b",
+            "gemma3:27b",
+            "mistral-small3.2:latest",
+            "gemma3:12b",
+            "phi4-reasoning:latest",
+            "phi4-mini:latest",
+        ]
+        deep_priority = [
+            wanted_deep,
+            "qwen3:32b",
+            "qwen3:14b",
+            "llama3.3:70b-instruct-q4_K_M",
+            "mistral-small3.2:latest",
+            "gemma3:27b",
+        ]
 
     def pick(candidates: list[str], fallback: str) -> str:
         for c in candidates:
@@ -71,20 +94,37 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
     )
 
 
+def is_embedding_model(model_name: str) -> bool:
+    lowered = model_name.lower()
+    embedding_markers = ["embed", "embedding", "bge-m3", "mxbai", "nomic-embed"]
+    return any(marker in lowered for marker in embedding_markers)
+
+
+def is_multimodal_model(model_name: str) -> bool:
+    lowered = model_name.lower()
+    return "vl" in lowered or "vision" in lowered
+
+
 def split_chat_and_embedding_models(installed: list[str]) -> tuple[list[str], list[str]]:
-    embedding_markers = ["embed", "embedding", "bge-m3"]
-    embedding = [m for m in installed if any(marker in m.lower() for marker in embedding_markers)]
+    embedding = [m for m in installed if is_embedding_model(m)]
     chat = [m for m in installed if m not in embedding]
     return sorted(chat), sorted(embedding)
 
 
 def model_capability(model_name: str) -> ModelCapability:
     lowered = model_name.lower()
-    kind = "embedding" if "embed" in lowered or "embedding" in lowered or "bge-m3" in lowered else "chat"
+    if is_embedding_model(model_name):
+        kind = "embedding"
+    elif is_multimodal_model(model_name):
+        kind = "multimodal"
+    else:
+        kind = "chat"
 
     if "70b" in lowered:
         size = "large"
-    elif "27b" in lowered or "24b" in lowered or "small3.2" in lowered or "phi4-reasoning" in lowered:
+    elif "32b" in lowered:
+        size = "large"
+    elif "27b" in lowered or "24b" in lowered or "14b" in lowered or "small3.2" in lowered or "phi4-reasoning" in lowered:
         size = "medium"
     elif "12b" in lowered or "8b" in lowered or "7b" in lowered or "4b" in lowered or "mini" in lowered:
         size = "small"
@@ -92,8 +132,10 @@ def model_capability(model_name: str) -> ModelCapability:
         size = "unknown"
 
     role = "general"
-    if "bge-m3" in lowered or "mxbai" in lowered or "nomic-embed" in lowered or "qwen3-embedding" in lowered:
+    if is_embedding_model(model_name) or "qwen3-embedding" in lowered:
         role = "embedding"
+    elif is_multimodal_model(model_name):
+        role = "vision"
     elif "qwen2.5:7b" in lowered or "mistral-small3.1" in lowered or "mistral-small3.2" in lowered:
         role = "repair_candidate"
     elif "phi4-reasoning" in lowered:

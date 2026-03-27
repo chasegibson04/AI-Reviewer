@@ -15,6 +15,7 @@ from ai_reviewer.models.base import (
     ProviderError,
     ProviderErrorCode,
 )
+from ai_reviewer.models.selector import is_embedding_model
 
 DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
 
@@ -128,6 +129,11 @@ class OllamaProvider(Provider):
         return content
 
     def chat(self, request: ChatRequest) -> ChatResponse:
+        if is_embedding_model(request.model):
+            raise ProviderError(
+                f"Embedding-only model cannot be used for chat: {request.model}",
+                code=ProviderErrorCode.UNSUPPORTED,
+            )
         body = {
             "model": request.model,
             "messages": [

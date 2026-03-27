@@ -15,7 +15,7 @@ from ai_reviewer.ingest.loaders import parse_file
 from ai_reviewer.ingest.types import ParsedDocument
 from ai_reviewer.models.base import ChatRequest, Provider
 from ai_reviewer.orchestrator.controller import OrchestratorController, OrchestratorRuntimeState
-from ai_reviewer.models.selector import infer_model_roles
+from ai_reviewer.models.selector import infer_model_roles, split_chat_and_embedding_models
 from ai_reviewer.projects.store import ProjectStore
 from ai_reviewer.review.engine import run_review
 from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_output, detect_source_mode
@@ -207,7 +207,10 @@ def run_deep_run(
         raise DeepRunError(f"Target manuscript file missing: {target_path}")
 
     installed = provider.list_models()
-    chat_models = [m for m in installed if "embed" not in m.lower()]
+    chat_models, embed_models = split_chat_and_embedding_models(installed)
+    if embedding_model and embedding_model not in embed_models:
+        warnings.append(f"Embedding model {embedding_model} not available as embedding; disabling embeddings for deep run.")
+        embedding_model = None
     model_stack = _select_stage_models(chat_models, cfg)
     _write_json(run_dir / "deep_run_plan.json", {"project_id": project_id, "model_stack": model_stack})
     registry = ToolRegistry(cfg)

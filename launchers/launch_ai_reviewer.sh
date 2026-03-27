@@ -18,6 +18,12 @@ log() {
   printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" >> "$LOG_PATH"
 }
 
+tail_log() {
+  log "---- Launcher log tail ----"
+  tail -n 60 "$LOG_PATH" || true
+  log "---- End log tail ----"
+}
+
 augment_path_for_macos() {
   if [ "$(uname -s)" = "Darwin" ]; then
     export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -78,11 +84,12 @@ fi
 
 log "Verifying dependencies"
 if ! "$PYTHON_EXE" -m pip install --upgrade pip >> "$LOG_PATH" 2>&1; then
-  log "ERROR: pip upgrade failed. See $LOG_PATH"
-  exit 1
+  log "WARNING: pip upgrade failed. Continuing. See $LOG_PATH"
+  tail_log
 fi
 if ! "$PYTHON_EXE" -m pip install -e ".[dev]" >> "$LOG_PATH" 2>&1; then
   log "ERROR: dependency install failed. See $LOG_PATH"
+  tail_log
   exit 1
 fi
 
@@ -101,11 +108,17 @@ if ! test_ollama; then
 fi
 
 log "Running launcher self-check"
-"$PYTHON_EXE" -m ai_reviewer.launcher_checks >/dev/null 2>&1 || true
+if ! "$PYTHON_EXE" -m ai_reviewer.launcher_checks >> "$LOG_PATH" 2>&1; then
+  log "WARNING: launcher self-check reported issues. See $LOG_PATH"
+  tail_log
+fi
 
 log "Launching guided AI-Reviewer workflow"
 "$PYTHON_EXE" -m ai_reviewer launch
 RC=$?
 log "AI-Reviewer exited with code $RC"
 log "Launcher log: $LOG_PATH"
+if [ "$RC" -ne 0 ]; then
+  tail_log
+fi
 exit "$RC"
