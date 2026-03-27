@@ -1,14 +1,13 @@
-# LLM APIs
+# Legacy AI-Scientist deps
 anthropic
 aider-chat
 backoff
 openai
 google-generativeai
-# Viz
 matplotlib
 pypdf
+pymupdf
 pymupdf4llm
-# Common Requirements
 torch
 numpy
 transformers
@@ -16,3 +15,20 @@ datasets
 tiktoken
 wandb
 tqdm
+
+# AI-Reviewer local-first CLI deps
+typer
+rich
+requests
+pydantic
+PyYAML
+python-docx
+docx2python
+mammoth
+bibtexparser
+habanero
+pyalex
+
+# Test deps
+pytest
+pytest-mock

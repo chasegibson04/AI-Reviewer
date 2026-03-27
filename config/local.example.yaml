@@ -1,0 +1,48 @@
+# Copy to config/local.yaml and edit values for your machine.
+defaults:
+  balanced_review_model: mistral-small3.2:latest
+  deep_review_model: phi4-reasoning:latest
+  embedding_model: bge-m3:latest
+  repair_models:
+    - qwen2.5:7b-instruct
+    - mistral-small3.2:latest
+  output_root: outputs
+  strict_offline: true
+  keep_raw_outputs: true
+  strict_schema: true
+  logging_level: INFO
+  ollama_base_url: http://127.0.0.1:11434
+
+timeouts:
+  chat_seconds: 240
+  embed_seconds: 120
+
+retries:
+  chat_attempts: 3
+  embed_attempts: 2
+
+retrieval:
+  enabled: true
+  top_k: 6
+
+training:
+  enabled: true
+  source_root: training_materials
+  cache_root: data/training_cache
+  auto_sync_on_start: true
+  inject_by_default: true
+  max_injection_chars: 2200
+
+orchestrator:
+  enabled: false
+  model: qwen3:8b
+  max_stage_retries: 1
+  max_total_retries: 3
+  temperature: 0.0
+  require_json: true
+  allow_stage_rerank: true
+  enable_final_synthesis_review: true
+  enable_writing_qa: true
+  enable_deeprun_qa: true
+  log_decisions: true
+  fail_open: true

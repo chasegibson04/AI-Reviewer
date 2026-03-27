@@ -172,3 +172,12 @@ ICLR2022-OpenReviewData/
 templates/*/run_0/
 templates/*/*.png
 results/*
+config/local.yaml
+config/local.override.yaml
+outputs/
+projects/
+.venv/
+.pytest_cache/
+training_materials/
+temp_new.md
+temp_old.md

@@ -1,0 +1,13 @@
+orchestrator:
+  enabled: true
+  model: qwen3:8b
+  max_stage_retries: 1
+  max_total_retries: 3
+  temperature: 0.0
+  require_json: true
+  allow_stage_rerank: true
+  enable_final_synthesis_review: true
+  enable_writing_qa: true
+  enable_deeprun_qa: true
+  log_decisions: true
+  fail_open: true

@@ -1,0 +1,11 @@
+defaults:
+  balanced_review_model: gemma3:12b
+  deep_review_model: gemma3:27b
+  repair_models:
+    - mistral-small3.1:24b
+    - qwen2.5:7b-instruct
+timeouts:
+  chat_seconds: 360
+training:
+  enabled: true
+  auto_sync_on_start: true

@@ -1,0 +1,67 @@
+defaults:
+  balanced_review_model: mistral-small3.2:latest
+  deep_review_model: phi4-reasoning:latest
+  embedding_model: bge-m3:latest
+  embedding_fallback_model: nomic-embed-text-v2-moe:latest
+  repair_models:
+    - qwen2.5:7b-instruct
+    - mistral-small3.2:latest
+  default_profile: balanced
+  output_root: outputs
+  strict_offline: true
+  keep_raw_outputs: true
+  strict_schema: true
+  logging_level: INFO
+  ollama_base_url: http://127.0.0.1:11434
+
+timeouts:
+  connect_seconds: 10
+  chat_seconds: 240
+  embed_seconds: 120
+  health_seconds: 5
+
+retries:
+  chat_attempts: 3
+  embed_attempts: 2
+  base_backoff_seconds: 1.0
+
+chunking:
+  max_chars: 2600
+  overlap_chars: 260
+
+retrieval:
+  enabled: true
+  top_k: 6
+  max_chunk_embed_chars: 6000
+
+compare:
+  max_old_chars: 20000
+  max_new_chars: 20000
+
+benchmark:
+  short_fixture: tests/fixtures/sample_short.md
+  long_fixture: tests/fixtures/sample_long.md
+  malformed_fixture: tests/fixtures/malformed_response.txt
+  max_models: 4
+
+training:
+  enabled: true
+  source_root: training_materials
+  cache_root: data/training_cache
+  auto_sync_on_start: true
+  inject_by_default: true
+  max_injection_chars: 2200
+
+orchestrator:
+  enabled: false
+  model: qwen3:8b
+  max_stage_retries: 1
+  max_total_retries: 3
+  temperature: 0.0
+  require_json: true
+  allow_stage_rerank: true
+  enable_final_synthesis_review: true
+  enable_writing_qa: true
+  enable_deeprun_qa: true
+  log_decisions: true
+  fail_open: true
