@@ -47,6 +47,8 @@ def verify_review_run(run_dir: Path) -> VerificationResult:
         _require_non_empty(first / "manuscript_comment_manifest.json", issues, "manuscript_comment_manifest.json")
         _require_non_empty(first / "source_mode.json", issues, "source_mode.json")
         _require_non_empty(first / "commented_docx_validation.json", issues, "commented_docx_validation.json")
+        _require_non_empty(first / "manuscript_suggested_changes_manifest.json", issues, "manuscript_suggested_changes_manifest.json")
+        _require_non_empty(first / "suggested_changes_validation.json", issues, "suggested_changes_validation.json")
         annotated_candidates = [
             first / "reviewed_manuscript_with_comments.docx",
             first / "surrogate_manuscript_from_pdf_with_comments.docx",
@@ -55,6 +57,14 @@ def verify_review_run(run_dir: Path) -> VerificationResult:
             issues.append("Missing annotated manuscript DOCX (expected reviewed_manuscript_with_comments.docx or surrogate_manuscript_from_pdf_with_comments.docx).")
         else:
             key_files.append(next(p for p in annotated_candidates if _non_empty(p)))
+        suggested_candidates = [
+            first / "reviewed_manuscript_with_suggested_changes.docx",
+            first / "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
+        ]
+        if not any(_non_empty(p) for p in suggested_candidates):
+            issues.append("Missing suggested-changes manuscript DOCX.")
+        else:
+            key_files.append(next(p for p in suggested_candidates if _non_empty(p)))
 
     return VerificationResult(ok=not issues, issues=issues, key_files=key_files)
 
@@ -71,6 +81,8 @@ def verify_deep_run(run_dir: Path) -> VerificationResult:
         run_dir / "manuscript_comment_manifest.json",
         run_dir / "source_mode.json",
         run_dir / "commented_docx_validation.json",
+        run_dir / "manuscript_suggested_changes_manifest.json",
+        run_dir / "suggested_changes_validation.json",
         run_dir / "deep_run_plan.json",
     ]
     for path in key_files:
@@ -90,6 +102,14 @@ def verify_deep_run(run_dir: Path) -> VerificationResult:
         issues.append("Missing annotated deep-run manuscript DOCX.")
     else:
         key_files.append(next(p for p in annotated_candidates if _non_empty(p)))
+    suggested_candidates = [
+        run_dir / "reviewed_manuscript_with_suggested_changes.docx",
+        run_dir / "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
+    ]
+    if not any(_non_empty(p) for p in suggested_candidates):
+        issues.append("Missing suggested-changes deep-run manuscript DOCX.")
+    else:
+        key_files.append(next(p for p in suggested_candidates if _non_empty(p)))
     return VerificationResult(ok=not issues, issues=issues, key_files=key_files)
 
 

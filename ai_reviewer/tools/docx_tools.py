@@ -172,3 +172,43 @@ def validate_commented_docx(base_docx: Path, reviewed_docx: Path) -> dict:
         "comments_attached": comment_ranges > 0,
         "body_text_unchanged": base_text == reviewed_text,
     }
+
+
+def create_suggested_changes_docx(
+    source_docx: Path,
+    output_docx: Path,
+    changes: list[dict],
+) -> dict:
+    doc = Document(str(source_docx))
+    applied = 0
+    applied_indices: list[int] = []
+    for change in changes:
+        if change.get("status") != "applied":
+            continue
+        idx = int(change.get("paragraph_index", -1))
+        revised = (change.get("revised_text") or "").strip()
+        if idx < 0 or not revised:
+            continue
+        if idx >= len(doc.paragraphs):
+            continue
+        doc.paragraphs[idx].text = revised
+        applied += 1
+        applied_indices.append(idx)
+    output_docx.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(str(output_docx))
+    return {"output": str(output_docx), "changes_applied": applied, "applied_paragraph_indices": applied_indices}
+
+
+def validate_suggested_changes_docx(base_docx: Path, suggested_docx: Path) -> dict:
+    base = Document(str(base_docx))
+    suggested = Document(str(suggested_docx))
+    base_paragraphs = [p.text for p in base.paragraphs]
+    suggested_paragraphs = [p.text for p in suggested.paragraphs]
+    return {
+        "base_docx": str(base_docx),
+        "suggested_docx": str(suggested_docx),
+        "paragraph_count_base": len(base_paragraphs),
+        "paragraph_count_suggested": len(suggested_paragraphs),
+        "structure_intact": len(base_paragraphs) == len(suggested_paragraphs),
+        "docx_opens": True,
+    }

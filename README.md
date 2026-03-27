@@ -291,8 +291,12 @@ Review bundles include:
 - `manuscript_comment_manifest.json`
 - `source_mode.json`
 - `commented_docx_validation.json`
+- `manuscript_suggested_changes_manifest.json`
+- `suggested_changes_validation.json`
 - `reviewed_manuscript_with_comments.docx` (DOCX source mode), or
 - `surrogate_manuscript_from_pdf_with_comments.docx` (PDF surrogate mode)
+- `reviewed_manuscript_with_suggested_changes.docx` (DOCX source mode), or
+- `surrogate_manuscript_from_pdf_with_suggested_changes.docx` (PDF surrogate mode)
 - `debug.log`
 - `artifacts/chunk_manifest.json`
 - `artifacts/retrieval_manifest.json`
@@ -318,14 +322,18 @@ AI-Reviewer now generates a manuscript-style commented DOCX output (not only rep
 
 - If manuscript source is `.docx`:
   - `reviewed_manuscript_with_comments.docx`
+  - `reviewed_manuscript_with_suggested_changes.docx`
 - If manuscript source is PDF-only:
   - `surrogate_manuscript_from_pdf_base.docx`
   - `surrogate_manuscript_from_pdf_with_comments.docx`
+  - `surrogate_manuscript_from_pdf_with_suggested_changes.docx`
 
 Validation is recorded in:
 - `source_mode.json` (`original_docx` vs `pdf_only_surrogate`)
 - `manuscript_comment_manifest.json` (comment targets + category/rationale payloads)
 - `commented_docx_validation.json` (comment count, attachment ranges, body-text preservation)
+- `manuscript_suggested_changes_manifest.json` (per-change provenance)
+- `suggested_changes_validation.json` (docx exists + structure checks)
 
 ## Profiles
 

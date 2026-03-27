@@ -2,15 +2,21 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+import json
 import re
+from uuid import uuid4
 
 from docx import Document
 
 from ai_reviewer.ingest.types import ParsedDocument
+from ai_reviewer.models.base import Provider, ChatRequest
+from ai_reviewer.review.repair import extract_json_candidate
 from ai_reviewer.tools.docx_tools import (
     create_commented_docx_copy,
     create_docx_from_plain_text,
+    create_suggested_changes_docx,
     validate_commented_docx,
+    validate_suggested_changes_docx,
 )
 
 
@@ -229,6 +235,8 @@ def review_to_comment_entries(
     clean: list[dict[str, Any]] = []
     seen: set[str] = set()
     for e in entries:
+        if not e.get("comment_id"):
+            e["comment_id"] = f"cmt_{uuid4().hex[:10]}"
         critique = re.sub(r"\s+", " ", str(e.get("critique", "")).strip())
         suggestion = re.sub(r"\s+", " ", str(e.get("suggested_revision", "")).strip())
         if not critique:
@@ -620,21 +628,189 @@ def _section_map_for_docx(base_docx: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _section_lookup_for_docx(base_docx: Path) -> dict[int, str]:
+    return {item["paragraph_index"]: item["section"] for item in _section_map_for_docx(base_docx)}
+
+
+def _severity_rank(value: str | None) -> int:
+    low = (value or "").lower()
+    if low in {"critical", "high"}:
+        return 3
+    if low in {"medium", "moderate"}:
+        return 2
+    return 1
+
+
+def _generate_suggested_changes(
+    base_docx: Path,
+    comments: list[dict[str, Any]],
+    source_mode: dict[str, Any],
+    project_id: str | None,
+    run_id: str | None,
+    provider: Provider | None,
+    model: str | None,
+    timeout_seconds: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    docx = Document(str(base_docx))
+    paragraphs = [p.text or "" for p in docx.paragraphs]
+    section_by_idx = _section_lookup_for_docx(base_docx)
+    grouped: dict[int, list[dict[str, Any]]] = {}
+    for c in comments:
+        pidx = c.get("paragraph_index")
+        if isinstance(pidx, int):
+            grouped.setdefault(pidx, []).append(c)
+    changes: list[dict[str, Any]] = []
+    applied: list[dict[str, Any]] = []
+    blocked_sections = {"front_matter", "references", "header_footer"}
+    abstract_allowed = {"evidence/overclaim concern", "clarity", "structure/organization"}
+    for pidx, group in sorted(grouped.items(), key=lambda x: x[0]):
+        section = section_by_idx.get(pidx, "body")
+        original = paragraphs[pidx].strip()
+        change_id = f"chg_{uuid4().hex[:10]}"
+        issue_types = sorted({str(c.get("issue_type", "")).strip() for c in group if str(c.get("issue_type", "")).strip()})
+        severity = max((c.get("severity") for c in group), key=_severity_rank, default="medium")
+        comment_ids = [c.get("comment_id") for c in group if c.get("comment_id")]
+        base_entry = {
+            "change_id": change_id,
+            "project_id": project_id,
+            "run_id": run_id,
+            "source_mode": source_mode.get("mode"),
+            "target_section": section,
+            "target_paragraph_index": pidx,
+            "original_text": original[:1200],
+            "revised_text": None,
+            "originating_comment_ids": comment_ids,
+            "issue_types": issue_types,
+            "severity": severity,
+            "rationale": None,
+            "confidence": None,
+            "status": "skipped",
+            "skip_reason": None,
+        }
+        if section in blocked_sections or _is_front_or_back_matter_text(original.lower()):
+            base_entry["skip_reason"] = "blocked_section"
+            changes.append(base_entry)
+            continue
+        if not original or len(original.split()) < 6:
+            base_entry["skip_reason"] = "too_short"
+            changes.append(base_entry)
+            continue
+        if section == "abstract":
+            if not any(str(c.get("issue_type", "")).lower() in abstract_allowed for c in group) and not any(
+                c.get("allow_abstract", False) for c in group
+            ):
+                base_entry["skip_reason"] = "abstract_high_threshold"
+                changes.append(base_entry)
+                continue
+        if provider is None or model is None:
+            base_entry["skip_reason"] = "no_provider"
+            changes.append(base_entry)
+            continue
+        prev_text = paragraphs[pidx - 1].strip() if pidx - 1 >= 0 else ""
+        next_text = paragraphs[pidx + 1].strip() if pidx + 1 < len(paragraphs) else ""
+        context = "\n\n".join(
+            [
+                f"PREV: {prev_text}" if prev_text else "",
+                f"TARGET: {original}",
+                f"NEXT: {next_text}" if next_text else "",
+            ]
+        ).strip()
+        critique_lines = []
+        for c in group:
+            critique_lines.append(
+                f"- {c.get('issue_type','')} ({c.get('severity','')}): {c.get('critique','')}. "
+                f"Suggestion: {c.get('suggested_revision','')}"
+            )
+        section_rules = {
+            "abstract": "Keep the abstract concise; only adjust claim calibration, ambiguity, or scope alignment. Avoid adding procedural detail unless required.",
+            "introduction": "Improve framing, novelty clarity, and problem statement precision without adding new claims.",
+            "methods": "Improve reproducibility phrasing, parameter clarity, and disclosure without altering actual procedures.",
+            "experimental": "Improve reproducibility phrasing, parameter clarity, and disclosure without altering actual procedures.",
+            "results": "Clarify claim support, yield/metric precision, and interpretation boundaries; avoid overstating.",
+            "discussion": "Tone down overreach and improve interpretation discipline; keep meaning intact.",
+            "conclusion": "Align with demonstrated scope and avoid broad overclaims.",
+        }
+        rule = section_rules.get(section, "Improve clarity and flow while preserving scientific meaning.")
+        system_prompt = (
+            "You are an expert scientific editor. Return ONLY JSON with keys: revised_text, rationale, confidence. "
+            "Do not add new facts or citations. Preserve meaning unless a comment requests calibration."
+        )
+        user_prompt = (
+            f"SECTION: {section}\n"
+            f"RULE: {rule}\n\n"
+            f"COMMENTS:\n" + "\n".join(critique_lines) + "\n\n"
+            f"CONTEXT:\n{context}\n\n"
+            "Rewrite ONLY the TARGET paragraph. If no safe improvement exists, return the original text. "
+            "Return JSON only."
+        )
+        try:
+            resp = provider.chat(
+                ChatRequest(
+                    model=model,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    temperature=0.2,
+                    max_tokens=700,
+                    timeout_seconds=timeout_seconds,
+                    metadata={
+                        "purpose": "suggested_changes",
+                        "project_id": project_id,
+                        "run_id": run_id,
+                        "section": section,
+                    },
+                )
+            )
+            candidate = extract_json_candidate(resp.content) or resp.content
+            parsed = json.loads(candidate)
+        except Exception:
+            base_entry["skip_reason"] = "generation_failed"
+            changes.append(base_entry)
+            continue
+        revised = str(parsed.get("revised_text", "") or "").strip()
+        rationale = str(parsed.get("rationale", "") or "").strip()
+        confidence = parsed.get("confidence", None)
+        if revised and revised == original:
+            base_entry["skip_reason"] = "no_change"
+            changes.append(base_entry)
+            continue
+        if not revised:
+            base_entry["skip_reason"] = "empty_revision"
+            changes.append(base_entry)
+            continue
+        base_entry["revised_text"] = revised[:1200]
+        base_entry["rationale"] = rationale[:600] if rationale else None
+        try:
+            base_entry["confidence"] = float(confidence) if confidence is not None else None
+        except Exception:
+            base_entry["confidence"] = None
+        base_entry["status"] = "applied"
+        base_entry["skip_reason"] = None
+        changes.append(base_entry)
+        applied.append({"paragraph_index": pidx, "revised_text": revised})
+    return changes, applied
+
+
 def build_annotated_manuscript_output(
     source_path: Path,
     doc: ParsedDocument,
     review: Any,
     output_dir: Path,
     project_id: str | None = None,
+    run_id: str | None = None,
+    provider: Provider | None = None,
+    model: str | None = None,
+    timeout_seconds: int = 120,
 ) -> dict[str, Any]:
     source_mode = detect_source_mode(source_path)
     if source_mode["mode"] == "original_docx":
         base_docx = source_path
         reviewed_name = "reviewed_manuscript_with_comments.docx"
+        suggested_name = "reviewed_manuscript_with_suggested_changes.docx"
     else:
         base_docx = output_dir / "surrogate_manuscript_from_pdf_base.docx"
         create_docx_from_plain_text(doc.cleaned_text, base_docx, title=source_path.stem)
         reviewed_name = "surrogate_manuscript_from_pdf_with_comments.docx"
+        suggested_name = "surrogate_manuscript_from_pdf_with_suggested_changes.docx"
     comments = review_to_comment_entries(review, doc=doc, base_docx=base_docx)
     comments = _assign_paragraph_indices(comments, base_docx)
     comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
@@ -642,6 +818,60 @@ def build_annotated_manuscript_output(
     result = create_commented_docx_copy(base_docx, reviewed_docx, comments)
     validation = validate_commented_docx(base_docx, reviewed_docx)
     section_map = _section_map_for_docx(base_docx)
+    changes_manifest, applied_changes = _generate_suggested_changes(
+        base_docx=base_docx,
+        comments=comments,
+        source_mode=source_mode,
+        project_id=project_id,
+        run_id=run_id,
+        provider=provider,
+        model=model,
+        timeout_seconds=timeout_seconds,
+    )
+    suggested_docx = output_dir / suggested_name
+    suggested_result = create_suggested_changes_docx(
+        source_docx=base_docx,
+        output_docx=suggested_docx,
+        changes=[
+            {
+                "paragraph_index": entry.get("target_paragraph_index"),
+                "revised_text": entry.get("revised_text"),
+                "status": entry.get("status"),
+            }
+            for entry in changes_manifest
+        ],
+    )
+    suggested_validation = validate_suggested_changes_docx(base_docx, suggested_docx)
+    base_doc = Document(str(base_docx))
+    suggested_doc = Document(str(suggested_docx))
+    section_by_idx = _section_lookup_for_docx(base_docx)
+    front_matter_changed = 0
+    references_changed = 0
+    for idx, base_p in enumerate(base_doc.paragraphs):
+        sec = section_by_idx.get(idx, "body")
+        if idx >= len(suggested_doc.paragraphs):
+            continue
+        if base_p.text != suggested_doc.paragraphs[idx].text:
+            if sec == "front_matter":
+                front_matter_changed += 1
+            if sec == "references":
+                references_changed += 1
+    manifest_path = output_dir / "manuscript_suggested_changes_manifest.json"
+    manifest_path.write_text(json.dumps(changes_manifest, indent=2))
+    validation_path = output_dir / "suggested_changes_validation.json"
+    validation_payload = {
+        "suggested_docx": str(suggested_docx),
+        "manifest_path": str(manifest_path),
+        "changes_proposed": len(changes_manifest),
+        "changes_applied": suggested_result.get("changes_applied", 0),
+        "applied_paragraph_indices": suggested_result.get("applied_paragraph_indices", []),
+        "front_matter_changed_count": front_matter_changed,
+        "references_changed_count": references_changed,
+        "front_matter_untouched": front_matter_changed == 0,
+        "references_untouched": references_changed == 0,
+        **suggested_validation,
+    }
+    validation_path.write_text(json.dumps(validation_payload, indent=2))
     source_mode_artifact = {
         "project_id": project_id,
         "manuscript_source_path": str(source_path),
@@ -659,5 +889,8 @@ def build_annotated_manuscript_output(
         "anchored_paragraph_indices": result.get("anchored_paragraph_indices", []),
         "comment_targets": comments,
         "validation": validation,
+        "suggested_changes_docx": str(suggested_docx),
+        "suggested_changes_manifest": str(manifest_path),
+        "suggested_changes_validation": validation_payload,
         "section_map": section_map,
     }

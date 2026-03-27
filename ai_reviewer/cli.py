@@ -513,6 +513,10 @@ def review(
                         review=review_result.review,
                         output_dir=bundle,
                         project_id=project_id,
+                        run_id=run_dir.name,
+                        provider=provider,
+                        model=selected_model,
+                        timeout_seconds=cfg.timeouts.chat_seconds,
                     )
                     (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")
                     if isinstance(annotation.get("section_map"), list):

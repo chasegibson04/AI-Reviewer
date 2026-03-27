@@ -913,6 +913,14 @@ def run_deep_run(
             review=_Obj(review_for_comments),  # type: ignore[arg-type]
             output_dir=run_dir,
             project_id=project_id,
+            run_id=run_dir.name,
+            provider=provider,
+            model=(
+                model_stack.get("line_edits")
+                or model_stack.get("context_synthesis")
+                or model_stack.get("structural_triage")
+            ),
+            timeout_seconds=cfg.timeouts.chat_seconds,
         )
         _write_json(run_dir / "manuscript_comment_manifest.json", annotation)
         _write_json(run_dir / "docx_comment_manifest.json", annotation)

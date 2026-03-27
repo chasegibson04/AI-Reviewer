@@ -7,6 +7,7 @@ from ai_reviewer.ingest.loaders import parse_file
 from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_output, detect_source_mode
 from ai_reviewer.tools.availability import scan_tool_availability
 from ai_reviewer.tools.docx_tools import create_commented_docx_copy, parse_docx_structured
+from ai_reviewer.tools.docx_tools import create_suggested_changes_docx, validate_suggested_changes_docx
 
 
 def test_tool_availability_has_required_entries():
@@ -47,6 +48,34 @@ def test_docx_parse_and_comment_copy(tmp_path: Path):
     assert len(list(reopened.comments)) >= 1
 
 
+def test_suggested_changes_docx_applies_edits(tmp_path: Path):
+    source = tmp_path / "source.docx"
+    d = Document()
+    d.add_heading("Title", level=1)
+    d.add_paragraph("Paragraph one.")
+    d.add_paragraph("Paragraph two.")
+    d.save(str(source))
+
+    out = tmp_path / "suggested.docx"
+    result = create_suggested_changes_docx(
+        source_docx=source,
+        output_docx=out,
+        changes=[
+            {
+                "paragraph_index": 1,
+                "revised_text": "Paragraph one updated.",
+                "status": "applied",
+            }
+        ],
+    )
+    assert out.exists()
+    assert result["changes_applied"] == 1
+    reopened = Document(str(out))
+    assert reopened.paragraphs[1].text == "Paragraph one updated."
+    validation = validate_suggested_changes_docx(source, out)
+    assert validation["structure_intact"] is True
+
+
 def test_scholarly_lookup_offline_no_network():
     cfg = load_config()
     assert cfg.defaults.strict_offline is True
@@ -75,7 +104,10 @@ def test_surrogate_annotation_preserves_text(tmp_path: Path):
 
     out = build_annotated_manuscript_output(src, parsed, _R(), tmp_path)
     assert Path(out["reviewed_docx"]).exists()
+    assert Path(out["suggested_changes_docx"]).exists()
+    assert Path(out["suggested_changes_manifest"]).exists()
     assert out["validation"]["comment_count"] >= 1
     assert out["validation"]["body_text_unchanged"] is True
     assert out["validation"]["comments_attached"] is True
     assert out["source_mode_artifact"]["source_mode"] == "surrogate_other_source"
+    assert out["suggested_changes_validation"]["docx_opens"] is True

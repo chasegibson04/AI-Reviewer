@@ -112,6 +112,8 @@ If retrieval is enabled:
    - DOCX source mode: generate `reviewed_manuscript_with_comments.docx`
    - PDF source mode: generate surrogate base DOCX + `surrogate_manuscript_from_pdf_with_comments.docx`
    - validates real comment count + body text preservation
+   - generates a separate suggested-changes DOCX based on comments + context
+   - writes `manuscript_suggested_changes_manifest.json` + `suggested_changes_validation.json`
 
 11. Final report synthesis
    - writes final consolidated report JSON/MD/TXT/DOCX + run metadata
