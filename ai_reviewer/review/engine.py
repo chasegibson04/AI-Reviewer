@@ -73,11 +73,24 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         "- Discussion/Conclusions: interpretation discipline, overclaiming, scope boundaries.\n"
         "- Front matter/references/author info: default no comments unless metadata is incorrect.\n"
     )
+    min_requirements = [
+        "- Provide at least 2 major_strengths and 2 major_weaknesses tied to specific manuscript content.",
+        "- Provide at least 2 writing_organization_concerns referencing concrete sentence/paragraph issues.",
+        "- Provide at least 3 section_specific_comments with named sections when possible.",
+        "- Provide at least 3 detailed_reviewer_comments with at least one suggested wording improvement.",
+    ]
+    if re.search(r"\\b(fig\\.\\s*\\d|figure\\s*\\d)", doc.cleaned_text.lower()):
+        min_requirements.append("- Provide at least 1 figure_table_concern grounded in a specific figure/caption.")
+    if profile.key in {"writing", "editor"}:
+        min_requirements.append("- Include at least 3 sentence-level edits with proposed rewrites in detailed_reviewer_comments.")
     return (
         f"Profile: {profile.display_name}\n"
         f"Review focus: {profile.rubric_focus}\n"
         f"Max words: {profile.max_review_words}\n"
         "Return strict JSON only. No commentary outside JSON.\n"
+        "Minimum content requirements:\n"
+        + "\n".join(min_requirements)
+        + "\n"
         "Grounding requirements:\n"
         "- Be specific to this manuscript, not generic.\n"
         "- Reference concrete sections/headings or experiment types from the provided context.\n"
@@ -540,6 +553,22 @@ def _augment_with_text_heuristics(
     sentences = [s for s in sentences if _sentence_ok(s)]
     long_sentences = [s for s in sentences if len(s.split()) > 38][:6]
     passive_hits = [s for s in sentences if len(s.split()) > 10 and (" was " in f" {s.lower()} " or " were " in f" {s.lower()} ")][:5]
+    def _heading_snippet(heading: str) -> str | None:
+        if not heading:
+            return None
+        h = re.sub(r"[*_]+", "", heading).strip()
+        if not h:
+            return None
+        idx = low_text.find(h.lower())
+        if idx == -1:
+            return None
+        tail = text[idx: idx + 500]
+        snippet = re.split(r"(?<=[.!?])\s+", tail)
+        if len(snippet) >= 2:
+            return snippet[1].strip()[:220]
+        if snippet:
+            return snippet[0].strip()[:220]
+        return None
     def _rewrite_candidate(sentence: str) -> str:
         s = sentence.strip()
         if len(s) > 260:
@@ -624,11 +653,17 @@ def _augment_with_text_heuristics(
                 "Core sections (Introduction, Experimental, Results, Discussion, Conclusions) are present and can be tightened effectively.",
             ]
         if not review.writing_organization_concerns:
-            review.writing_organization_concerns = [
-                "Simplify long sentences in introduction/results to reduce cognitive load.",
-                "Use active voice for key method/result statements.",
-                "Standardize section/figure/citation formatting and remove extraction artifacts.",
-            ]
+            concerns: list[str] = []
+            for s in long_sentences[:2]:
+                concerns.append(f"Long sentence that could be split for clarity: {s[:160]}")
+            for s in passive_hits[:1]:
+                concerns.append(f"Passive construction reduces clarity: {s[:160]}")
+            if not concerns:
+                concerns = [
+                    "Simplify long sentences in introduction/results to reduce cognitive load.",
+                    "Use active voice for key method/result statements.",
+                ]
+            review.writing_organization_concerns = concerns
         if "formatting_color_guides" in guidance_categories:
             review.writing_organization_concerns.append(
                 "Apply lab formatting conventions from formatting/color guides (heading hierarchy, figure caption consistency, and visual-callout style)."
@@ -651,10 +686,14 @@ def _augment_with_text_heuristics(
             review.detailed_reviewer_comments.append(f"Cleanup needed for extraction artifact token: `{token}`")
         if not review.section_specific_comments:
             for heading in (doc.headings or ["Introduction", "Results", "Discussion"])[:3]:
+                snippet = _heading_snippet(str(heading)) or ""
+                comment = "Tighten flow and improve sentence-level clarity in this section."
+                if snippet:
+                    comment = f"Clarify this section’s opening claim: \"{snippet}\""
                 review.section_specific_comments.append(
                     SectionComment(
                         section=str(heading)[:120],
-                        comment="Tighten flow and improve sentence-level clarity in this section.",
+                        comment=comment,
                         severity="medium",
                     )
                 )
@@ -678,11 +717,17 @@ def _augment_with_text_heuristics(
 
     if profile_key in {"methods", "balanced", "adversarial"}:
         if not review.writing_organization_concerns:
-            review.writing_organization_concerns = [
-                "Tighten long sentences in Results/Discussion to keep one claim per sentence.",
-                "Reduce passive voice in methods/results to make agent/action clear.",
-                "Remove PDF extraction artifacts and normalize section/figure formatting.",
-            ]
+            concerns: list[str] = []
+            for s in long_sentences[:2]:
+                concerns.append(f"Long sentence that could be split for clarity: {s[:160]}")
+            for s in passive_hits[:1]:
+                concerns.append(f"Passive construction reduces clarity: {s[:160]}")
+            if not concerns:
+                concerns = [
+                    "Tighten long sentences in Results/Discussion to keep one claim per sentence.",
+                    "Reduce passive voice in methods/results to make agent/action clear.",
+                ]
+            review.writing_organization_concerns = concerns
         if not review.methodological_concerns:
             if profile_key == "adversarial":
                 review.methodological_concerns = [
@@ -723,10 +768,14 @@ def _augment_with_text_heuristics(
             ]
         if not review.section_specific_comments:
             for heading in (doc.headings or ["Introduction", "Experimental", "Results", "Discussion"])[:4]:
+                snippet = _heading_snippet(str(heading)) or ""
+                comment = "Add one concrete evidence statement and one limitation statement tied to this section."
+                if snippet:
+                    comment = f"Clarify evidence/limitation for: \"{snippet}\""
                 review.section_specific_comments.append(
                     SectionComment(
                         section=str(heading)[:120],
-                        comment="Add one concrete evidence statement and one limitation statement tied to this section.",
+                        comment=comment,
                         severity="medium",
                     )
                 )

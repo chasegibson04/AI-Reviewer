@@ -8,6 +8,7 @@ def test_load_defaults_has_local_first():
     assert cfg.defaults.strict_offline is True
     assert cfg.defaults.balanced_review_model == "gemma3:27b"
     assert cfg.training.enabled is True
+    assert cfg.orchestrator.model == "phi4-reasoning:latest"
 
 
 def test_write_example_local_config(tmp_path: Path):

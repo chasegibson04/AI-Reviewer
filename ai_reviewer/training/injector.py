@@ -85,6 +85,10 @@ def build_guidance_injection(guidance: GlobalGuidance, profile_key: str, max_cha
             used.append(category)
             lines.append(f"{category}:")
             lines.extend([f"- {b}" for b in bullets])
+    if not used and guidance.active_file_count > 0:
+        used.append("global_fallback")
+        lines.append("global_fallback:")
+        lines.append(f"- {guidance.global_summary}")
     text = "\n".join(lines)
     if len(text) > max_chars:
         text = text[: max_chars - 24].rstrip() + "\n- [truncated for budget]"

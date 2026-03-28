@@ -292,6 +292,7 @@ def _training_injection(cfg, logger, profile_key: str, disable_training_guidance
     if disable_training_guidance or not cfg.training.enabled or not cfg.training.inject_by_default:
         return None, []
     trainer = TrainingCacheManager.from_config(cfg, logger=logger)
+    trainer.sync(force_rebuild=False)
     injection = trainer.injection_for_profile(profile_key, max_chars=cfg.training.max_injection_chars)
     if injection.enabled:
         logger.info(
@@ -523,6 +524,7 @@ def review(
                         run_id=run_dir.name,
                         provider=provider,
                         model=selected_model,
+                        rewrite_model=selected_model,
                         timeout_seconds=cfg.timeouts.chat_seconds,
                     )
                     (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")

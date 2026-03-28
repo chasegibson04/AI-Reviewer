@@ -65,7 +65,7 @@ class TrainingConfig:
 @dataclass
 class OrchestratorConfig:
     enabled: bool = False
-    model: str = "qwen3:8b"
+    model: str = "phi4-reasoning:latest"
     max_stage_retries: int = 1
     max_total_retries: int = 3
     temperature: float = 0.0
@@ -322,7 +322,7 @@ def write_example_local_config(path: Path) -> None:
         },
         "orchestrator": {
             "enabled": False,
-            "model": "qwen3:8b",
+            "model": "phi4-reasoning:latest",
             "max_stage_retries": 1,
             "max_total_retries": 3,
             "temperature": 0.0,

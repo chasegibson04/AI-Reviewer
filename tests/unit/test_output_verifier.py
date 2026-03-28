@@ -22,6 +22,9 @@ def test_verify_review_run_passes(tmp_path: Path):
     _write(bundle / "source_mode.json", "{}")
     _write(bundle / "commented_docx_validation.json", "{}")
     _write(bundle / "surrogate_manuscript_from_pdf_with_comments.docx", "ok")
+    _write(bundle / "surrogate_manuscript_from_pdf_with_suggested_changes.docx", "ok")
+    _write(bundle / "manuscript_suggested_changes_manifest.json", "{}")
+    _write(bundle / "suggested_changes_validation.json", "{}")
     _write(bundle / "run_metadata.json", "{}")
     result = verify_review_run(run)
     assert result.ok
@@ -50,6 +53,9 @@ def test_verify_deep_run_passes(tmp_path: Path):
         "docx_comment_manifest.json",
         "source_mode.json",
         "commented_docx_validation.json",
+        "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
+        "manuscript_suggested_changes_manifest.json",
+        "suggested_changes_validation.json",
         "stage_07_reconciliation.json",
         "deep_run_plan.json",
         "debug.log",

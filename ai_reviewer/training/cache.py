@@ -8,6 +8,7 @@ from pathlib import Path
 from ai_reviewer.config import ReviewerConfig
 from ai_reviewer.ingest.loaders import parse_file
 from ai_reviewer.training.injector import GuidanceInjection, build_guidance_injection
+from ai_reviewer.paths import REPO_ROOT
 from ai_reviewer.training.manifest import load_manifest, save_manifest
 from ai_reviewer.training.scanner import ScannedTrainingFile, diff_manifest, ensure_training_tree, scan_training_files
 from ai_reviewer.training.schema import GlobalGuidance, TrainingFileRecord
@@ -42,7 +43,13 @@ class TrainingCacheManager:
 
     @classmethod
     def from_config(cls, config: ReviewerConfig, logger=None) -> "TrainingCacheManager":
-        return cls(Path(config.training.source_root), Path(config.training.cache_root), logger=logger)
+        source_root = Path(config.training.source_root)
+        cache_root = Path(config.training.cache_root)
+        if not source_root.is_absolute():
+            source_root = REPO_ROOT / source_root
+        if not cache_root.is_absolute():
+            cache_root = REPO_ROOT / cache_root
+        return cls(source_root, cache_root, logger=logger)
 
     def _log(self, msg: str, *args):
         if self.logger:
@@ -281,4 +288,3 @@ class TrainingCacheManager:
     def injection_for_profile(self, profile_key: str, max_chars: int) -> GuidanceInjection:
         guidance = self.load_global_guidance()
         return build_guidance_injection(guidance, profile_key=profile_key, max_chars=max_chars)
-

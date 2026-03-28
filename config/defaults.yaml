@@ -54,7 +54,7 @@ training:
 
 orchestrator:
   enabled: false
-  model: qwen3:8b
+  model: phi4-reasoning:latest
   max_stage_retries: 1
   max_total_retries: 3
   temperature: 0.0

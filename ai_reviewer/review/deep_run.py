@@ -15,7 +15,7 @@ from ai_reviewer.ingest.loaders import parse_file
 from ai_reviewer.ingest.types import ParsedDocument
 from ai_reviewer.models.base import ChatRequest, Provider
 from ai_reviewer.orchestrator.controller import OrchestratorController, OrchestratorRuntimeState
-from ai_reviewer.models.selector import infer_model_roles, split_chat_and_embedding_models
+from ai_reviewer.models.selector import infer_model_roles, is_embedding_model, split_chat_and_embedding_models
 from ai_reviewer.projects.store import ProjectStore
 from ai_reviewer.review.engine import run_review
 from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_output, detect_source_mode
@@ -63,14 +63,15 @@ def _chat_json(provider: Provider, model: str, system_prompt: str, user_prompt: 
 
 
 def _select_stage_models(installed_chat: list[str], cfg: ReviewerConfig) -> dict[str, str]:
-    roles = infer_model_roles(installed_chat, cfg)
+    chat_pool = [m for m in installed_chat if not is_embedding_model(m)]
+    roles = infer_model_roles(chat_pool, cfg)
     def pick(preferred: str, fallback: str | None = None) -> str:
-        if preferred in installed_chat:
+        if preferred in chat_pool and not is_embedding_model(preferred):
             return preferred
-        if fallback and fallback in installed_chat:
+        if fallback and fallback in chat_pool and not is_embedding_model(fallback):
             return fallback
-        if installed_chat:
-            return installed_chat[0]
+        if chat_pool:
+            return chat_pool[0]
         raise DeepRunError("No chat models available for deep run.")
 
     critique = pick("llama3.3:70b-instruct-q4_K_M", pick("phi4-reasoning:latest", pick(cfg.defaults.deep_review_model, roles.balanced_model)))
@@ -920,6 +921,7 @@ def run_deep_run(
                 or model_stack.get("context_synthesis")
                 or model_stack.get("structural_triage")
             ),
+            rewrite_model=model_stack.get("line_edits") or model_stack.get("context_synthesis"),
             timeout_seconds=cfg.timeouts.chat_seconds,
         )
         _write_json(run_dir / "manuscript_comment_manifest.json", annotation)

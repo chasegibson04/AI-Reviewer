@@ -8,3 +8,8 @@ def test_deep_run_model_fallback_selection():
     assert stack["context_synthesis"] == "gemma3:27b"
     assert stack["reconciliation"] in {"mistral-small3.1:24b", "gemma3:27b"}
 
+
+def test_deep_run_excludes_embedding_models():
+    cfg = load_config()
+    stack = _select_stage_models(["bge-m3:latest", "gemma3:12b"], cfg)
+    assert "bge-m3:latest" not in set(stack.values())
