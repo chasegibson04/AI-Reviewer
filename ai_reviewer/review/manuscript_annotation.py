@@ -48,8 +48,8 @@ def review_to_comment_entries(
                 "issue_type": "structure/organization",
                 "severity": sec.severity,
                 "critique": critique,
-                "suggested_revision": f"Section rewrite suggestion: In '{sec.section}', lead with the main claim, then add one concrete supporting detail and one limitation sentence.",
-                "rationale": "Section-level issue tied to review schema output.",
+                "suggested_revision": f"Proposed edit: revise the opening of '{sec.section}' to explicitly reflect: {critique}",
+                "rationale": "Section-level issue tied to review schema output; aim to align opening claim with critique.",
             }
         )
     for idx, item in enumerate(review.extracted_action_items, start=len(entries) + 1):
@@ -394,6 +394,12 @@ def _is_heading_paragraph(text: str) -> bool:
         return True
     if re.match(r"^\*\*\[.+\]\*\*$", t):
         return True
+    if re.match(r"^##\s*\*\*?.+\*\*?$", t):
+        return True
+    if t.isupper() and 1 <= len(t.split()) <= 6:
+        return True
+    if re.match(r"^\*\*[A-Za-z].+\*\*$", t) and len(t.split()) <= 8:
+        return True
     return False
 
 
@@ -435,10 +441,115 @@ def _is_front_or_back_matter_heading(text: str) -> bool:
         return False
     return bool(
         re.match(
-            r"^(author contributions|funding|associated content|author information|abbreviations|references|notes|corresponding author|authors)\b",
+            r"^(author contributions|funding|associated content|author information|abbreviations|references|notes|corresponding author|authors|acknowledg(e)?ments|data availability|additional information|supplementary information|competing interests)\b",
             t,
         )
     )
+
+
+def _normalize_heading_text(text: str) -> str:
+    cleaned = re.sub(r"[*#_]+", " ", text)
+    cleaned = re.sub(r"[^a-zA-Z ]", " ", cleaned).lower()
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    tokens = cleaned.split()
+    if len(tokens) <= 3 and "experimental" in tokens:
+        return "experimental"
+    if len(tokens) <= 3 and "methods" in tokens:
+        return "methods"
+    return cleaned
+
+
+def _heading_to_section(norm: str) -> str | None:
+    if not norm:
+        return None
+    if norm.startswith("abstract"):
+        return "abstract"
+    if norm in {"introduction", "background"}:
+        return "introduction"
+    if norm in {"methods", "experimental", "materials methods", "materials and methods"}:
+        return "methods"
+    if norm.startswith("general procedure") or "procedure" in norm:
+        return "methods"
+    if norm in {"results", "results and discussion", "findings"}:
+        return "results"
+    if norm in {"discussion", "interpretation"}:
+        return "discussion"
+    if norm in {"conclusion", "conclusions"}:
+        return "conclusions"
+    if norm.startswith("references"):
+        return "references"
+    if _is_front_or_back_matter_heading(norm):
+        return "front_matter"
+    return None
+
+
+def _build_section_index_map(paragraphs: list[str]) -> dict[int, str]:
+    section_by_idx: dict[int, str] = {}
+    current = "body"
+    total = len(paragraphs)
+    method_headings: list[int] = []
+    references_heading: int | None = None
+    for idx, text in enumerate(paragraphs):
+        if not text:
+            continue
+        low = text.strip().lower()
+        if _is_header_footer_text(low):
+            section_by_idx[idx] = "header_footer"
+            continue
+        if _is_front_or_back_matter_text(low):
+            section_by_idx[idx] = "front_matter"
+            current = "front_matter"
+            continue
+        if _is_heading_paragraph(text):
+            norm = _normalize_heading_text(text)
+            heading_section = _heading_to_section(norm)
+            if heading_section:
+                current = heading_section
+                if heading_section in {"methods", "experimental"}:
+                    method_headings.append(idx)
+                if heading_section == "references":
+                    references_heading = idx
+        elif re.match(r"^abstract\b", low):
+            current = "abstract"
+        section_by_idx[idx] = current
+
+    body_indices = [idx for idx, sec in section_by_idx.items() if sec == "body"]
+    if body_indices and len(body_indices) / max(1, len(section_by_idx)) > 0.6:
+        first_methods = min(method_headings) if method_headings else None
+        for idx in body_indices:
+            text = paragraphs[idx].strip()
+            low = text.lower()
+            if re.match(r"^\\d+\\.\\s", low) and re.search(r"\\b(19|20)\\d{2}\\b", low):
+                section_by_idx[idx] = "references"
+                continue
+            if first_methods is not None and idx < first_methods:
+                section_by_idx[idx] = "introduction"
+                continue
+            if idx < max(6, int(total * 0.12)) and "abstract" not in low:
+                section_by_idx[idx] = "introduction"
+                continue
+            if any(k in low for k in ["method", "experimental", "procedure", "reagent", "reaction conditions"]):
+                section_by_idx[idx] = "methods"
+                continue
+            if any(k in low for k in ["result", "yield", "conversion", "screen", "figure", "table", "data"]):
+                section_by_idx[idx] = "results"
+                continue
+            if any(k in low for k in ["discussion", "overall", "in summary", "we conclude", "implications"]):
+                section_by_idx[idx] = "discussion"
+                continue
+
+    # Reclassify methods paragraphs that clearly read like results/discussion.
+    for idx, sec in list(section_by_idx.items()):
+        if sec not in {"methods", "experimental"}:
+            continue
+        text = paragraphs[idx].strip().lower()
+        if any(k in text for k in ["result", "yield", "conversion", "screen", "figure", "table", "data"]):
+            section_by_idx[idx] = "results"
+            continue
+        if any(k in text for k in ["discussion", "overall", "in summary", "we conclude", "implications"]):
+            section_by_idx[idx] = "discussion"
+            continue
+    return section_by_idx
 
 
 def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
@@ -448,34 +559,7 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
     if not non_empty:
         return entries
 
-    def _normalize_heading(text: str) -> str:
-        cleaned = re.sub(r"[^a-zA-Z ]", " ", text).lower()
-        cleaned = re.sub(r"\s+", " ", cleaned).strip()
-        tokens = cleaned.split()
-        if len(tokens) <= 3 and "experimental" in tokens:
-            return "experimental"
-        if len(tokens) <= 3 and "methods" in tokens:
-            return "methods"
-        return cleaned
-
-    section_by_idx: dict[int, str] = {}
-    current = "body"
-    for idx in non_empty:
-        t = paragraphs[idx].strip()
-        low = t.lower()
-        norm = _normalize_heading(t)
-        if _is_header_footer_text(low):
-            section_by_idx[idx] = "header_footer"
-            continue
-        if re.match(r"^abstract\b", low) or norm == "abstract":
-            current = "abstract"
-        elif norm in {"introduction", "experimental", "methods", "results", "discussion", "conclusions", "conclusion"}:
-            current = norm
-        elif norm.startswith("references"):
-            current = "references"
-        elif _is_front_or_back_matter_heading(low):
-            current = "front_matter" if "references" not in low else "references"
-        section_by_idx[idx] = current
+    section_by_idx = _build_section_index_map(paragraphs)
 
     eligible = [
         idx
@@ -582,46 +666,77 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
     return entries
 
 
+def _enrich_comment_suggestions(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
+    doc = Document(str(base_docx))
+    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    templated_markers = [
+        "add a sentence",
+        "tone down",
+        "attach a specific citation",
+        "align figure/table",
+        "remove repetition",
+        "rewrite this sentence",
+        "rewrite this location",
+        "suggested rewrite",
+        "apply action",
+        "revise wording",
+    ]
+    for entry in entries:
+        pidx = entry.get("paragraph_index")
+        if not isinstance(pidx, int) or pidx < 0 or pidx >= len(paragraphs):
+            continue
+        text = paragraphs[pidx]
+        if not text:
+            continue
+        low = text.lower()
+        if _is_front_or_back_matter_text(low) or _is_heading_paragraph(text):
+            continue
+        suggestion = str(entry.get("suggested_revision", "")).strip()
+        critique = str(entry.get("critique", "")).strip()
+        extracted = None
+        for marker in [
+            "Rewrite long sentence for clarity:",
+            "Long sentence to simplify:",
+            "Possible passive construction to rewrite:",
+            "Clarify this section’s opening claim:",
+            "Clarify this section's opening claim:",
+        ]:
+            if marker in critique:
+                extracted = critique.split(marker, 1)[-1].strip().strip("\"")
+                break
+        if not extracted and "\"" in critique:
+            match = re.search(r"\"(.+?)\"", critique)
+            if match:
+                extracted = match.group(1).strip()
+        if not suggestion:
+            suggestion = ""
+        if extracted:
+            rewrite = _rewrite_candidate(extracted)
+            entry["suggested_revision"] = f"Proposed edit: {rewrite}"
+            entry["rationale"] = "Proposed edit derived from the cited sentence in the critique."
+            continue
+        if any(marker in suggestion.lower() for marker in templated_markers):
+            sentence = re.split(r"(?<=[.!?])\s+", text)[0].strip()
+            if sentence:
+                rewrite = _rewrite_candidate(sentence)
+                entry["suggested_revision"] = f"Proposed edit: {rewrite}"
+                entry["rationale"] = "Proposed edit derived from the nearby sentence to improve clarity and flow."
+    return entries
+
+
 def _section_map_for_docx(base_docx: Path) -> list[dict[str, Any]]:
     doc = Document(str(base_docx))
     paragraphs = [p.text.strip() for p in doc.paragraphs]
     out: list[dict[str, Any]] = []
-    current = "body"
-    def _normalize_heading(text: str) -> str:
-        cleaned = re.sub(r"[^a-zA-Z ]", " ", text).lower()
-        cleaned = re.sub(r"\s+", " ", cleaned).strip()
-        tokens = cleaned.split()
-        if len(tokens) <= 3 and "experimental" in tokens:
-            return "experimental"
-        if len(tokens) <= 3 and "methods" in tokens:
-            return "methods"
-        return cleaned
+    section_by_idx = _build_section_index_map(paragraphs)
     for idx, text in enumerate(paragraphs):
         if not text:
             continue
-        low = text.lower()
-        norm = _normalize_heading(text)
-        if _is_header_footer_text(low):
-            out.append(
-                {
-                    "paragraph_index": idx,
-                    "section": "header_footer",
-                    "text_excerpt": text[:200],
-                }
-            )
-            continue
-        if re.match(r"^abstract\b", low) or norm == "abstract":
-            current = "abstract"
-        elif norm in {"introduction", "experimental", "methods", "results", "discussion", "conclusions", "conclusion"}:
-            current = norm
-        elif norm.startswith("references"):
-            current = "references"
-        elif _is_front_or_back_matter_heading(low):
-            current = "front_matter" if "references" not in low else "references"
+        section = section_by_idx.get(idx, "body")
         out.append(
             {
                 "paragraph_index": idx,
-                "section": current,
+                "section": section,
                 "text_excerpt": text[:200],
             }
         )
@@ -641,6 +756,79 @@ def _severity_rank(value: str | None) -> int:
     return 1
 
 
+def _token_overlap(a: str, b: str) -> float:
+    ta = {t for t in re.split(r"\W+", a.lower()) if t}
+    tb = {t for t in re.split(r"\W+", b.lower()) if t}
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / float(len(ta | tb))
+
+
+def _numeric_tokens(text: str) -> set[str]:
+    cleaned = re.sub(r"\[[^\]]+\]", "", text)
+    cleaned = cleaned.replace(",", "")
+    tokens = re.findall(r"\d+(?:\.\d+)?", cleaned)
+    return {t.strip() for t in tokens if t.strip()}
+
+
+def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None]:
+    o = original.strip()
+    r = revised.strip()
+    if not r:
+        return False, "empty_revision"
+    if r == o:
+        return False, "no_change"
+    if re.match(r"^\s*#{1,6}\s", r):
+        return False, "markdown_heading"
+    if re.match(r"^\s*\*\*\[[^\]]+\]\*\*", r):
+        return False, "markdown_section_label"
+    if len(r) < 0.6 * len(o) or len(r) > 1.6 * len(o):
+        return False, "length_drift"
+    orig_nums = _numeric_tokens(o)
+    rev_nums = _numeric_tokens(r)
+    if orig_nums and not orig_nums.issubset(rev_nums):
+        return False, "numeric_loss"
+    if _token_overlap(o, r) < 0.35:
+        return False, "low_overlap"
+    return True, None
+
+
+def _verify_rewrite(
+    provider: Provider,
+    model: str,
+    original: str,
+    revised: str,
+    critique: str,
+    timeout_seconds: int,
+) -> tuple[bool, dict[str, Any]]:
+    system_prompt = (
+        "You are a careful scientific editor. Return ONLY JSON with keys: ok, fluency_score, faithfulness_score, "
+        "alignment_score, issues. Scores are 0-1. ok=false if meaning changes, invented facts, or worse clarity."
+    )
+    user_prompt = (
+        "Evaluate the rewrite for fluency, faithfulness to meaning, and alignment with the critique.\n\n"
+        f"CRITIQUE:\n{critique}\n\n"
+        f"ORIGINAL:\n{original}\n\n"
+        f"REVISED:\n{revised}\n\n"
+        "Return JSON only."
+    )
+    resp = provider.chat(
+        ChatRequest(
+            model=model,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.0,
+            max_tokens=320,
+            timeout_seconds=timeout_seconds,
+            metadata={"purpose": "rewrite_verifier"},
+        )
+    )
+    candidate = extract_json_candidate(resp.content) or resp.content
+    parsed = json.loads(candidate)
+    ok = bool(parsed.get("ok", False))
+    return ok, parsed
+
+
 def _generate_suggested_changes(
     base_docx: Path,
     comments: list[dict[str, Any]],
@@ -649,6 +837,7 @@ def _generate_suggested_changes(
     run_id: str | None,
     provider: Provider | None,
     model: str | None,
+    rewrite_model: str | None,
     timeout_seconds: int,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     docx = Document(str(base_docx))
@@ -663,6 +852,7 @@ def _generate_suggested_changes(
     applied: list[dict[str, Any]] = []
     blocked_sections = {"front_matter", "references", "header_footer"}
     abstract_allowed = {"evidence/overclaim concern", "clarity", "structure/organization"}
+    global_issue_types = {"structure/organization", "framing", "global"}
     for pidx, group in sorted(grouped.items(), key=lambda x: x[0]):
         section = section_by_idx.get(pidx, "body")
         original = paragraphs[pidx].strip()
@@ -687,8 +877,25 @@ def _generate_suggested_changes(
             "status": "skipped",
             "skip_reason": None,
         }
-        if section in blocked_sections or _is_front_or_back_matter_text(original.lower()):
+        if issue_types and all(it.lower() in global_issue_types for it in issue_types):
+            base_entry["skip_reason"] = "global_issue_not_localized"
+            changes.append(base_entry)
+            continue
+        low = original.lower().strip()
+        if section in blocked_sections or _is_front_or_back_matter_text(low):
             base_entry["skip_reason"] = "blocked_section"
+            changes.append(base_entry)
+            continue
+        if _is_heading_paragraph(original):
+            base_entry["skip_reason"] = "heading_paragraph"
+            changes.append(base_entry)
+            continue
+        if re.match(r"^[^a-z0-9]*fig\\.|^[^a-z0-9]*figure\\b|^[^a-z0-9]*table\\b", low):
+            base_entry["skip_reason"] = "caption_blocked"
+            changes.append(base_entry)
+            continue
+        if _is_placeholder_paragraph(low):
+            base_entry["skip_reason"] = "placeholder_text"
             changes.append(base_entry)
             continue
         if not original or len(original.split()) < 6:
@@ -702,7 +909,7 @@ def _generate_suggested_changes(
                 base_entry["skip_reason"] = "abstract_high_threshold"
                 changes.append(base_entry)
                 continue
-        if provider is None or model is None:
+        if provider is None or (rewrite_model or model) is None:
             base_entry["skip_reason"] = "no_provider"
             changes.append(base_entry)
             continue
@@ -729,11 +936,13 @@ def _generate_suggested_changes(
             "results": "Clarify claim support, yield/metric precision, and interpretation boundaries; avoid overstating.",
             "discussion": "Tone down overreach and improve interpretation discipline; keep meaning intact.",
             "conclusion": "Align with demonstrated scope and avoid broad overclaims.",
+            "conclusions": "Align with demonstrated scope and avoid broad overclaims.",
         }
         rule = section_rules.get(section, "Improve clarity and flow while preserving scientific meaning.")
         system_prompt = (
             "You are an expert scientific editor. Return ONLY JSON with keys: revised_text, rationale, confidence. "
-            "Do not add new facts or citations. Preserve meaning unless a comment requests calibration."
+            "Do not add new facts or citations. Preserve meaning unless a comment requests calibration. "
+            "Make minimal, high-impact edits rather than rewriting the whole paragraph."
         )
         user_prompt = (
             f"SECTION: {section}\n"
@@ -743,10 +952,11 @@ def _generate_suggested_changes(
             "Rewrite ONLY the TARGET paragraph. If no safe improvement exists, return the original text. "
             "Return JSON only."
         )
+        use_model = rewrite_model or model
         try:
             resp = provider.chat(
                 ChatRequest(
-                    model=model,
+                    model=use_model,
                     system_prompt=system_prompt,
                     user_prompt=user_prompt,
                     temperature=0.2,
@@ -769,14 +979,80 @@ def _generate_suggested_changes(
         revised = str(parsed.get("revised_text", "") or "").strip()
         rationale = str(parsed.get("rationale", "") or "").strip()
         confidence = parsed.get("confidence", None)
-        if revised and revised == original:
-            base_entry["skip_reason"] = "no_change"
+        ok_basic, reason = _basic_rewrite_checks(original, revised)
+        if not ok_basic:
+            base_entry["skip_reason"] = reason
             changes.append(base_entry)
             continue
-        if not revised:
-            base_entry["skip_reason"] = "empty_revision"
-            changes.append(base_entry)
-            continue
+        try:
+            ok_verify, verdict = _verify_rewrite(
+                provider=provider,
+                model=use_model,
+                original=original,
+                revised=revised,
+                critique="; ".join(critique_lines)[:800],
+                timeout_seconds=timeout_seconds,
+            )
+        except Exception:
+            ok_verify, verdict = False, {"ok": False, "issues": ["verifier_failed"]}
+        base_entry["verification"] = verdict
+        if not ok_verify:
+            issues = verdict.get("issues", []) if isinstance(verdict, dict) else []
+            if issues:
+                repair_system = (
+                    "You are a careful scientific editor revising a draft. Fix the issues listed. "
+                    "Return ONLY JSON with keys: revised_text, rationale, confidence."
+                )
+                repair_user = (
+                    f"SECTION: {section}\n"
+                    f"RULE: {rule}\n\n"
+                    f"ISSUES TO FIX:\n{issues}\n\n"
+                    f"CRITIQUE:\n" + "\n".join(critique_lines) + "\n\n"
+                    f"ORIGINAL:\n{original}\n\n"
+                    f"CURRENT REVISION:\n{revised}\n\n"
+                    "Provide a corrected revision that resolves the issues. Return JSON only."
+                )
+                try:
+                    repair_resp = provider.chat(
+                        ChatRequest(
+                            model=use_model,
+                            system_prompt=repair_system,
+                            user_prompt=repair_user,
+                            temperature=0.2,
+                            max_tokens=700,
+                            timeout_seconds=timeout_seconds,
+                            metadata={"purpose": "suggested_changes_revise", "section": section},
+                        )
+                    )
+                    repair_candidate = extract_json_candidate(repair_resp.content) or repair_resp.content
+                    repair_parsed = json.loads(repair_candidate)
+                    revised = str(repair_parsed.get("revised_text", "") or "").strip()
+                    rationale = str(repair_parsed.get("rationale", "") or "").strip()
+                    confidence = repair_parsed.get("confidence", None)
+                    ok_basic, reason = _basic_rewrite_checks(original, revised)
+                    if ok_basic:
+                        ok_verify, verdict = _verify_rewrite(
+                            provider=provider,
+                            model=use_model,
+                            original=original,
+                            revised=revised,
+                            critique="; ".join(critique_lines)[:800],
+                            timeout_seconds=timeout_seconds,
+                        )
+                        base_entry["verification"] = verdict
+                except Exception:
+                    ok_verify = False
+            if not ok_verify:
+                base_entry["skip_reason"] = "rewrite_rejected_low_quality"
+                changes.append(base_entry)
+                continue
+        try:
+            if float(verdict.get("faithfulness_score", 1.0)) < 0.6:
+                base_entry["skip_reason"] = "rewrite_rejected_meaning_change"
+                changes.append(base_entry)
+                continue
+        except Exception:
+            pass
         base_entry["revised_text"] = revised[:1200]
         base_entry["rationale"] = rationale[:600] if rationale else None
         try:
@@ -799,6 +1075,7 @@ def build_annotated_manuscript_output(
     run_id: str | None = None,
     provider: Provider | None = None,
     model: str | None = None,
+    rewrite_model: str | None = None,
     timeout_seconds: int = 120,
 ) -> dict[str, Any]:
     source_mode = detect_source_mode(source_path)
@@ -814,6 +1091,7 @@ def build_annotated_manuscript_output(
     comments = review_to_comment_entries(review, doc=doc, base_docx=base_docx)
     comments = _assign_paragraph_indices(comments, base_docx)
     comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
+    comments = _enrich_comment_suggestions(comments, base_docx)
     reviewed_docx = output_dir / reviewed_name
     result = create_commented_docx_copy(base_docx, reviewed_docx, comments)
     validation = validate_commented_docx(base_docx, reviewed_docx)
@@ -826,6 +1104,7 @@ def build_annotated_manuscript_output(
         run_id=run_id,
         provider=provider,
         model=model,
+        rewrite_model=rewrite_model,
         timeout_seconds=timeout_seconds,
     )
     suggested_docx = output_dir / suggested_name
