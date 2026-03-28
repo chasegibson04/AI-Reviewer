@@ -196,6 +196,7 @@ def review_to_comment_entries(
                             "suggested_revision": f"Suggested rewrite: {rewrite}",
                             "rationale": "Sentence-level clarity pass on manuscript text.",
                             "locked_paragraph": True,
+                            "anchor_text": s,
                         }
                     )
                     locked_used.add(pidx)
@@ -228,6 +229,7 @@ def review_to_comment_entries(
                 "rationale": "Manuscript-specific claim calibration cue detected in text.",
                 "allow_abstract": True,
                 "anchor_phrase": phrase,
+                "anchor_text": phrase,
             }
             if anchor_index is not None:
                 entry["locked_paragraph"] = True
@@ -244,6 +246,8 @@ def review_to_comment_entries(
         if any(x in suggestion.lower() for x in ["apply action:", "address:", "revise wording to address this issue"]):
             suggestion = "Rewrite this location with concrete condition, evidence statement, and limitation language."
             e["suggested_revision"] = suggestion
+        if _is_absurd_comment(critique, suggestion):
+            continue
         sig = (e.get("issue_type", ""), critique[:180].lower())
         if sig in seen:
             continue
@@ -274,6 +278,21 @@ def _rewrite_candidate(sentence: str) -> str:
         short = " ".join(words[:24]).rstrip(".")
         return short + "."
     return s if s.endswith(".") else s + "."
+
+
+def _is_absurd_comment(critique: str, suggestion: str) -> bool:
+    text = f"{critique} {suggestion}".lower()
+    blocked_patterns = [
+        "remove author",
+        "delete author",
+        "drop author",
+        "remove corresponding author",
+        "change corresponding author",
+        "remove pi",
+        "replace author list",
+        "delete affiliation",
+    ]
+    return any(p in text for p in blocked_patterns)
 
 
 def _limit_comments_per_paragraph(entries: list[dict[str, Any]], max_per_paragraph: int = 2) -> list[dict[str, Any]]:
@@ -333,6 +352,9 @@ def _limit_comments_per_paragraph(entries: list[dict[str, Any]], max_per_paragra
 def _is_front_or_back_matter_text(text: str) -> bool:
     t = text.lower().strip()
     if not t:
+        return True
+    if len(t) < 180 and t.count(",") >= 2 and "." not in t:
+        # Likely author list / affiliation roster line.
         return True
     if re.match(r"^\d+\s*[a-z].*\b(university|department|inc\.|corp\.|usa|uk|germany|france|switzerland)\b", t):
         return True

@@ -6,7 +6,7 @@ import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 import requests
 
@@ -31,6 +31,30 @@ class CitationFetchReport:
     total_candidates: int
     total_downloaded: int
     entries: list[dict]
+
+
+@dataclass
+class CitationMethodContext:
+    reference: str
+    doi: str | None
+    title: str | None
+    cfg: ReviewerConfig
+    timeout: int
+    dest_dir: Path
+    doi_cache: dict[str, str]
+
+
+@dataclass
+class CitationMethodResult:
+    status: str
+    saved_path: str | None = None
+    doi: str | None = None
+    title: str | None = None
+    source: str | None = None
+    candidate_count: int = 0
+
+
+CitationMethod = Callable[[CitationMethodContext], CitationMethodResult]
 
 
 def extract_doi(text: str) -> str | None:
@@ -68,14 +92,13 @@ def parse_references(text: str, max_refs: int) -> list[str]:
             if current:
                 refs.append(current.strip())
             current = line
-        else:
-            if current:
-                if current.endswith("-"):
-                    current = current[:-1] + line
-                else:
-                    current += " " + line
+        elif current:
+            if current.endswith("-"):
+                current = current[:-1] + line
             else:
-                current = line
+                current += " " + line
+        else:
+            current = line
         if len(refs) >= max_refs:
             break
     if current and len(refs) < max_refs:
@@ -92,12 +115,11 @@ def parse_references(text: str, max_refs: int) -> list[str]:
             if current:
                 refs.append(current.strip())
             current = line
-        else:
-            if current:
-                if current.endswith("-"):
-                    current = current[:-1] + line
-                else:
-                    current += " " + line
+        elif current:
+            if current.endswith("-"):
+                current = current[:-1] + line
+            else:
+                current += " " + line
         if len(refs) >= max_refs:
             break
     if current and len(refs) < max_refs:
@@ -112,14 +134,21 @@ def _safe_filename(text: str) -> str:
     return (name[:80] + ".pdf") if not name.lower().endswith(".pdf") else name[:84]
 
 
-def _requests_get(url: str, timeout: int) -> requests.Response | None:
+def _requests_get(url: str, timeout: int, accept_pdf: bool = False) -> requests.Response | None:
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+        ),
+        "Accept": "application/pdf,application/xhtml+xml,text/html;q=0.9,*/*;q=0.8" if accept_pdf else "application/json,*/*",
+    }
     try:
-        return requests.get(url, timeout=timeout, headers={"User-Agent": "AI-Reviewer/1.0"})
+        return requests.get(url, timeout=timeout, headers=headers)
     except Exception:
         return None
 
 
-def _find_pdf_urls(doi: str, cfg: ReviewerConfig, timeout: int) -> list[tuple[str, str]]:
+def _find_pdf_urls_for_doi(doi: str, cfg: ReviewerConfig, timeout: int) -> list[tuple[str, str]]:
     urls: list[tuple[str, str]] = []
     if not doi:
         return urls
@@ -164,7 +193,7 @@ def _find_pdf_urls(doi: str, cfg: ReviewerConfig, timeout: int) -> list[tuple[st
 
 
 def _download_pdf(url: str, dest: Path, timeout: int) -> str:
-    r = _requests_get(url, timeout)
+    r = _requests_get(url, timeout, accept_pdf=True)
     if not r:
         return "request_failed"
     if r.status_code != 200:
@@ -176,7 +205,7 @@ def _download_pdf(url: str, dest: Path, timeout: int) -> str:
     return "ok"
 
 
-def _crossref_lookup(reference: str, timeout: int) -> tuple[str | None, str | None]:
+def _crossref_lookup(reference: str) -> tuple[str | None, str | None]:
     if Crossref is None:
         return None, None
     try:
@@ -193,6 +222,114 @@ def _crossref_lookup(reference: str, timeout: int) -> tuple[str | None, str | No
         return None, None
 
 
+def _method_doi_open_access_apis(ctx: CitationMethodContext) -> CitationMethodResult:
+    doi = ctx.doi
+    if not doi:
+        return CitationMethodResult(status="no_doi")
+    cached_path = ctx.doi_cache.get(doi.lower())
+    if cached_path and Path(cached_path).exists():
+        return CitationMethodResult(
+            status="already_present_by_cache",
+            saved_path=cached_path,
+            doi=doi,
+            title=ctx.title,
+            source="doi_cache",
+            candidate_count=0,
+        )
+    urls = _find_pdf_urls_for_doi(doi, ctx.cfg, ctx.timeout)
+    if not urls:
+        return CitationMethodResult(status="no_oa_links", doi=doi, title=ctx.title, candidate_count=0)
+    name = _safe_filename((ctx.title or doi).replace("/", "_"))
+    dest = ctx.dest_dir / name
+    if dest.exists():
+        return CitationMethodResult(
+            status="already_present",
+            saved_path=str(dest),
+            doi=doi,
+            title=ctx.title,
+            source="existing",
+            candidate_count=len(urls),
+        )
+    status = "no_oa_links"
+    for source, url in urls:
+        dl = _download_pdf(url, dest, ctx.timeout)
+        if dl == "ok":
+            return CitationMethodResult(
+                status=f"downloaded:{source}",
+                saved_path=str(dest),
+                doi=doi,
+                title=ctx.title,
+                source=source,
+                candidate_count=len(urls),
+            )
+        status = f"failed:{dl}"
+        time.sleep(random.uniform(0.2, 0.6))
+    return CitationMethodResult(status=status, doi=doi, title=ctx.title, candidate_count=len(urls))
+
+
+def _method_crossref_lookup_then_oa(ctx: CitationMethodContext) -> CitationMethodResult:
+    if ctx.doi:
+        return CitationMethodResult(status="skip_has_doi", doi=ctx.doi, title=ctx.title)
+    doi, title = _crossref_lookup(ctx.reference)
+    if not doi:
+        return CitationMethodResult(status="no_doi", title=ctx.title)
+    nested = CitationMethodContext(
+        reference=ctx.reference,
+        doi=doi,
+        title=title or ctx.title,
+        cfg=ctx.cfg,
+        timeout=ctx.timeout,
+        dest_dir=ctx.dest_dir,
+        doi_cache=ctx.doi_cache,
+    )
+    out = _method_doi_open_access_apis(nested)
+    out.doi = out.doi or doi
+    out.title = out.title or title
+    return out
+
+
+REGISTERED_CITATION_METHODS: dict[str, CitationMethod] = {
+    # Fast path when DOI exists in the reference string.
+    "doi_open_access_apis": _method_doi_open_access_apis,
+    # Fallback path inspired by PaperScraperV2: title->Crossref->OA APIs.
+    "crossref_lookup_then_oa": _method_crossref_lookup_then_oa,
+}
+
+
+def _resolve_method_order(cfg: ReviewerConfig) -> list[str]:
+    ordered = [m.strip() for m in (cfg.citation_fetch.methods or []) if m.strip()]
+    return ordered or ["doi_open_access_apis", "crossref_lookup_then_oa"]
+
+
+def _doi_cache_path(other_dir: Path) -> Path:
+    return other_dir / "citation_doi_cache.json"
+
+
+def _load_doi_cache(other_dir: Path) -> dict[str, str]:
+    path = _doi_cache_path(other_dir)
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, str] = {}
+    for k, v in raw.items():
+        doi = str(k).strip().lower()
+        p = Path(str(v))
+        if doi and p.exists():
+            out[doi] = str(p)
+    return out
+
+
+def _save_doi_cache(other_dir: Path, cache: dict[str, str]) -> None:
+    path = _doi_cache_path(other_dir)
+    payload = {k: v for k, v in sorted(cache.items())}
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def fetch_citations_for_documents(
     docs: Iterable[ParsedDocument],
     project_root: Path,
@@ -205,43 +342,84 @@ def fetch_citations_for_documents(
     if cfg.defaults.strict_offline:
         return CitationFetchReport(False, "strict_offline", 0, 0, 0, [])
 
-    other_dir = project_root / "materials" / "other" / "citations"
+    other_dir = project_root / "materials" / "other"
     other_dir.mkdir(parents=True, exist_ok=True)
     entries: list[dict] = []
     total_downloaded = 0
     total_candidates = 0
+    total_cache_hits = 0
+    method_order = _resolve_method_order(cfg)
+    active_methods = [m for m in method_order if m in REGISTERED_CITATION_METHODS]
+    doi_cache = _load_doi_cache(other_dir)
+
+    if logger:
+        logger.info(
+            "citation_fetch_stage_start methods=%s output_dir=%s",
+            ",".join(active_methods) or "none",
+            other_dir,
+        )
 
     for doc in docs:
         refs = parse_references(doc.raw_text or doc.cleaned_text, cfg.citation_fetch.max_refs_per_doc)
         for ref in refs[: cfg.citation_fetch.max_papers]:
-            doi = extract_doi(ref)
-            title = None
-            if not doi:
-                doi, title = _crossref_lookup(ref, cfg.citation_fetch.request_timeout_seconds)
-            if not doi:
-                entries.append({"reference": ref, "status": "no_doi"})
-                continue
-
-            urls = _find_pdf_urls(doi, cfg, cfg.citation_fetch.request_timeout_seconds)
-            total_candidates += len(urls)
-            status = "no_oa_links"
-            saved = None
-            for src, url in urls:
-                name = _safe_filename(title or doi.replace("/", "_"))
-                dest = other_dir / name
-                if dest.exists():
-                    status = "already_present"
-                    saved = str(dest)
+            initial_doi = extract_doi(ref)
+            title = extract_title(ref)
+            entry = {
+                "reference": ref,
+                "doi": initial_doi,
+                "title": title,
+                "status": "not_attempted",
+                "saved_path": None,
+                "method_attempts": [],
+            }
+            if entry["doi"]:
+                cached_path = doi_cache.get(str(entry["doi"]).lower())
+                if cached_path and Path(cached_path).exists():
+                    entry["status"] = "already_present_by_cache"
+                    entry["saved_path"] = cached_path
+                    entry["method_attempts"].append(
+                        {"method": "doi_cache", "status": "already_present_by_cache", "source": "doi_cache"}
+                    )
+                    total_cache_hits += 1
+                    entries.append(entry)
+                    continue
+            for method_name in active_methods:
+                method = REGISTERED_CITATION_METHODS.get(method_name)
+                if method is None:
+                    continue
+                ctx = CitationMethodContext(
+                    reference=ref,
+                    doi=entry.get("doi"),
+                    title=entry.get("title"),
+                    cfg=cfg,
+                    timeout=cfg.citation_fetch.request_timeout_seconds,
+                    dest_dir=other_dir,
+                    doi_cache=doi_cache,
+                )
+                result = method(ctx)
+                total_candidates += int(result.candidate_count)
+                if result.doi and not entry.get("doi"):
+                    entry["doi"] = result.doi
+                if result.title and not entry.get("title"):
+                    entry["title"] = result.title
+                attempt = {"method": method_name, "status": result.status, "source": result.source}
+                entry["method_attempts"].append(attempt)
+                if result.status.startswith("downloaded:") or result.status == "already_present":
+                    entry["status"] = result.status
+                    entry["saved_path"] = result.saved_path
+                    if entry.get("doi") and entry.get("saved_path"):
+                        doi_cache[str(entry["doi"]).lower()] = str(entry["saved_path"])
+                    if result.status.startswith("downloaded:"):
+                        total_downloaded += 1
                     break
-                dl = _download_pdf(url, dest, cfg.citation_fetch.request_timeout_seconds)
-                if dl == "ok":
-                    status = f"downloaded:{src}"
-                    saved = str(dest)
-                    total_downloaded += 1
+                if result.status == "already_present_by_cache":
+                    entry["status"] = result.status
+                    entry["saved_path"] = result.saved_path
+                    total_cache_hits += 1
                     break
-                status = f"failed:{dl}"
-                time.sleep(random.uniform(0.2, 0.6))
-            entries.append({"reference": ref, "doi": doi, "status": status, "saved_path": saved})
+                entry["status"] = result.status
+            entries.append(entry)
+    _save_doi_cache(other_dir, doi_cache)
 
     report = CitationFetchReport(
         enabled=True,
@@ -254,20 +432,25 @@ def fetch_citations_for_documents(
     payload = {
         "enabled": report.enabled,
         "reason": report.reason,
+        "methods": active_methods,
+        "output_dir": str(other_dir),
         "total_references": report.total_references,
         "total_candidates": report.total_candidates,
         "total_downloaded": report.total_downloaded,
+        "total_cache_hits": total_cache_hits,
+        "doi_cache_entries": len(doi_cache),
         "entries": report.entries,
     }
     if run_dir:
+        (run_dir / "artifacts").mkdir(parents=True, exist_ok=True)
         (run_dir / "artifacts" / "citation_fetch_report.json").write_text(
             json.dumps(payload, indent=2),
             encoding="utf-8",
         )
     if logger:
         logger.info(
-            "citation_fetch enabled=%s downloaded=%s candidates=%s entries=%s",
-            report.enabled,
+            "citation_fetch_stage_done methods=%s downloaded=%s candidates=%s entries=%s",
+            ",".join(active_methods) or "none",
             report.total_downloaded,
             report.total_candidates,
             report.total_references,

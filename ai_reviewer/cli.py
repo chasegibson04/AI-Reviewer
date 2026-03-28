@@ -288,6 +288,41 @@ def _resolve_docs(input_path: Optional[Path], project: Optional[str], material_i
     return docs, supporting_docs, failures, project_id
 
 
+def _refresh_supporting_docs(project_id: str):
+    store = _store()
+    pdir, meta = store.get_project(project_id)
+    store.sync_project_material_inventory(meta.project_id)
+    pdir, meta = store.get_project(meta.project_id)
+    supporting_docs = []
+    failures = []
+    seen_paths: set[Path] = set()
+    for material in [m for m in meta.materials if m.category != "manuscript_draft"]:
+        src = store.material_path(pdir, material)
+        seen_paths.add(src.resolve())
+        if not src.exists():
+            failures.append({"source": str(src), "error": "Supporting material file not found."})
+            continue
+        try:
+            supporting_docs.append(parse_file(src))
+        except Exception as exc:
+            failures.append({"source": str(src), "error": f"Supporting parse failed: {exc}"})
+    other_dir = pdir / "materials" / "other"
+    if other_dir.exists():
+        for src in other_dir.rglob("*"):
+            if not src.is_file():
+                continue
+            if src.resolve() in seen_paths:
+                continue
+            if src.suffix.lower() not in {".pdf", ".docx", ".md", ".txt"}:
+                continue
+            try:
+                supporting_docs.append(parse_file(src))
+                seen_paths.add(src.resolve())
+            except Exception as exc:
+                failures.append({"source": str(src), "error": f"Supporting parse failed: {exc}"})
+    return supporting_docs, failures
+
+
 def _training_injection(cfg, logger, profile_key: str, disable_training_guidance: bool):
     if disable_training_guidance or not cfg.training.enabled or not cfg.training.inject_by_default:
         return None, []
@@ -469,6 +504,11 @@ def review(
 
     if project_id and project_root:
         fetch_citations_for_documents(docs, project_root, cfg, logger, run_dir=run_dir)
+        refreshed_support, refresh_failures = _refresh_supporting_docs(project_id)
+        if refreshed_support:
+            supporting_docs = refreshed_support
+        if refresh_failures:
+            failures.extend(refresh_failures)
 
     guidance_text, guidance_categories = _training_injection(cfg, logger, prof.key, disable_training_guidance)
     orchestrator = _build_orchestrator(cfg, provider, logger)

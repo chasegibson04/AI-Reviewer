@@ -65,3 +65,13 @@ orchestrator:
   enable_deeprun_qa: true
   log_decisions: true
   fail_open: true
+
+citation_fetch:
+  enabled: true
+  email: ""
+  max_papers: 500
+  max_refs_per_doc: 500
+  request_timeout_seconds: 20
+  methods:
+    - doi_open_access_apis
+    - crossref_lookup_then_oa

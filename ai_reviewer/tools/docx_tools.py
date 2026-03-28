@@ -69,15 +69,40 @@ def create_commented_docx_copy(
 
     added = 0
     anchored_paragraph_indices: list[int] = []
+
+    def _anchor_runs(paragraph, anchor_text: str):
+        full_text = paragraph.text or ""
+        if not anchor_text or not full_text:
+            return None, None
+        low_full = full_text.lower()
+        low_anchor = anchor_text.lower().strip()
+        pos = low_full.find(low_anchor)
+        if pos < 0:
+            return None, None
+        before = full_text[:pos]
+        middle = full_text[pos : pos + len(anchor_text)]
+        after = full_text[pos + len(anchor_text) :]
+        paragraph.text = ""
+        before_run = paragraph.add_run(before) if before else None
+        middle_run = paragraph.add_run(middle)
+        after_run = paragraph.add_run(after) if after else None
+        return middle_run, middle_run or before_run or after_run
+
     for pidx, entries in paragraph_map.items():
         if pidx >= len(doc.paragraphs):
             continue
         paragraph = doc.paragraphs[pidx]
         if not paragraph.runs:
             paragraph.add_run(" ")
-        first_run = paragraph.runs[0]
-        last_run = paragraph.runs[-1]
         for item in entries[:3]:
+            first_run = paragraph.runs[0]
+            last_run = paragraph.runs[-1]
+            anchor_text = str(item.get("anchor_text", "")).strip()
+            anchored_first, anchored_last = _anchor_runs(paragraph, anchor_text)
+            if anchored_first is not None and anchored_last is not None:
+                first_run, last_run = anchored_first, anchored_last
+            elif paragraph.runs:
+                first_run, last_run = paragraph.runs[0], paragraph.runs[-1]
             body = (
                 f"Issue: {item.get('issue_type', 'general')}\n"
                 f"Severity: {item.get('severity', 'medium')}\n"
@@ -191,7 +216,9 @@ def create_suggested_changes_docx(
             continue
         if idx >= len(doc.paragraphs):
             continue
-        doc.paragraphs[idx].text = revised
+        original_text = (change.get("original_text") or doc.paragraphs[idx].text or "").strip()
+        visible = f"{original_text}\n[Suggested change] {revised}"
+        doc.paragraphs[idx].text = visible
         applied += 1
         applied_indices.append(idx)
     output_docx.parent.mkdir(parents=True, exist_ok=True)

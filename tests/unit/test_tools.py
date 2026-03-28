@@ -71,7 +71,8 @@ def test_suggested_changes_docx_applies_edits(tmp_path: Path):
     assert out.exists()
     assert result["changes_applied"] == 1
     reopened = Document(str(out))
-    assert reopened.paragraphs[1].text == "Paragraph one updated."
+    assert "Paragraph one." in reopened.paragraphs[1].text
+    assert "[Suggested change] Paragraph one updated." in reopened.paragraphs[1].text
     validation = validate_suggested_changes_docx(source, out)
     assert validation["structure_intact"] is True
 

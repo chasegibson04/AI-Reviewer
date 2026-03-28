@@ -104,6 +104,7 @@ class CitationFetchConfig:
     max_papers: int = 500
     max_refs_per_doc: int = 500
     request_timeout_seconds: int = 20
+    methods: list[str] = field(default_factory=lambda: ["doi_open_access_apis", "crossref_lookup_then_oa"])
 
 
 @dataclass
@@ -237,6 +238,11 @@ def _env_overrides() -> dict[str, Any]:
         ("AI_REVIEWER_CITATION_FETCH_MAX_PAPERS", ("citation_fetch", "max_papers"), int),
         ("AI_REVIEWER_CITATION_FETCH_MAX_REFS", ("citation_fetch", "max_refs_per_doc"), int),
         ("AI_REVIEWER_CITATION_FETCH_TIMEOUT", ("citation_fetch", "request_timeout_seconds"), int),
+        (
+            "AI_REVIEWER_CITATION_FETCH_METHODS",
+            ("citation_fetch", "methods"),
+            lambda v: [x.strip() for x in v.split(",") if x.strip()],
+        ),
     ]
 
     out: dict[str, Any] = {}
@@ -340,6 +346,7 @@ def write_example_local_config(path: Path) -> None:
             "max_papers": 500,
             "max_refs_per_doc": 500,
             "request_timeout_seconds": 20,
+            "methods": ["doi_open_access_apis", "crossref_lookup_then_oa"],
         },
     }
     path.parent.mkdir(parents=True, exist_ok=True)
