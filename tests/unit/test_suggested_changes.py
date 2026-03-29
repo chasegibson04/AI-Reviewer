@@ -6,7 +6,7 @@ from pathlib import Path
 from docx import Document
 
 from ai_reviewer.models.base import ChatRequest
-from ai_reviewer.review.manuscript_annotation import _generate_suggested_changes
+from ai_reviewer.review.manuscript_annotation import _comment_entry_quality_ok, _generate_suggested_changes
 
 
 class DummyProvider:
@@ -199,3 +199,55 @@ def test_suggested_changes_structure_issue_can_apply_when_localized(tmp_path: Pa
     )
     assert changes[0]["status"] == "applied"
     assert applied
+
+
+def test_suggested_changes_unsupported_addition_falls_back_to_safe_local_rewrite(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    original = "The workflow integrates model output into the execution software for reaction setup, and then passes formatted instructions to the automation layer."
+    _write_docx(base_docx, [original])
+    comments = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "clarity",
+            "severity": "medium",
+            "critique": "Clarify the workflow sentence and keep claims grounded.",
+            "suggested_revision": "Improve precision and avoid broad claims.",
+        }
+    ]
+    responses = [
+        json.dumps(
+            {
+                "revised_text": (
+                    "The workflow integrates model output into the execution software for reaction setup, and then passes formatted instructions to the automation layer. "
+                    "We conducted comparative studies and observed statistically significant gains."
+                ),
+                "rationale": "Adds contextual comparison.",
+                "confidence": 0.8,
+            }
+        )
+    ]
+    provider = DummyProvider(responses)
+    changes, applied = _generate_suggested_changes(
+        base_docx=base_docx,
+        comments=comments,
+        source_mode={"mode": "original_docx"},
+        project_id="p1",
+        run_id="r1",
+        provider=provider,
+        model="test-chat",
+        rewrite_model="test-chat",
+        timeout_seconds=30,
+    )
+    assert applied
+    assert changes[0]["status"] == "applied"
+    assert changes[0]["verification"]["reason"] == "unsupported_addition"
+
+
+def test_comment_entry_quality_gate_rejects_low_value_suggestion():
+    entry = {
+        "critique": "Provide detailed experimental procedures, including specific parameters and settings.",
+        "suggested_revision": "Proposed edit: phactor.",
+    }
+    paragraph = "phactor. An interfacing script written in python is provided online."
+    assert _comment_entry_quality_ok(entry, paragraph) is False

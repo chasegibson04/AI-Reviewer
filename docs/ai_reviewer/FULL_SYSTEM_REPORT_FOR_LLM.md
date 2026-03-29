@@ -236,6 +236,7 @@ Safety/quality controls in annotation layer:
 - Dedup and paragraph clustering controls.
 - Absurd-change blocking (e.g., author-list tampering patterns).
 - Rewrite gating and unresolved statuses for unsafe/global-only changes.
+- Unsupported-addition guard to block speculative inserted claims (for example fabricated comparative-study statements), with safe local fallback rewrite when possible.
 
 ## 13. Figure Review Pipeline (Current Capability)
 

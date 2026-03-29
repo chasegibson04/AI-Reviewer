@@ -115,6 +115,7 @@ If retrieval is enabled:
    - PDF source mode: generate surrogate base DOCX + `surrogate_manuscript_from_pdf_with_comments.docx`
    - validates real comment count + body text preservation
    - generates a separate suggested-changes DOCX based on comments + context
+   - blocks speculative rewrite insertions (for example newly invented comparative-study claims) and falls back to safe local rewrites
    - writes `manuscript_suggested_changes_manifest.json` + `suggested_changes_validation.json`
 
 11. Final report synthesis

@@ -1,6 +1,6 @@
 # Final Harsh Audit Packet
 
-Generated at: 2026-03-28
+Generated at: 2026-03-29
 
 ## Scope Guard
 
@@ -15,19 +15,19 @@ Generated at: 2026-03-28
   - suggested changes: `11`
   - applied: `5`
   - comments added: `13`
-- Phactor final: `20260328_220607_deep_run`
+- Phactor final: `20260328_234132_deep_run`
   - suggested changes: `11`
-  - applied: `10`
-  - comments added: `13`
+  - applied: `9`
+  - comments added: `12`
 
 - Miniaturization baseline: `20260328_182044_deep_run`
   - suggested changes: `6`
   - applied: `3`
   - comments added: `8`
-- Miniaturization final: `20260328_222544_deep_run`
-  - suggested changes: `6`
+- Miniaturization final: `20260328_235916_deep_run`
+  - suggested changes: `7`
   - applied: `6`
-  - comments added: `7`
+  - comments added: `8`
 
 ## Key Fixes Implemented
 
@@ -39,6 +39,7 @@ Generated at: 2026-03-28
   - localized structural issues no longer globally skipped by default
   - stricter rewrite alignment checks
   - deterministic safe fallback rewrite when model output fails quality checks
+  - explicit blocking/fallback for unsupported speculative additions (e.g., fabricated comparative-study claims)
 - Support-material contamination controls:
   - relevance filtering for support docs in `review` and `deep-run`
   - blocked marker filtering (`BioGPT`, `OpenAI Gym`, etc.)
@@ -52,17 +53,17 @@ Generated at: 2026-03-28
 ## Validation Runs
 
 - `review --profile balanced`:
-  - `20260325163524_test-existingphactorpaper` -> `20260328_211938_review`
-  - `20260327051312_miniaturization_d2b` -> `20260328_212802_review`
+  - `20260325163524_test-existingphactorpaper` -> `20260328_232417_review`
+  - `20260327051312_miniaturization_d2b` -> `20260328_232417_review`
 - `deep-run`:
-  - phactor -> `20260328_220607_deep_run`
-  - miniaturization -> `20260328_222544_deep_run`
+  - phactor -> `20260328_234132_deep_run`
+  - miniaturization -> `20260328_235916_deep_run`
 
 All above runs: output verification passed.
 
 ## Tests
 
-- Full suite: `108 passed`
+- Full suite: `110 passed`
 - Targeted regression tests added for:
   - support filtering
   - structure-localized rewrite path
@@ -72,4 +73,4 @@ All above runs: output verification passed.
 
 - Section labeling still leaves residual `body` assignments on miniaturization.
 - Sparse-review enrichment still triggers frequently (base model consistency limitation).
-- Mac-specific runtime validated through tests and routing safeguards in this session, not by running these long workflows on physical Mac hardware here.
+- Mac-specific runtime validated through routing guards/tests in this session; full physical M3 long-run execution is still a remaining external validation step.

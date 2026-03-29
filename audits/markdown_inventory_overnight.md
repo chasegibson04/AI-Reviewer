@@ -1,6 +1,6 @@
 # Markdown Inventory (Overnight Rebuild)
 
-Date: 2026-03-28
+Date: 2026-03-29
 
 ## Inspected and Updated
 
@@ -11,9 +11,9 @@ Date: 2026-03-28
 - `docs/ai_reviewer/orchestrator_design.md`
   - Reconciled default orchestrator model to `phi4-reasoning:latest`.
 - `docs/ai_reviewer/WORKFLOW_MECHANICS.md`
-  - Added support-material relevance filtering behavior.
+  - Added support-material relevance filtering behavior and unsupported-addition rewrite guard note.
 - `docs/ai_reviewer/FULL_SYSTEM_REPORT_FOR_LLM.md`
-  - Added query-audit policy and support decontamination notes.
+  - Added query-audit policy, support decontamination notes, and unsupported speculative-addition guard note.
 - `audits/project_access_guard.md`
   - Refreshed sprint timestamp and scope confirmation.
 

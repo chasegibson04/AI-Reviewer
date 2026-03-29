@@ -362,6 +362,42 @@ def _looks_generic_comment(critique: str, suggestion: str) -> bool:
     return False
 
 
+def _comment_entry_quality_ok(entry: dict[str, Any], paragraph_text: str) -> bool:
+    critique = str(entry.get("critique", "")).strip()
+    suggestion = str(entry.get("suggested_revision", "")).strip()
+    if not critique:
+        return False
+    if _looks_generic_comment(critique, suggestion):
+        return False
+    s_low = suggestion.lower()
+    if s_low.startswith("proposed edit:"):
+        tail = suggestion.split(":", 1)[-1].strip()
+        if len(tail.split()) < 5:
+            return False
+    if suggestion and len([w for w in re.split(r"\W+", suggestion) if w]) < 4:
+        return False
+    if paragraph_text:
+        # Require at least weak lexical linkage unless this is explicit claim calibration.
+        linked = _token_overlap(paragraph_text, f"{critique} {suggestion}") >= 0.05
+        if not linked and len(critique.split()) < 14 and not any(k in s_low for k in ["clarify whether", "scope", "limitation", "boundary-condition"]):
+            return False
+    return True
+
+
+def _filter_comment_entries_by_paragraph_quality(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
+    doc = Document(str(base_docx))
+    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    filtered: list[dict[str, Any]] = []
+    for e in entries:
+        pidx = e.get("paragraph_index")
+        para = ""
+        if isinstance(pidx, int) and 0 <= pidx < len(paragraphs):
+            para = paragraphs[pidx]
+        if _comment_entry_quality_ok(e, para):
+            filtered.append(e)
+    return filtered
+
+
 def _limit_comments_per_paragraph(entries: list[dict[str, Any]], max_per_paragraph: int = 2) -> list[dict[str, Any]]:
     if not entries:
         return entries
@@ -879,6 +915,19 @@ def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None
         return False, "numeric_loss"
     if _token_overlap(o, r) < 0.35:
         return False, "low_overlap"
+    risky_additions = [
+        "comparative studies",
+        "we conducted",
+        "we compared",
+        "control experiments were performed",
+        "statistically significant",
+        "baseline comparison",
+    ]
+    o_low = o.lower()
+    r_low = r.lower()
+    for phrase in risky_additions:
+        if phrase in r_low and phrase not in o_low:
+            return False, "unsupported_addition"
     return True, None
 
 
@@ -1086,6 +1135,22 @@ def _generate_suggested_changes(
         confidence = parsed.get("confidence", None)
         ok_basic, reason = _basic_rewrite_checks(original, revised)
         if not ok_basic:
+            if reason == "unsupported_addition":
+                fallback = _rewrite_candidate(original)
+                ok_fallback, fallback_reason = _basic_rewrite_checks(original, fallback)
+                if ok_fallback:
+                    base_entry["revised_text"] = fallback[:1200]
+                    base_entry["rationale"] = "Unsupported speculative addition removed; applied deterministic local clarity rewrite."
+                    base_entry["confidence"] = 0.5
+                    base_entry["verification"] = {"ok": True, "fallback": True, "reason": "unsupported_addition"}
+                    base_entry["status"] = "applied"
+                    base_entry["skip_reason"] = None
+                    changes.append(base_entry)
+                    applied.append({"paragraph_index": pidx, "revised_text": fallback})
+                    continue
+                base_entry["skip_reason"] = fallback_reason or reason
+                changes.append(base_entry)
+                continue
             base_entry["skip_reason"] = reason
             changes.append(base_entry)
             continue
@@ -1217,8 +1282,21 @@ def build_annotated_manuscript_output(
         suggested_name = "surrogate_manuscript_from_pdf_with_suggested_changes.docx"
     comments = review_to_comment_entries(review, doc=doc, base_docx=base_docx)
     comments = _assign_paragraph_indices(comments, base_docx)
-    comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
     comments = _enrich_comment_suggestions(comments, base_docx)
+    comments = _filter_comment_entries_by_paragraph_quality(comments, base_docx)
+    comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
+    if not comments:
+        comments = [
+            {
+                "comment_id": f"cmt_{uuid4().hex[:10]}",
+                "paragraph_index": 0,
+                "issue_type": "clarity",
+                "severity": "medium",
+                "critique": "Tighten the first substantive sentence to one concrete claim and one specific supporting detail.",
+                "suggested_revision": "Proposed edit: rewrite the first substantive sentence to reduce ambiguity and remove filler wording.",
+                "rationale": "Fallback after quality gates removed low-value comment candidates.",
+            }
+        ]
     reviewed_docx = output_dir / reviewed_name
     result = create_commented_docx_copy(base_docx, reviewed_docx, comments)
     validation = validate_commented_docx(base_docx, reviewed_docx)
