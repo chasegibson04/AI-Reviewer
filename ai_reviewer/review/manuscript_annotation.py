@@ -29,6 +29,154 @@ def detect_source_mode(path: Path) -> dict[str, Any]:
     return {"mode": "surrogate_other_source", "base_type": suffix.lstrip(".")}
 
 
+def _split_sentences(text: str) -> list[str]:
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+
+
+def _normalize_section_target(section: str | None) -> str | None:
+    low = re.sub(r"[^a-zA-Z ]", " ", str(section or "")).lower()
+    low = re.sub(r"\s+", " ", low).strip()
+    if not low:
+        return None
+    if "abstract" in low:
+        return "abstract"
+    if "intro" in low or "background" in low:
+        return "introduction"
+    if any(k in low for k in ["method", "experimental", "procedure"]):
+        return "methods"
+    if "result" in low or "finding" in low:
+        return "results"
+    if "discussion" in low:
+        return "discussion"
+    if "conclusion" in low:
+        return "conclusions"
+    return None
+
+
+def _calibrate_claim_sentence(sentence: str) -> str:
+    revised = sentence
+    replacements = [
+        (r"\bevery instance tried\b", "at least one successful condition in each case study"),
+        (r"\bon the first attempt\b", "in the initial screen"),
+        (r"\bfirst attempt\b", "initial screen"),
+        (r"\bmodest to excellent\b", "modest to high"),
+        (r"\bclearly demonstrates\b", "suggests"),
+        (r"\bdemonstrates\b", "suggests"),
+        (r"\bproves\b", "supports"),
+        (r"\ball\b", "the tested"),
+        (r"\balways\b", "often"),
+        (r"\bnever\b", "did not"),
+    ]
+    for pattern, replacement in replacements:
+        revised = re.sub(pattern, replacement, revised, flags=re.IGNORECASE)
+    return revised
+
+
+def _build_sentence_level_candidates(base_docx: Path, max_comments: int) -> list[dict[str, Any]]:
+    docx = Document(str(base_docx))
+    paragraphs = [p.text.strip() for p in docx.paragraphs]
+    section_by_idx = _build_section_index_map(paragraphs)
+    candidates: list[dict[str, Any]] = []
+    per_section: dict[str, int] = {}
+    for pidx, text in enumerate(paragraphs):
+        if len(candidates) >= max_comments:
+            break
+        if not text or len(text.split()) < 16:
+            continue
+        low = text.lower()
+        section = section_by_idx.get(pidx, "body")
+        if section in {"front_matter", "references", "header_footer"}:
+            continue
+        if _is_placeholder_paragraph(low) or _is_heading_paragraph(text) or _is_front_or_back_matter_text(low):
+            continue
+        if section == "abstract" and per_section.get(section, 0) >= 1:
+            continue
+        sentences = _split_sentences(text)
+        for sentence in sentences:
+            if len(candidates) >= max_comments:
+                break
+            words = sentence.split()
+            if len(words) < 12:
+                continue
+            slow = sentence.lower()
+            entry: dict[str, Any] | None = None
+            if section in {"abstract", "results", "discussion", "conclusions", "introduction"} and any(
+                phrase in slow
+                for phrase in ["first attempt", "every instance", "all ", "always", "never", "demonstrates", "clearly demonstrates", "proves"]
+            ):
+                entry = {
+                    "paragraph_index": pidx,
+                    "issue_type": "evidence/overclaim concern",
+                    "severity": "high",
+                    "critique": f'This sentence reads broader than the evidence shown here: "{sentence[:220]}". Narrow the scope or name the tested condition explicitly.',
+                    "suggested_revision": f"Proposed edit: {_calibrate_claim_sentence(sentence)}",
+                    "rationale": "Sentence-level claim calibration grounded in manuscript wording.",
+                    "locked_paragraph": True,
+                    "anchor_text": sentence,
+                    "span_sentence": sentence,
+                    "section_target": section,
+                    "priority_score": 5,
+                }
+            elif section in {"methods", "results"} and len(words) >= 34 and sentence.count(",") >= 3:
+                rewrite = _rewrite_candidate(sentence)
+                entry = {
+                    "paragraph_index": pidx,
+                    "issue_type": "clarity",
+                    "severity": "medium",
+                    "critique": f'This sentence compresses too many procedural details into one unit: "{sentence[:220]}". Split the action from the purpose or readout.',
+                    "suggested_revision": f"Proposed edit: {rewrite}",
+                    "rationale": "Sentence-level methods/results clarity issue grounded in local text.",
+                    "locked_paragraph": True,
+                    "anchor_text": sentence,
+                    "span_sentence": sentence,
+                    "section_target": section,
+                    "priority_score": 4,
+                }
+            elif section == "introduction" and len(words) >= 28 and any(
+                phrase in slow for phrase in ["to bridge this gap", "for these reasons", "recently", "however,"]
+            ):
+                rewrite = _rewrite_candidate(sentence)
+                entry = {
+                    "paragraph_index": pidx,
+                    "issue_type": "clarity",
+                    "severity": "medium",
+                    "critique": f'This framing sentence is doing too much at once: "{sentence[:220]}". Tighten the gap statement so the problem and contribution are easier to follow.',
+                    "suggested_revision": f"Proposed edit: {rewrite}",
+                    "rationale": "Sentence-level framing cleanup grounded in introduction text.",
+                    "locked_paragraph": True,
+                    "anchor_text": sentence,
+                    "span_sentence": sentence,
+                    "section_target": section,
+                    "priority_score": 3,
+                }
+            elif section in {"discussion", "conclusions"} and len(words) >= 20 and any(
+                phrase in slow for phrase in ["we conclude", "this study", "this work", "showcases", "impact"]
+            ):
+                rewrite = _calibrate_claim_sentence(sentence)
+                if rewrite != sentence:
+                    entry = {
+                        "paragraph_index": pidx,
+                        "issue_type": "evidence/overclaim concern",
+                        "severity": "high",
+                        "critique": f'This interpretation sentence would be stronger with narrower scope language: "{sentence[:220]}".',
+                        "suggested_revision": f"Proposed edit: {rewrite}",
+                        "rationale": "Sentence-level conclusion/discussion calibration grounded in local text.",
+                        "locked_paragraph": True,
+                        "anchor_text": sentence,
+                        "span_sentence": sentence,
+                        "section_target": section,
+                        "priority_score": 4,
+                    }
+            if entry:
+                sec = str(entry.get("section_target", "body"))
+                if per_section.get(sec, 0) >= 4:
+                    continue
+                candidates.append(entry)
+                per_section[sec] = per_section.get(sec, 0) + 1
+                break
+    return candidates
+
+
 def review_to_comment_entries(
     review: Any,
     doc: ParsedDocument | None = None,
@@ -36,6 +184,8 @@ def review_to_comment_entries(
     max_comments: int = 36,
 ) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
+    if base_docx is not None:
+        entries.extend(_build_sentence_level_candidates(base_docx, max_comments=max_comments))
     for idx, sec in enumerate(review.section_specific_comments, start=1):
         critique = str(sec.comment).strip()
         if not critique:
@@ -50,6 +200,8 @@ def review_to_comment_entries(
                 "critique": critique,
                 "suggested_revision": "Proposed edit: revise the sentence that carries this claim so it states one concrete condition and one explicit limitation.",
                 "rationale": "Section-specific issue from review output with local revision guidance.",
+                "section_target": _normalize_section_target(getattr(sec, "section", "")),
+                "priority_score": 2,
             }
         )
     for idx, item in enumerate(review.extracted_action_items, start=len(entries) + 1):
@@ -68,6 +220,7 @@ def review_to_comment_entries(
                     "Suggested rewrite: replace vague phrasing with one sentence naming the condition/metric/outcome and one sentence stating boundary conditions."
                 ),
                 "rationale": "Derived from extracted action item requiring manuscript-local clarification.",
+                "priority_score": 1,
             }
         )
         if len(entries) >= max_comments:
@@ -111,6 +264,7 @@ def review_to_comment_entries(
                     "critique": text,
                     "suggested_revision": suggestion,
                     "rationale": f"Derived from {label} findings.",
+                    "priority_score": 1,
                 }
             )
             if len(entries) >= max_comments:
@@ -129,6 +283,7 @@ def review_to_comment_entries(
                 "critique": text,
                 "suggested_revision": "Suggested rewrite: tighten the sentence to one core claim, one supporting detail, and remove ambiguous qualifiers.",
                 "rationale": "Detailed reviewer comment promoted into local actionable guidance.",
+                "priority_score": 1,
             }
         )
     if not entries:
@@ -230,6 +385,8 @@ def review_to_comment_entries(
                             "locked_paragraph": True,
                             "anchor_text": s,
                             "span_sentence": s,
+                            "section_target": None,
+                            "priority_score": 3,
                         }
                     )
                     per_para_added[pidx] = per_para_added.get(pidx, 0) + 1
@@ -262,6 +419,7 @@ def review_to_comment_entries(
                 "allow_abstract": True,
                 "anchor_phrase": phrase,
                 "anchor_text": phrase,
+                "priority_score": 5,
             }
             if anchor_index is not None:
                 entry["locked_paragraph"] = True
@@ -282,7 +440,9 @@ def review_to_comment_entries(
             continue
         if _is_absurd_comment(critique, suggestion):
             continue
-        sig = (e.get("issue_type", ""), critique[:180].lower())
+        e["critique"] = critique
+        e["suggested_revision"] = suggestion
+        sig = (e.get("issue_type", ""), critique[:180].lower(), str(e.get("paragraph_index")))
         if sig in seen:
             continue
         seen.add(sig)
@@ -312,6 +472,9 @@ def review_to_comment_entries(
 
 def _rewrite_candidate(sentence: str) -> str:
     s = sentence.strip()
+    s = re.sub(r"\s+", " ", s)
+    s = re.sub(r"\s+([,.;:])", r"\1", s)
+    s = re.sub(r"\[\s*[,;]\s*\]", "", s)
     if len(s) > 260:
         s = s[:260].rstrip() + "..."
     clauses = [c.strip() for c in s.split(",") if c.strip()]
@@ -322,9 +485,10 @@ def _rewrite_candidate(sentence: str) -> str:
     if len(clauses) >= 2:
         c1 = clauses[0].rstrip(".")
         c2 = clauses[1][0:120].rstrip(".")
-        if c2 and c2[0].islower():
-            c2 = c2[0].upper() + c2[1:]
-        return f"{c1}. {c2}."
+        if len(c1.split()) >= 6 and len(c2.split()) >= 6:
+            if c2 and c2[0].islower():
+                c2 = c2[0].upper() + c2[1:]
+            return f"{c1}. {c2}."
     words = s.split()
     if len(words) > 24:
         short = " ".join(words[:24]).rstrip(".")
@@ -584,6 +748,21 @@ def _normalize_heading_text(text: str) -> str:
     return cleaned
 
 
+def _content_section_hint(text: str, current: str) -> str | None:
+    low = text.lower()
+    if any(k in low for k in ["abstract:"]):
+        return "abstract"
+    if any(k in low for k in ["general procedure", "experimental procedure", "reaction conditions", "glovebox", "1,536-well", "up lc", "uplc", "rp-hplc"]):
+        return "methods"
+    if any(k in low for k in ["yield", "conversion", "heatmap", "selected examples", "best-performing", "product was observed", "repeated on", "surveying reaction space", "initiated our studies", "we chose", "we next explored"]):
+        return "results"
+    if any(k in low for k in ["we sought to", "we conclude", "this study", "this work", "overall", "in summary", "important that", "impact that"]):
+        return "discussion" if current != "conclusions" else "conclusions"
+    if any(k in low for k in ["chemical space exploration", "drug discovery", "for these reasons", "to bridge this gap", "inspired by moore"]):
+        return "introduction"
+    return None
+
+
 def _heading_to_section(norm: str) -> str | None:
     if not norm:
         return None
@@ -614,6 +793,7 @@ def _build_section_index_map(paragraphs: list[str]) -> dict[int, str]:
     total = len(paragraphs)
     method_headings: list[int] = []
     references_heading: int | None = None
+    substantive_started = False
     for idx, text in enumerate(paragraphs):
         if not text:
             continue
@@ -621,21 +801,36 @@ def _build_section_index_map(paragraphs: list[str]) -> dict[int, str]:
         if _is_header_footer_text(low):
             section_by_idx[idx] = "header_footer"
             continue
+        if _is_placeholder_paragraph(low):
+            section_by_idx[idx] = current if current not in {"body", "front_matter"} else "body"
+            continue
         if _is_front_or_back_matter_text(low):
             section_by_idx[idx] = "front_matter"
-            current = "front_matter"
+            if not substantive_started or current == "front_matter" or (references_heading is not None and idx >= references_heading):
+                current = "front_matter"
             continue
         if _is_heading_paragraph(text):
             norm = _normalize_heading_text(text)
             heading_section = _heading_to_section(norm)
             if heading_section:
                 current = heading_section
+                substantive_started = heading_section not in {"front_matter", "references"}
                 if heading_section in {"methods", "experimental"}:
                     method_headings.append(idx)
                 if heading_section == "references":
                     references_heading = idx
         elif re.match(r"^abstract\b", low):
             current = "abstract"
+            substantive_started = True
+        elif current == "body":
+            hinted = _content_section_hint(text, current)
+            if hinted:
+                current = hinted
+                substantive_started = hinted not in {"front_matter", "references"}
+        else:
+            hinted = _content_section_hint(text, current)
+            if hinted and current not in {"references", "front_matter"}:
+                current = hinted
         section_by_idx[idx] = current
 
     body_indices = [idx for idx, sec in section_by_idx.items() if sec == "body"]
@@ -674,6 +869,22 @@ def _build_section_index_map(paragraphs: list[str]) -> dict[int, str]:
         if any(k in text for k in ["discussion", "overall", "in summary", "we conclude", "implications"]):
             section_by_idx[idx] = "discussion"
             continue
+    # Repair common PDF-surrogate pathologies where title/introduction/results bleed into body/front_matter.
+    first_methods = min(method_headings) if method_headings else None
+    for idx, sec in list(section_by_idx.items()):
+        text = paragraphs[idx].strip()
+        low = text.lower()
+        if sec == "body":
+            hint = _content_section_hint(text, sec)
+            if hint:
+                section_by_idx[idx] = hint
+        if sec == "front_matter" and first_methods is not None and idx < first_methods:
+            if len(text.split()) >= 18 and not _is_front_or_back_matter_heading(text):
+                hint = _content_section_hint(text, "introduction") or "introduction"
+                section_by_idx[idx] = hint
+        if sec == "discussion" and idx > 0 and section_by_idx.get(idx - 1) == "methods" and len(text.split()) >= 18:
+            if any(k in low for k in ["glovebox", "equiv", "mmol", "purified", "stirred", "quenched"]):
+                section_by_idx[idx] = "methods"
     return section_by_idx
 
 
@@ -714,6 +925,7 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
         critique = str(entry.get("critique", "")).lower()
         suggestion = str(entry.get("suggested_revision", "")).lower()
         anchor_phrase = str(entry.get("anchor_phrase", "")).lower().strip()
+        section_target = _normalize_section_target(entry.get("section_target"))
         anchor_terms = [w for w in (critique + " " + suggestion).split() if len(w) > 5][:12]
         issue_type = str(entry.get("issue_type", "")).lower()
 
@@ -731,7 +943,9 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
             preferred_sections = ["introduction", "results", "discussion", "conclusions"]
 
         pool = eligible
-        if preferred_sections:
+        if section_target:
+            pool = [p for p in eligible if section_by_idx.get(p, "body") == section_target] or eligible
+        elif preferred_sections:
             pool = [p for p in eligible if section_by_idx.get(p, "body") in preferred_sections] or eligible
         if issue_type in {"formatting/journal style", "figure/table concern"}:
             pool = [
@@ -775,6 +989,19 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
                     break
 
         if chosen is None:
+            scored_pool: list[tuple[float, int]] = []
+            for pidx in pool:
+                text = paragraphs[pidx].lower()
+                score = _token_overlap(text, critique + " " + suggestion)
+                if section_target and section_by_idx.get(pidx, "body") == section_target:
+                    score += 0.25
+                score -= used.get(pidx, 0) * 0.15
+                scored_pool.append((score, pidx))
+            if scored_pool:
+                scored_pool.sort(reverse=True)
+                if scored_pool[0][0] > 0.04:
+                    chosen = scored_pool[0][1]
+        if chosen is None:
             dist_total = len(eligible)
             target_rank = max(0, min(dist_total - 1, round((i + 1) * dist_total / (len(entries) + 1))))
             chosen = eligible[target_rank]
@@ -788,6 +1015,58 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
         entry["paragraph_excerpt"] = paragraphs[chosen][:180]
         entry["section_hint"] = section_by_idx.get(chosen, "body")
         used[chosen] = used.get(chosen, 0) + 1
+    return entries
+
+
+def _localize_comment_entries(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
+    doc = Document(str(base_docx))
+    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    section_by_idx = _build_section_index_map(paragraphs)
+    for entry in entries:
+        pidx = entry.get("paragraph_index")
+        if not isinstance(pidx, int) or pidx < 0 or pidx >= len(paragraphs):
+            continue
+        paragraph = paragraphs[pidx]
+        section = section_by_idx.get(pidx, "body")
+        sentences = _split_sentences(paragraph)
+        if not sentences:
+            continue
+        critique = str(entry.get("critique", "")).strip()
+        suggestion = str(entry.get("suggested_revision", "")).strip()
+        issue_type = str(entry.get("issue_type", "")).lower()
+        anchor = str(entry.get("anchor_text", "")).strip()
+        target = ""
+        if anchor and anchor in paragraph:
+            target = anchor
+        else:
+            scored = sorted(
+                (( _token_overlap(s, critique + " " + suggestion), s) for s in sentences),
+                key=lambda x: x[0],
+                reverse=True,
+            )
+            target = scored[0][1] if scored else sentences[0]
+        entry["anchor_text"] = target
+        entry["span_sentence"] = target
+        target_short = target[:220]
+        critique_low = critique.lower()
+        if issue_type == "section_issue" or _looks_generic_comment(critique, suggestion):
+            if section == "methods":
+                entry["critique"] = f'This procedural sentence is clear about the operation but not the decision point or scope boundary: "{target_short}". Add the exact readout, criterion, or limitation that governs this step.'
+                entry["suggested_revision"] = f"Proposed edit: {_rewrite_candidate(target)}"
+            elif section in {"results", "discussion", "conclusions"}:
+                entry["critique"] = f'This sentence states the result broadly without enough local qualification: "{target_short}". Name the exact outcome or narrow the scope here.'
+                entry["suggested_revision"] = f"Proposed edit: {_calibrate_claim_sentence(target)}"
+            else:
+                entry["critique"] = f'This sentence carries the local revision burden for the paragraph: "{target_short}". Tighten the wording so the main point and limitation are easier to follow.'
+                entry["suggested_revision"] = f"Proposed edit: {_rewrite_candidate(target)}"
+        elif issue_type == "methods concern" and "control" in critique_low:
+            entry["critique"] = f'This methods sentence names the operation but not the comparison point the reader needs: "{target_short}". If a control or benchmark is relevant, state it at this point rather than later.'
+            entry["suggested_revision"] = f"Proposed edit: {_rewrite_candidate(target)}"
+        elif issue_type in {"clarity", "grammar/style"} and "suggested rewrite" not in suggestion.lower():
+            entry["suggested_revision"] = f"Proposed edit: {_rewrite_candidate(target)}"
+        elif issue_type == "evidence/overclaim concern":
+            entry["critique"] = f'This sentence risks reading broader than the tested scope: "{target_short}". Narrow the claim or specify the tested condition directly.'
+            entry["suggested_revision"] = f"Proposed edit: {_calibrate_claim_sentence(target)}"
     return entries
 
 
@@ -849,6 +1128,59 @@ def _enrich_comment_suggestions(entries: list[dict[str, Any]], base_docx: Path) 
     return entries
 
 
+def _balance_comment_entries(entries: list[dict[str, Any]], base_docx: Path, max_comments: int) -> list[dict[str, Any]]:
+    if not entries:
+        return entries
+    section_by_idx = _section_lookup_for_docx(base_docx)
+    severity_rank = {"high": 3, "medium": 2, "low": 1}
+    sorted_entries = sorted(
+        entries,
+        key=lambda e: (
+            -(int(e.get("priority_score", 0))),
+            -severity_rank.get(str(e.get("severity", "medium")).lower(), 2),
+        ),
+    )
+    chosen: list[dict[str, Any]] = []
+    used_ids: set[str] = set()
+    sections = ["abstract", "introduction", "methods", "results", "discussion", "conclusions"]
+    for section in sections:
+        for entry in sorted_entries:
+            cid = str(entry.get("comment_id", ""))
+            if cid in used_ids:
+                continue
+            pidx = entry.get("paragraph_index")
+            if not isinstance(pidx, int):
+                continue
+            if section_by_idx.get(pidx, "body") != section:
+                continue
+            chosen.append(entry)
+            used_ids.add(cid)
+            break
+    section_counts: dict[str, int] = {}
+    for entry in chosen:
+        pidx = entry.get("paragraph_index")
+        if isinstance(pidx, int):
+            sec = section_by_idx.get(pidx, "body")
+            section_counts[sec] = section_counts.get(sec, 0) + 1
+    for entry in sorted_entries:
+        if len(chosen) >= max_comments:
+            break
+        cid = str(entry.get("comment_id", ""))
+        if cid in used_ids:
+            continue
+        pidx = entry.get("paragraph_index")
+        if not isinstance(pidx, int):
+            continue
+        sec = section_by_idx.get(pidx, "body")
+        if section_counts.get(sec, 0) >= 4:
+            continue
+        chosen.append(entry)
+        used_ids.add(cid)
+        section_counts[sec] = section_counts.get(sec, 0) + 1
+    chosen_ids = {id(e) for e in chosen}
+    return [e for e in entries if id(e) in chosen_ids]
+
+
 def _section_map_for_docx(base_docx: Path) -> list[dict[str, Any]]:
     doc = Document(str(base_docx))
     paragraphs = [p.text.strip() for p in doc.paragraphs]
@@ -896,6 +1228,17 @@ def _numeric_tokens(text: str) -> set[str]:
     return {t.strip() for t in tokens if t.strip()}
 
 
+def _content_tokens(text: str) -> set[str]:
+    stop = {
+        "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "with", "by", "from", "that", "this", "these",
+        "those", "is", "are", "was", "were", "be", "been", "being", "it", "its", "as", "at", "we", "our", "their",
+        "can", "may", "might", "could", "should", "would", "into", "than", "then", "also", "however", "therefore",
+        "thus", "here", "there", "using", "used", "use", "via", "based", "study", "work", "results", "result",
+        "data", "method", "methods",
+    }
+    return {t for t in re.findall(r"[a-zA-Z][a-zA-Z0-9_-]+", text.lower()) if t not in stop and len(t) > 2}
+
+
 def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None]:
     o = original.strip()
     r = revised.strip()
@@ -915,6 +1258,11 @@ def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None
         return False, "numeric_loss"
     if _token_overlap(o, r) < 0.35:
         return False, "low_overlap"
+    orig_content = _content_tokens(o)
+    rev_content = _content_tokens(r)
+    novel_content = rev_content - orig_content
+    if len(novel_content) >= 8 and len(novel_content) > max(7, int(len(orig_content) * 0.75)):
+        return False, "unsupported_addition"
     risky_additions = [
         "comparative studies",
         "we conducted",
@@ -929,6 +1277,40 @@ def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None
         if phrase in r_low and phrase not in o_low:
             return False, "unsupported_addition"
     return True, None
+
+
+def _resolve_target_span(group: list[dict[str, Any]], original: str) -> str:
+    for key in ["span_sentence", "anchor_text"]:
+        for item in group:
+            text = str(item.get(key, "")).strip()
+            if text and text in original:
+                for sentence in _split_sentences(original):
+                    if text in sentence:
+                        return sentence
+                return text
+    sentences = _split_sentences(original)
+    if len(sentences) <= 1:
+        return original
+    critique = " ".join(f"{c.get('critique', '')} {c.get('suggested_revision', '')}" for c in group)
+    scored = sorted((( _token_overlap(s, critique), s) for s in sentences), key=lambda x: x[0], reverse=True)
+    if scored and scored[0][0] >= 0.03:
+        return scored[0][1]
+    return sentences[0]
+
+
+def _apply_span_rewrite(original: str, target_span: str, revised_span: str) -> str:
+    if target_span and target_span in original:
+        return original.replace(target_span, revised_span, 1)
+    return revised_span
+
+
+def _requires_nonlocal_addition(group: list[dict[str, Any]], original: str, section: str) -> bool:
+    text = " ".join(str(c.get("critique", "")) for c in group).lower()
+    if any(k in text for k in ["provide more information", "include more details", "expand the methods section", "lacks sufficient controls", "thorough analysis of uncertainty"]):
+        if not any(str(c.get("anchor_text", "")).strip() or str(c.get("span_sentence", "")).strip() for c in group):
+            if section in {"methods", "results", "discussion"} and len(original.split()) >= 40:
+                return True
+    return False
 
 
 def _is_global_issue_not_localized(group: list[dict[str, Any]], original: str) -> bool:
@@ -1006,6 +1388,7 @@ def _generate_suggested_changes(
     for pidx, group in sorted(grouped.items(), key=lambda x: x[0]):
         section = section_by_idx.get(pidx, "body")
         original = paragraphs[pidx].strip()
+        target_span = _resolve_target_span(group, original)
         change_id = f"chg_{uuid4().hex[:10]}"
         issue_types = sorted({str(c.get("issue_type", "")).strip() for c in group if str(c.get("issue_type", "")).strip()})
         severity = max((c.get("severity") for c in group), key=_severity_rank, default="medium")
@@ -1033,6 +1416,10 @@ def _generate_suggested_changes(
             continue
         if _is_global_issue_not_localized(group, original):
             base_entry["skip_reason"] = "global_issue_not_localized"
+            changes.append(base_entry)
+            continue
+        if _requires_nonlocal_addition(group, original, section):
+            base_entry["skip_reason"] = "no_safe_local_rewrite"
             changes.append(base_entry)
             continue
         low = original.lower().strip()
@@ -1103,8 +1490,9 @@ def _generate_suggested_changes(
             f"RULE: {rule}\n\n"
             f"COMMENTS:\n" + "\n".join(critique_lines) + "\n\n"
             f"CONTEXT:\n{context}\n\n"
-            "Rewrite ONLY the TARGET paragraph. If no safe improvement exists, return the original text. "
-            "Return JSON only."
+            f'TARGET SPAN:\n{target_span}\n\n'
+            "Rewrite ONLY the TARGET SPAN so it resolves the comment while preserving the paragraph's meaning. "
+            "Do not rewrite surrounding sentences. Return JSON only."
         )
         use_model = rewrite_model or model
         try:
@@ -1133,10 +1521,11 @@ def _generate_suggested_changes(
         revised = str(parsed.get("revised_text", "") or "").strip()
         rationale = str(parsed.get("rationale", "") or "").strip()
         confidence = parsed.get("confidence", None)
-        ok_basic, reason = _basic_rewrite_checks(original, revised)
+        candidate_text = _apply_span_rewrite(original, target_span, revised)
+        ok_basic, reason = _basic_rewrite_checks(original, candidate_text)
         if not ok_basic:
             if reason == "unsupported_addition":
-                fallback = _rewrite_candidate(original)
+                fallback = _apply_span_rewrite(original, target_span, _rewrite_candidate(target_span))
                 ok_fallback, fallback_reason = _basic_rewrite_checks(original, fallback)
                 if ok_fallback:
                     base_entry["revised_text"] = fallback[:1200]
@@ -1159,7 +1548,7 @@ def _generate_suggested_changes(
                 provider=provider,
                 model=use_model,
                 original=original,
-                revised=revised,
+                revised=candidate_text,
                 critique="; ".join(critique_lines)[:800],
                 timeout_seconds=timeout_seconds,
             )
@@ -1210,13 +1599,14 @@ def _generate_suggested_changes(
                     revised = str(repair_parsed.get("revised_text", "") or "").strip()
                     rationale = str(repair_parsed.get("rationale", "") or "").strip()
                     confidence = repair_parsed.get("confidence", None)
-                    ok_basic, reason = _basic_rewrite_checks(original, revised)
+                    candidate_text = _apply_span_rewrite(original, target_span, revised)
+                    ok_basic, reason = _basic_rewrite_checks(original, candidate_text)
                     if ok_basic:
                         ok_verify, verdict = _verify_rewrite(
                             provider=provider,
                             model=use_model,
                             original=original,
-                            revised=revised,
+                            revised=candidate_text,
                             critique="; ".join(critique_lines)[:800],
                             timeout_seconds=timeout_seconds,
                         )
@@ -1225,7 +1615,7 @@ def _generate_suggested_changes(
                     ok_verify = False
             if not ok_verify:
                 # Deterministic fallback when rewrite quality is uncertain but we can still make a safe local edit.
-                fallback = _rewrite_candidate(original)
+                fallback = _apply_span_rewrite(original, target_span, _rewrite_candidate(target_span))
                 ok_fallback, fallback_reason = _basic_rewrite_checks(original, fallback)
                 if ok_fallback:
                     revised = fallback
@@ -1245,7 +1635,8 @@ def _generate_suggested_changes(
                     continue
         except Exception:
             pass
-        base_entry["revised_text"] = revised[:1200]
+        final_text = revised if isinstance(base_entry.get("verification"), dict) and base_entry["verification"].get("fallback") else candidate_text
+        base_entry["revised_text"] = final_text[:1200]
         base_entry["rationale"] = rationale[:600] if rationale else None
         try:
             base_entry["confidence"] = float(confidence) if confidence is not None else None
@@ -1282,8 +1673,10 @@ def build_annotated_manuscript_output(
         suggested_name = "surrogate_manuscript_from_pdf_with_suggested_changes.docx"
     comments = review_to_comment_entries(review, doc=doc, base_docx=base_docx)
     comments = _assign_paragraph_indices(comments, base_docx)
+    comments = _localize_comment_entries(comments, base_docx)
     comments = _enrich_comment_suggestions(comments, base_docx)
     comments = _filter_comment_entries_by_paragraph_quality(comments, base_docx)
+    comments = _balance_comment_entries(comments, base_docx, max_comments=36)
     comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
     if not comments:
         comments = [

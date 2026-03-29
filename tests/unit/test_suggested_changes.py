@@ -6,7 +6,12 @@ from pathlib import Path
 from docx import Document
 
 from ai_reviewer.models.base import ChatRequest
-from ai_reviewer.review.manuscript_annotation import _comment_entry_quality_ok, _generate_suggested_changes
+from ai_reviewer.review.manuscript_annotation import (
+    _comment_entry_quality_ok,
+    _generate_suggested_changes,
+    _localize_comment_entries,
+    _section_lookup_for_docx,
+)
 
 
 class DummyProvider:
@@ -251,3 +256,87 @@ def test_comment_entry_quality_gate_rejects_low_value_suggestion():
     }
     paragraph = "phactor. An interfacing script written in python is provided online."
     assert _comment_entry_quality_ok(entry, paragraph) is False
+
+
+def test_section_lookup_keeps_methods_and_introduction_despite_pdf_noise(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    _write_docx(
+        base_docx,
+        [
+            "s44160-023-00351-1",
+            "https://doi.org/10.1038/s44160-023-00351-1",
+            "## Nature Synthesis",
+            "Miniaturization of popular reactions from the medicinal chemists toolbox",
+            "Chemical space exploration in drug discovery generally requires access to many molecules with diverse physicochemical properties.",
+            "Fig. 1 | Popularity of common reactions in the synthesis of pharmaceuticals.",
+            "Given our earlier success in reaction miniaturization, we initiated our studies by targeting the Suzuki coupling.",
+            "## Methods",
+            "## High-throughput experimentation",
+            "For nanoscale HTE all reactions were prepared at the 1 ul scale in a 1,536-well microplate using a liquid-handling robot.",
+            "## General procedure for Suzuki coupling",
+            "In a nitrogen-filled glovebox, pyridin-3-ylboronic acid was combined with catalyst in anhydrous DMSO and stirred overnight.",
+        ],
+    )
+    lookup = _section_lookup_for_docx(base_docx)
+    assert lookup[4] == "introduction"
+    assert lookup[6] in {"results", "discussion"}
+    assert lookup[9] == "methods"
+    assert lookup[11] == "methods"
+
+
+def test_localize_comment_entries_rewrites_generic_methods_comment(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    _write_docx(
+        base_docx,
+        [
+            "## Methods",
+            "For nanoscale HTE all reactions were prepared at the 1 ul scale in a 1,536-well microplate using a liquid-handling robot inside a glovebox, then sealed, centrifuged, and quenched the next morning.",
+        ],
+    )
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 1,
+            "issue_type": "section_issue",
+            "severity": "medium",
+            "critique": "The Methods section could benefit from more detail.",
+            "suggested_revision": "Proposed edit: revise the sentence that carries this claim so it states one concrete condition and one explicit limitation.",
+        }
+    ]
+    localized = _localize_comment_entries(entries, base_docx)
+    assert "This procedural sentence" in localized[0]["critique"]
+    assert "glovebox" in localized[0]["anchor_text"].lower()
+    assert localized[0]["suggested_revision"].startswith("Proposed edit:")
+
+
+def test_suggested_changes_nonlocal_methods_expansion_abstains(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    original = (
+        "For nanoscale HTE all reactions were prepared at the 1 ul scale in a 1,536-well microplate using the liquid-handling robot inside a glovebox. "
+        "The source plate contained all required substrates, reagents, catalysts, and building blocks, and the reaction plate was sealed, centrifuged, and left at ambient temperature overnight before quenching."
+    )
+    _write_docx(base_docx, [original])
+    comments = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "section_issue",
+            "severity": "medium",
+            "critique": "The methods section needs significant expansion and should include more details on optimization, controls, and validation steps.",
+            "suggested_revision": "Proposed edit: revise the sentence that carries this claim so it states one concrete condition and one explicit limitation.",
+        }
+    ]
+    provider = DummyProvider([])
+    changes, applied = _generate_suggested_changes(
+        base_docx=base_docx,
+        comments=comments,
+        source_mode={"mode": "original_docx"},
+        project_id="p1",
+        run_id="r1",
+        provider=provider,
+        model="test-chat",
+        rewrite_model="test-chat",
+        timeout_seconds=30,
+    )
+    assert applied == []
+    assert changes[0]["skip_reason"] == "no_safe_local_rewrite"

@@ -1,22 +1,15 @@
 {
-  "generated_by": "codex",
-  "blacklisted_projects": [
-    {
-      "id": "20260324221200_horseshoe_crabs1",
-      "name": "Horseshoe Crabs1"
-    }
-  ],
   "approved_projects": [
-    {
-      "id": "20260325163524_test-existingphactorpaper",
-      "name": "Test-existingPhactorpaper"
-    },
-    {
-      "id": "20260327051312_miniaturization_d2b",
-      "name": "miniaturization d2b"
-    }
+    "20260325163524_test-existingphactorpaper",
+    "20260327051312_miniaturization_d2b"
   ],
-  "note": "Guard refreshed for maximal overnight stress/quality/extension sprint. Real validation restricted to two approved projects.",
-  "horseshoe_crab_excluded": true,
-  "generated_at": "2026-03-29"
+  "blacklisted_projects": [
+    "20260324221200_horseshoe_crabs1"
+  ],
+  "confirmation": {
+    "horseshoe_crab_unused": true,
+    "approved_projects_only": true,
+    "refreshed_on": "2026-03-29",
+    "sprint_scope": "narrow_output_quality"
+  }
 }

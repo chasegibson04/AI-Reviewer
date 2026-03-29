@@ -10,4 +10,4 @@ Blacklisted projects:
 Confirmation:
 - Horseshoe crab was not opened or used for validation.
 - Only the two approved projects were used for real validation in this pass.
-- Guard refreshed on 2026-03-29 for maximal overnight stress/quality/extension sprint.
+- Guard refreshed on 2026-03-29 for narrow output-quality sprint focused on section mapping, comments, and suggested revisions.
