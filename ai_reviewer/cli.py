@@ -819,6 +819,9 @@ def deep_run_cmd(
     output_dir: Optional[Path] = typer.Option(None),
     config_path: Optional[str] = typer.Option(None),
     embedding_model: Optional[str] = typer.Option(None),
+    context_material_ids: Optional[str] = typer.Option(
+        None, help="Comma-separated material IDs to use as optional orchestrator/context-pack standards."
+    ),
     disable_training_guidance: bool = typer.Option(False),
 ):
     provider, cfg, run_dir, logger = _provider_for_workflow(
@@ -863,6 +866,7 @@ def deep_run_cmd(
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)
+        context_ids = [x.strip() for x in context_material_ids.split(",")] if context_material_ids else None
         result = run_deep_run(
             provider=provider,
             cfg=cfg,
@@ -872,6 +876,7 @@ def deep_run_cmd(
             store=store,
             manuscript_id=manuscript_id,
             embedding_model=selected_embed,
+            context_material_ids=context_ids,
             disable_training_guidance=disable_training_guidance,
             orchestrator=orchestrator,
         )

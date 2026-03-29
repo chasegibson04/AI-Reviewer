@@ -1093,10 +1093,29 @@ def run_review(
             figure_manifest = run_figure_review(doc, bundle_dir, config.figure_review)
             critique = figure_manifest.get("critique", {}) if isinstance(figure_manifest, dict) else {}
             figure_items = critique.get("critique", []) if isinstance(critique, dict) else []
+            repeated_caption_missing = 0
+            unique_figure_concerns: list[str] = []
+            seen: set[str] = set()
             for item in figure_items[: config.figure_review.max_figures]:
                 issues = item.get("content_issues", [])
+                fig_id = str(item.get("figure_id", "figure"))
                 for issue in issues[:2]:
-                    review.figure_table_concerns.append(f"{item.get('figure_id')}: {issue}")
+                    issue_text = str(issue).strip()
+                    if not issue_text:
+                        continue
+                    if "caption not detected via pdf text extraction" in issue_text.lower():
+                        repeated_caption_missing += 1
+                        continue
+                    line = f"{fig_id}: {issue_text}"
+                    if line in seen:
+                        continue
+                    seen.add(line)
+                    unique_figure_concerns.append(line)
+            if repeated_caption_missing > 0:
+                review.figure_table_concerns.append(
+                    f"{repeated_caption_missing} extracted figure(s) lacked reliable caption text; verify caption parsing and avoid overclaiming figure support."
+                )
+            review.figure_table_concerns.extend(unique_figure_concerns[:4])
         except Exception as exc:
             warnings.append(f"figure_review_failed:{exc}")
 

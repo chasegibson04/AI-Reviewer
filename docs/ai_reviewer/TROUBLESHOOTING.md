@@ -104,3 +104,23 @@ Actions:
    - `ai-reviewer project migrate-outputs --project <project_id>`
    - `ai-reviewer project migrate-outputs --project <project_id> --no-dry-run`
 6. If verification fails, the command exits non-zero and reports missing/empty files explicitly.
+
+## 9) Context-Pack Not Applied In Deep-Run
+
+Symptoms:
+- expected standards/journal constraints are not reflected
+- `context_pack_used.json` shows `enabled: false`
+
+Actions:
+1. Confirm material category is one of:
+   - `style_guide`
+   - `journal_instructions`
+   - `reference_example`
+   - `methods_reference`
+2. Or pass explicit IDs:
+   - `ai-reviewer deep-run --project <project_id> --context-material-ids <id1,id2>`
+3. Inspect artifacts:
+   - `context_pack_used.json`
+   - `stage_10b_compliance_check.json`
+4. If you need context-pack fully disabled for benchmark control:
+   - pass a non-matching ID (for example `--context-material-ids __none__`) and verify `enabled: false`.

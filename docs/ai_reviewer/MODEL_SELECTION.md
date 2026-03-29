@@ -8,6 +8,11 @@
 - Embedding default: `bge-m3:latest`
 - Embedding fallback: `nomic-embed-text-v2-moe:latest`
 
+Deep-run stage routing (when installed):
+- critique-heavy stages may prefer `llama3.3:70b-instruct-q4_K_M`
+- context/style stages prefer `mistral-small3.2:latest`
+- reconciliation/repair prefer `qwen2.5:7b-instruct`
+
 ## Choosing For Task
 
 - Fast first-pass screening:

@@ -1,24 +1,95 @@
 {
-  "generated_at": "2026-03-29",
-  "updated": [
-    "README.md",
-    "docs/ai_reviewer/MODEL_SELECTION.md",
-    "docs/ai_reviewer/orchestrator_design.md",
-    "docs/ai_reviewer/WORKFLOW_MECHANICS.md",
-    "docs/ai_reviewer/FULL_SYSTEM_REPORT_FOR_LLM.md",
-    "audits/project_access_guard.md"
+  "generated_at": "2026-03-29T03:53:45",
+  "inspected_files": [
+    {
+      "path": "README.md",
+      "updated": true,
+      "reason": "Added deep-run context-pack command and artifacts; clarified deep-run vs single-pass model routing."
+    },
+    {
+      "path": "docs/ai_reviewer/ARCHITECTURE.md",
+      "updated": true,
+      "reason": "Added deep-run context-pack/compliance responsibility note."
+    },
+    {
+      "path": "docs/ai_reviewer/FULL_SYSTEM_REPORT_FOR_LLM.md",
+      "updated": true,
+      "reason": "Documented context-pack stage/artifacts and post-dedupe figure behavior."
+    },
+    {
+      "path": "docs/ai_reviewer/MODEL_SELECTION.md",
+      "updated": true,
+      "reason": "Clarified single-pass defaults vs deep-run stage routing."
+    },
+    {
+      "path": "docs/ai_reviewer/orchestrator_design.md",
+      "updated": true,
+      "reason": "Documented orchestrator quality-gate role with optional context-pack constraints."
+    },
+    {
+      "path": "docs/ai_reviewer/PRIVACY_AUDIT.md",
+      "updated": true,
+      "reason": "Added citation_fetcher egress row and query-audit notes."
+    },
+    {
+      "path": "docs/ai_reviewer/SECURITY.md",
+      "updated": true,
+      "reason": "Clarified context-pack local behavior and strict-offline/network boundary."
+    },
+    {
+      "path": "docs/ai_reviewer/TROUBLESHOOTING.md",
+      "updated": true,
+      "reason": "Added context-pack troubleshooting section and forced-off benchmark tip."
+    },
+    {
+      "path": "docs/ai_reviewer/WORKFLOW_MECHANICS.md",
+      "updated": true,
+      "reason": "Added context-pack selection and deterministic compliance stage details."
+    },
+    {
+      "path": "docs/ai_reviewer/PROJECTS_AND_SLACK.md",
+      "updated": false,
+      "reason": "Current project/material and Slack simulation behavior unchanged in this pass."
+    },
+    {
+      "path": "docs/ai_reviewer/TRAINING_MATERIALS.md",
+      "updated": false,
+      "reason": "Training ingestion/injection behavior unchanged in this pass."
+    },
+    {
+      "path": "docs/citation_fetch_methods.md",
+      "updated": false,
+      "reason": "Method order/registration unchanged; docs already accurate."
+    },
+    {
+      "path": "docs/design/suggested_changes_docx.md",
+      "updated": false,
+      "reason": "Suggested-change rendering mechanism unchanged in this pass."
+    },
+    {
+      "path": "audits/project_access_guard.md",
+      "updated": true,
+      "reason": "Refreshed for this overnight stress/quality sprint."
+    },
+    {
+      "path": "audits/overnight_quality_rebuild_analysis.md",
+      "updated": true,
+      "reason": "Replaced with current-pass plan/execution and benchmark summary."
+    },
+    {
+      "path": "audits/final_harsh_audit_packet.md",
+      "updated": true,
+      "reason": "Updated with current deep-run and figure benchmark outcomes."
+    },
+    {
+      "path": "audits/overnight_stress_matrix.md",
+      "updated": true,
+      "reason": "Added/updated benchmark matrix for baseline vs orchestrator/context/figure scenarios."
+    }
   ],
-  "inspected_no_change": [
-    "docs/ai_reviewer/ARCHITECTURE.md",
-    "docs/ai_reviewer/PRIVACY_AUDIT.md",
-    "docs/ai_reviewer/PROJECTS_AND_SLACK.md",
-    "docs/ai_reviewer/SECURITY.md",
-    "docs/ai_reviewer/TRAINING_MATERIALS.md",
-    "docs/ai_reviewer/TROUBLESHOOTING.md",
-    "docs/citation_fetch_methods.md"
-  ],
-  "doc_debt": [
-    "Add dedicated SAFE_ONLINE_VERIFICATION.md",
-    "Add dedicated QUALITY_GATES.md"
+  "remaining_doc_debt": [
+    "Add dedicated SAFE_ONLINE_MODE.md that maps strict-offline and citation-fetch-safe-online behavior to exact config toggles and artifacts.",
+    "Add a concise QUALITY_GATES.md mapping orchestrator/stage QC signals to pass/fail criteria.",
+    "Run one physical Apple Silicon overnight validation and append results to docs/ai_reviewer/TROUBLESHOOTING.md."
   ]
 }

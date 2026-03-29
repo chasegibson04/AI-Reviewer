@@ -15,6 +15,7 @@ It does not replace specialist reviewers and does not run open-ended autonomous 
 - Compare version A vs B after retry
 - Evaluate profile distinctness (balanced/adversarial/methods/etc.)
 - Validate final synthesis quality for deep-run
+- Enforce quality gates on outputs that may include optional context-pack constraints (without replacing manuscript-first review)
 
 ## Non-Responsibilities
 - Not the primary scientific reviewer

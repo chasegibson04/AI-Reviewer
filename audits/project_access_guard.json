@@ -1,22 +1,22 @@
 {
-  "horseshoe_crab_excluded": true,
-  "note": "Guard refreshed for maximal overnight quality rebuild pass. Real validation restricted to two approved projects.",
-  "generated_at": "2026-03-28",
   "generated_by": "codex",
-  "approved_projects": [
-    {
-      "name": "Test-existingPhactorpaper",
-      "id": "20260325163524_test-existingphactorpaper"
-    },
-    {
-      "name": "miniaturization d2b",
-      "id": "20260327051312_miniaturization_d2b"
-    }
-  ],
   "blacklisted_projects": [
     {
-      "name": "Horseshoe Crabs1",
-      "id": "20260324221200_horseshoe_crabs1"
+      "id": "20260324221200_horseshoe_crabs1",
+      "name": "Horseshoe Crabs1"
     }
-  ]
+  ],
+  "approved_projects": [
+    {
+      "id": "20260325163524_test-existingphactorpaper",
+      "name": "Test-existingPhactorpaper"
+    },
+    {
+      "id": "20260327051312_miniaturization_d2b",
+      "name": "miniaturization d2b"
+    }
+  ],
+  "note": "Guard refreshed for maximal overnight stress/quality/extension sprint. Real validation restricted to two approved projects.",
+  "horseshoe_crab_excluded": true,
+  "generated_at": "2026-03-29"
 }

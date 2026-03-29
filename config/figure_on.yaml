@@ -1,0 +1,6 @@
+figure_review:
+  enabled: true
+  max_figures: 8
+  include_captions: true
+  include_nearby_text: true
+  style_checks_enabled: true

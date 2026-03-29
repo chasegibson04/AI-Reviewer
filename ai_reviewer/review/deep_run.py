@@ -40,6 +40,9 @@ class DeepRunResult:
     warnings: list[str]
 
 
+CONTEXT_PACK_CATEGORIES = {"style_guide", "journal_instructions", "reference_example", "methods_reference"}
+
+
 def _safe_json_from_text(raw: str) -> dict[str, Any]:
     candidate = extract_json_candidate(raw) or raw
     return json.loads(candidate)
@@ -187,6 +190,107 @@ def _is_probably_irrelevant_support(filename: str) -> bool:
     return any(m in low for m in blocked_markers)
 
 
+def _extract_context_constraints(context_docs: list[ParsedDocument]) -> dict[str, Any]:
+    if not context_docs:
+        return {
+            "enabled": False,
+            "materials": [],
+            "priorities": [],
+            "forbidden_title_words": [],
+            "max_word_count": None,
+            "required_reporting_items": [],
+            "notes": ["No context-pack materials provided."],
+        }
+    text = "\n\n".join((d.cleaned_text or "")[:14000] for d in context_docs if d.cleaned_text)
+    low = text.lower()
+    priorities: list[str] = []
+    if "methods" in low or "reproduc" in low:
+        priorities.append("methods_reporting")
+    if "novelty" in low or "claim" in low:
+        priorities.append("claim_calibration")
+    if "format" in low or "style" in low or "journal" in low:
+        priorities.append("formatting_compliance")
+    if "figure" in low or "caption" in low:
+        priorities.append("figure_caption_quality")
+
+    forbidden_title_words: list[str] = []
+    m = re.search(r"may not contain the words?\s+[“\"']([^”\"']+)[”\"']\s+or\s+[“\"']([^”\"']+)[”\"']", text, re.IGNORECASE)
+    if m:
+        forbidden_title_words.extend([m.group(1).strip(), m.group(2).strip()])
+    max_word_count = None
+    for pat in [r"not exceeding\s+(\d+)\s+words", r"(\d+)\s+words?\s+max", r"word[\-\s]?limit[:\s]+(\d+)"]:
+        hit = re.search(pat, low)
+        if hit:
+            try:
+                max_word_count = int(hit.group(1))
+                break
+            except Exception:
+                pass
+    required_reporting_items: list[str] = []
+    for key, label in [
+        ("limitations", "limitations_statement"),
+        ("data availability", "data_availability"),
+        ("code availability", "code_availability"),
+        ("ethics", "ethics_statement"),
+        ("conflict of interest", "conflict_of_interest"),
+    ]:
+        if key in low:
+            required_reporting_items.append(label)
+    return {
+        "enabled": True,
+        "materials": [d.source_path.name for d in context_docs],
+        "priorities": sorted(set(priorities)),
+        "forbidden_title_words": sorted(set(forbidden_title_words)),
+        "max_word_count": max_word_count,
+        "required_reporting_items": sorted(set(required_reporting_items)),
+        "notes": ["Context pack constraints were extracted from user/style/journal materials."],
+    }
+
+
+def _run_compliance_check(manuscript: ParsedDocument, constraints: dict[str, Any]) -> dict[str, Any]:
+    text = manuscript.cleaned_text or ""
+    low = text.lower()
+    findings: list[dict[str, Any]] = []
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    title = lines[0] if lines else ""
+    for word in constraints.get("forbidden_title_words", []) or []:
+        if word and word.lower() in title.lower():
+            findings.append(
+                {
+                    "severity": "high",
+                    "category": "title_rule",
+                    "message": f"Title contains forbidden word from context pack: '{word}'.",
+                }
+            )
+    max_words = constraints.get("max_word_count")
+    if isinstance(max_words, int) and max_words > 0:
+        wc = len(re.findall(r"\w+", text))
+        if wc > max_words:
+            findings.append(
+                {
+                    "severity": "medium",
+                    "category": "word_count",
+                    "message": f"Manuscript appears to exceed context-pack word limit ({wc} > {max_words}).",
+                }
+            )
+    for req in constraints.get("required_reporting_items", []) or []:
+        key = req.replace("_statement", "").replace("_", " ")
+        if key not in low:
+            findings.append(
+                {
+                    "severity": "medium",
+                    "category": "required_reporting",
+                    "message": f"Context-pack required item may be missing: {req}.",
+                }
+            )
+    return {
+        "enabled": bool(constraints.get("enabled")),
+        "applied_priorities": constraints.get("priorities", []),
+        "findings": findings,
+        "finding_count": len(findings),
+    }
+
+
 def run_deep_run(
     provider: Provider,
     cfg: ReviewerConfig,
@@ -196,6 +300,7 @@ def run_deep_run(
     store: ProjectStore,
     manuscript_id: str | None,
     embedding_model: str | None,
+    context_material_ids: list[str] | None = None,
     disable_training_guidance: bool = False,
     orchestrator: OrchestratorController | None = None,
 ) -> DeepRunResult:
@@ -213,6 +318,20 @@ def run_deep_run(
 
     manuscripts = [m for m in meta.materials if m.category == "manuscript_draft"]
     others = [m for m in meta.materials if m.category != "manuscript_draft"]
+    requested_context_ids = {x.strip() for x in (context_material_ids or []) if x and x.strip()}
+    context_materials = []
+    support_materials = []
+    for m in others:
+        if requested_context_ids:
+            if m.material_id in requested_context_ids:
+                context_materials.append(m)
+            else:
+                support_materials.append(m)
+        else:
+            if m.category in CONTEXT_PACK_CATEGORIES:
+                context_materials.append(m)
+            else:
+                support_materials.append(m)
     if manuscript_id:
         manuscripts = [m for m in manuscripts if m.material_id == manuscript_id]
     if not manuscripts:
@@ -261,7 +380,8 @@ def run_deep_run(
 
     materials_used = {
         "manuscript": {"material_id": target.material_id, "path": str(target_path), "category": target.category},
-        "supporting_materials_requested_count": len([m for m in others if store.material_path(pdir, m).exists()]),
+        "supporting_materials_requested_count": len([m for m in support_materials if store.material_path(pdir, m).exists()]),
+        "context_pack_requested_count": len([m for m in context_materials if store.material_path(pdir, m).exists()]),
     }
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "project_inventory.json", {"project_id": project_id, "material_count": len(meta.materials), "materials_used": materials_used})
@@ -296,7 +416,7 @@ def run_deep_run(
     supporting_docs = []
     skipped_supporting_docs: list[dict[str, Any]] = []
     manuscript_text = manuscript_doc.cleaned_text or ""
-    for m in others[:20]:
+    for m in support_materials[:20]:
         path = store.material_path(pdir, m)
         try:
             sdoc = parse_file(path)
@@ -329,6 +449,23 @@ def run_deep_run(
     }
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "context_manifest.json", {"project_id": project_id, "materials": materials_used, "warnings": warnings})
+
+    context_docs: list[ParsedDocument] = []
+    context_failures: list[dict[str, str]] = []
+    for m in context_materials:
+        path = store.material_path(pdir, m)
+        try:
+            context_docs.append(parse_file(path))
+        except Exception as exc:
+            context_failures.append({"path": str(path), "error": str(exc)})
+    context_constraints = _extract_context_constraints(context_docs)
+    context_constraints["requested_context_ids"] = sorted(requested_context_ids)
+    if context_failures:
+        context_constraints["parse_failures"] = context_failures
+    _write_json(run_dir / "context_pack_used.json", context_constraints)
+    _write_md(run_dir / "context_pack_used.md", "Context Pack (Optional User Standards/Priorities)", context_constraints)
+    materials_used["context_pack_materials"] = [{"name": d.source_path.name} for d in context_docs]
+    _write_json(run_dir / "project_materials_used.json", materials_used)
     chunk_document(manuscript_doc, max_chars=get_profile("deep").chunk_size, overlap=get_profile("deep").chunk_overlap)
     for d in supporting_docs:
         chunk_document(d, max_chars=get_profile("balanced").chunk_size, overlap=get_profile("balanced").chunk_overlap)
@@ -518,6 +655,7 @@ def run_deep_run(
         "supporting_card_count": len(supporting_cards),
         "training_guidance_enabled": training_used.get("enabled", False),
         "training_categories": training_used.get("categories", []),
+        "context_pack_constraints": context_constraints,
     }
     _write_json(run_dir / "stage_04_context_pack.json", context_pack)
     _write_md(run_dir / "stage_04_context_pack.md", "Stage 4 Context/Evidence Linking", context_pack)
@@ -561,6 +699,11 @@ def run_deep_run(
                 f"{training_used['prompt_block']}\n\n"
                 f"Structured context pack:\n{json.dumps(context_pack)[:10000]}"
             ) if training_used["enabled"] else f"Structured context pack:\n{json.dumps(context_pack)[:10000]}"
+            if context_constraints.get("enabled"):
+                context_guidance += (
+                    "\n\nOptional user context-pack constraints (apply as additional standards, do not replace manuscript-grounded critique):\n"
+                    f"{json.dumps(context_constraints)[:6000]}"
+                )
             model_chain: list[str] = []
             for mk in [model_key, *(fallback_model_keys or [])]:
                 model_name = model_stack.get(mk)
@@ -733,6 +876,11 @@ def run_deep_run(
     _write_md(run_dir / "stage_10_style_alignment.md", "Stage 10 Style Alignment", style_payload)
     (run_dir / "stage_10_style_alignment.raw.txt").write_text(style_raw, encoding="utf-8")
 
+    compliance_payload = _run_compliance_check(manuscript_doc, context_constraints)
+    _write_json(run_dir / "stage_10b_compliance_check.json", compliance_payload)
+    _write_md(run_dir / "stage_10b_compliance_check.md", "Stage 10b Context-Pack Compliance Check", compliance_payload)
+    stage_status["stage_11b_compliance_check"] = "ok"
+
     # Stage 12 reconciliation
     required_recon_keys = {
         "consolidated_strengths",
@@ -829,6 +977,17 @@ def run_deep_run(
     _write_json(run_dir / "stage_11_reconciliation.json", recon_payload)
     _write_md(run_dir / "stage_11_reconciliation.md", "Stage 11 Reconciliation", recon_payload)
     (run_dir / "stage_11_reconciliation.raw.txt").write_text(recon_raw, encoding="utf-8")
+    if compliance_payload.get("findings"):
+        recon_payload.setdefault("consolidated_weaknesses", [])
+        recon_payload.setdefault("priority_actions", [])
+        for finding in compliance_payload.get("findings", [])[:5]:
+            msg = str(finding.get("message", "")).strip()
+            if not msg:
+                continue
+            recon_payload["consolidated_weaknesses"].append(msg)
+            recon_payload["priority_actions"].append(f"Address compliance issue: {msg}")
+    _write_json(run_dir / "stage_11_reconciliation.json", recon_payload)
+    _write_md(run_dir / "stage_11_reconciliation.md", "Stage 11 Reconciliation", recon_payload)
     recon_qc = build_deep_reconciliation_summary(recon_payload)
     _write_json(run_dir / "stage_11_reconciliation_qc.json", recon_qc)
     _write_md(run_dir / "stage_11_reconciliation_qc.md", "Stage 11 Reconciliation QC", recon_qc)
@@ -992,6 +1151,8 @@ def run_deep_run(
         "model_stack": model_stack,
         "training_guidance_used": training_used,
         "materials_used": materials_used,
+        "context_pack_used": context_constraints,
+        "compliance_check": compliance_payload,
         "stage_status": stage_status,
         "warnings": warnings,
         "final": recon_payload,
@@ -1007,6 +1168,8 @@ def run_deep_run(
         "manuscript": str(target_path),
         "status": status,
         "model_stack": model_stack,
+        "context_pack_enabled": bool(context_constraints.get("enabled")),
+        "context_pack_materials": context_constraints.get("materials", []),
         "stage_status": stage_status,
         "warnings_count": len(final_payload["warnings"]),
     })

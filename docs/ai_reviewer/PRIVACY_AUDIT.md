@@ -8,6 +8,7 @@ This document summarizes known network egress paths and how strict offline mode 
 | --- | --- | --- | --- | --- |
 | `ai_reviewer/models/ollama_provider.py` | Local model calls to Ollama (`/api/chat`, `/api/embed`) | Enabled | Requires localhost/127.0.0.1; non-local URLs rejected | Manuscript content can be sent to local Ollama only |
 | `ai_reviewer/launcher_checks.py` | Launcher self-check to Ollama `/api/version` | Enabled | Localhost only | No manuscript data |
+| `ai_reviewer/review/citation_fetcher.py` | Optional citation DOI/metadata/OA lookup (Crossref/OpenAlex/Unpaywall/S2/EuropePMC/NCBI, depending on configured method path) | Enabled | Skipped with reason `strict_offline` | Query strings are sanitized and logged; no raw manuscript body is sent |
 | `ai_reviewer/tools/scholarly_tools.py` | DOI metadata via Crossref/OpenAlex | Disabled | Returns `{enabled: False}` in strict offline | No manuscript data in strict offline |
 | `ai_reviewer/slack/*` | Local Slack simulation file IO | Disabled unless invoked | No network usage | No manuscript data leaves machine |
 | Launcher pip install | Dependency setup | Enabled on first run | Uses pip network during setup only | No manuscript data |
@@ -15,7 +16,8 @@ This document summarizes known network egress paths and how strict offline mode 
 ## Notes
 - There are no OpenAI/Anthropic/remote provider integrations in the runtime path.
 - Strict offline mode blocks non-local Ollama base URLs.
-- Any scholarly DOI lookup is disabled when strict offline is enabled.
+- Citation fetch/lookup network calls are disabled when strict offline is enabled.
+- Citation fetch query audit fields are written per attempt for run-level inspection.
 
 ## Runtime Verification (Mac)
 

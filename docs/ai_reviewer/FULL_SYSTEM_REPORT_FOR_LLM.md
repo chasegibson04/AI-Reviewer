@@ -49,6 +49,7 @@ CLI commands (core):
 Relevant command paths:
 - `python -m ai_reviewer.cli review ...`
 - `python -m ai_reviewer.cli deep-run --project <id>`
+- `python -m ai_reviewer.cli deep-run --project <id> --context-material-ids <id1,id2,...>`
 
 ## 4. Config System and Runtime Policy
 
@@ -134,9 +135,21 @@ Stage flow summary:
 - Stage 07-09: specialist critique bundles (high-level, hostile, methods).
 - Stage 10: line-by-line edits extraction.
 - Stage 11: style alignment.
+- Stage 11b: context-pack compliance check (deterministic).
 - Stage 12: reconciliation synthesis.
 - Stage 13: commented manuscript + suggested changes generation.
 - Final: deep review report bundle + metadata.
+
+Context-pack behavior:
+- Optional inputs through `--context-material-ids`.
+- If IDs are omitted, deep-run auto-selects context materials by category:
+  - `style_guide`, `journal_instructions`, `reference_example`, `methods_reference`.
+- Context-pack constraints are extracted and recorded in:
+  - `context_pack_used.json`
+  - `context_pack_used.md`
+- Deterministic compliance findings are written to:
+  - `stage_10b_compliance_check.json`
+  - `stage_10b_compliance_check.md`
 
 Each stage writes JSON/MD/raw artifacts in run dir for traceability.
 
@@ -250,6 +263,10 @@ Current mode:
 
 Artifact:
 - `figure_manifest.json` in bundle output.
+
+Noise controls:
+- Tiny decorative assets are skipped (image-area threshold).
+- Repeated caption-missing messages are aggregated before they are added to review concerns.
 
 Note:
 - This is honest text/caption contextual critique unless multimodal model integration is implemented/enabled.

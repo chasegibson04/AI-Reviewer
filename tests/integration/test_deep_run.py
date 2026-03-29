@@ -103,6 +103,44 @@ def test_deep_run_project_with_manuscript_and_other(tmp_path: Path):
     assert json.loads((run_dir / "training_guidance_used.json").read_text(encoding="utf-8"))["enabled"] is True
 
 
+def test_deep_run_context_pack_materials_are_recorded(tmp_path: Path):
+    store = ProjectStore(tmp_path / "projects")
+    _, meta = store.create_project("Deep Context", "", [], ProjectDefaults(review_model="gemma3:27b"))
+    pdir, meta = store.get_project(meta.project_id)
+    manuscript_path = pdir / "materials" / "manuscript" / "main.md"
+    manuscript_path.write_text("# Novel title\n\nMethods and results.", encoding="utf-8")
+    store.sync_project_material_inventory(meta.project_id)
+    guide_src = tmp_path / "guide.md"
+    guide_src.write_text(
+        "Titles may not contain the words 'Novel' or 'First'. Communications not exceeding 2200 words.",
+        encoding="utf-8",
+    )
+    context_material = store.add_material(meta.project_id, guide_src, "journal_instructions", "journal guide")
+    pdir, meta = store.get_project(meta.project_id)
+    context_id = context_material.material_id
+    cfg = _cfg_with_training(tmp_path, training_enabled=False)
+    run_dir = tmp_path / "run_context"
+    result = run_deep_run(
+        provider=DeepRunProvider(),  # type: ignore[arg-type]
+        cfg=cfg,
+        logger=__import__("logging").getLogger("test"),
+        run_dir=run_dir,
+        project_id=meta.project_id,
+        store=store,
+        manuscript_id=None,
+        embedding_model="mxbai-embed-large:latest",
+        context_material_ids=[context_id],
+        disable_training_guidance=True,
+    )
+    assert result.status == "success"
+    context_payload = json.loads((run_dir / "context_pack_used.json").read_text(encoding="utf-8"))
+    assert context_payload["enabled"] is True
+    assert context_payload["materials"]
+    compliance = json.loads((run_dir / "stage_10b_compliance_check.json").read_text(encoding="utf-8"))
+    assert compliance["enabled"] is True
+    assert compliance["finding_count"] >= 1
+
+
 def test_deep_run_other_only_fails_gracefully(tmp_path: Path):
     store = ProjectStore(tmp_path / "projects")
     _, meta = store.create_project("No Manuscript", "", [], ProjectDefaults(review_model="gemma3:27b"))

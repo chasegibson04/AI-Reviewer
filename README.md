@@ -168,6 +168,7 @@ Behavior:
 - `ai-reviewer compare <old-draft> <new-draft>`
 - `ai-reviewer evaluate-paper <paper>`
 - `ai-reviewer deep-run --project <project_id>`
+- `ai-reviewer deep-run --project <project_id> --context-material-ids <id1,id2>` (optional standards/context pack)
 - `ai-reviewer list-models`
 - `ai-reviewer diagnose`
 - `ai-reviewer doctor`
@@ -264,20 +265,29 @@ ai-reviewer project migrate-outputs --project <project_id> --no-dry-run
 7. Line/paragraph edit pass
 8. Style/lab-guidance alignment pass
 9. Reconciliation + final report generation
+10. Optional context-pack compliance check (if context materials are provided or auto-detected)
 
 Key deep-run outputs:
 - `deep_run_plan.json`
 - `context_manifest.json`
 - `training_guidance_used.json`
 - `project_materials_used.json`
+- `context_pack_used.json`
+- `context_pack_used.md`
+- `stage_10b_compliance_check.json`
+- `stage_10b_compliance_check.md`
 - `stage_0x_*.json/.md`
 - `final_deep_review_report.{json,md,txt,docx}`
 
-Default model stack:
+Default deep-run model stack:
 - context synthesis: `mistral-small3.2:latest`
 - deep critique stages: `llama3.3:70b-instruct-q4_K_M` (fallback to `phi4-reasoning:latest`)
 - reconciliation/repair: `qwen2.5:7b-instruct` (fallback chain includes `mistral-small3.2:latest`)
 - embeddings: `bge-m3:latest` (fallback `nomic-embed-text-v2-moe:latest`)
+
+Note:
+- Single-pass review defaults still use `mistral-small3.2:latest` (balanced) and `phi4-reasoning:latest` (deep profile).
+- Deep-run can use stronger critique-stage routing (`llama3.3:70b-instruct-q4_K_M`) when installed.
 
 Review bundles include:
 - `run_metadata.json`

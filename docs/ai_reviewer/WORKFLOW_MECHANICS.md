@@ -73,6 +73,13 @@ If retrieval is enabled:
 ## 3) `deep-run` (multi-stage deep editorial/reviewer pipeline)
 
 `deep-run` is not a single prompt; it executes staged passes with artifacts.
+Optional user context-pack materials can be supplied with:
+- `deep-run --context-material-ids <id1,id2,...>`
+- If omitted, deep-run auto-selects materials in categories:
+  - `style_guide`
+  - `journal_instructions`
+  - `reference_example`
+  - `methods_reference`
 
 ## Stage sequence
 
@@ -107,10 +114,22 @@ If retrieval is enabled:
 8. Stage 07 style/lab-guidance alignment
    - one strict JSON style alignment call
 
-9. Stage 08 reconciliation
+9. Stage 08 context-pack compliance check (deterministic)
+   - extracts constraints from context-pack materials
+   - writes:
+     - `context_pack_used.json`
+     - `context_pack_used.md`
+     - `stage_10b_compliance_check.json`
+     - `stage_10b_compliance_check.md`
+   - checks for:
+     - forbidden title words
+     - word-count limit
+     - required reporting items (if specified in context pack)
+
+10. Stage 09 reconciliation
    - one strict JSON reconciliation call combining stage outputs
 
-10. Stage 09 manuscript annotation
+11. Stage 10 manuscript annotation
    - DOCX source mode: generate `reviewed_manuscript_with_comments.docx`
    - PDF source mode: generate surrogate base DOCX + `surrogate_manuscript_from_pdf_with_comments.docx`
    - validates real comment count + body text preservation
@@ -118,7 +137,7 @@ If retrieval is enabled:
    - blocks speculative rewrite insertions (for example newly invented comparative-study claims) and falls back to safe local rewrites
    - writes `manuscript_suggested_changes_manifest.json` + `suggested_changes_validation.json`
 
-11. Final report synthesis
+12. Final report synthesis
    - writes final consolidated report JSON/MD/TXT/DOCX + run metadata
 
 ## Default model stack by stage

@@ -101,6 +101,11 @@ def extract_figures(pdf_path: Path, output_dir: Path, max_figures: int) -> list[
             xref = img[0]
             img_rects = page.get_image_rects(xref)
             if img_rects:
+                area = float(img_rects[0].width * img_rects[0].height)
+                if area < 5000:
+                    # Skip tiny decorative/logo assets.
+                    continue
+            if img_rects:
                 block_caption = _caption_from_blocks(blocks, img_rects[0])
                 if block_caption and not caption_text:
                     caption_text = block_caption
@@ -157,6 +162,9 @@ def critique_figures(
                     nearby_text = doc.cleaned_text[max(0, idx - 300): idx + 600]
             if not nearby_text and fig.page_text_excerpt:
                 nearby_text = fig.page_text_excerpt
+        nearby_low = nearby_text.lower()
+        if any(k in nearby_low for k in ["demonstrates", "proves", "confirms", "shows that"]) and fig.caption_confidence < 0.5:
+            issues.append("Nearby claim language appears strong relative to low-confidence caption extraction; verify claim-to-figure support.")
         critiques.append(
             {
                 "figure_id": fig.figure_id,
@@ -194,11 +202,11 @@ def run_figure_review(
             for idx, fig in enumerate(figures):
                 if fig.caption:
                     continue
-            if idx < len(global_captions):
-                _, caption_text = global_captions[idx]
-                fig.caption = caption_text
-                fig.caption_confidence = 0.4
-                fig.caption_source = "document_text"
+                if idx < len(global_captions):
+                    _, caption_text = global_captions[idx]
+                    fig.caption = caption_text
+                    fig.caption_confidence = 0.4
+                    fig.caption_source = "document_text"
     critique = critique_figures(figures, doc, cfg)
     manifest = {
         "figures": [f.__dict__ for f in figures],
