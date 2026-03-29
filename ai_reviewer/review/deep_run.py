@@ -22,6 +22,7 @@ from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_
 from ai_reviewer.review.profiles import get_profile
 from ai_reviewer.review.repair import extract_json_candidate
 from ai_reviewer.review.docx_export import write_markdown_as_docx
+from ai_reviewer.review.rigorous_adapters import build_deep_reconciliation_summary
 from ai_reviewer.training.cache import TrainingCacheManager
 from ai_reviewer.tools.registry import ToolRegistry
 
@@ -169,6 +170,23 @@ def _token_overlap(a: str, b: str) -> float:
     return len(sa & sb) / float(len(sa | sb))
 
 
+def _support_relevance_score(manuscript_text: str, support_text: str) -> float:
+    if not manuscript_text or not support_text:
+        return 0.0
+    return _token_overlap(manuscript_text[:20000], support_text[:20000])
+
+
+def _is_probably_irrelevant_support(filename: str) -> bool:
+    low = filename.lower()
+    blocked_markers = [
+        "openai gym",
+        "gym_",
+        "biogpt",
+        "chatbot benchmark",
+    ]
+    return any(m in low for m in blocked_markers)
+
+
 def run_deep_run(
     provider: Provider,
     cfg: ReviewerConfig,
@@ -243,11 +261,7 @@ def run_deep_run(
 
     materials_used = {
         "manuscript": {"material_id": target.material_id, "path": str(target_path), "category": target.category},
-        "supporting_materials": [
-            {"material_id": m.material_id, "path": str(store.material_path(pdir, m)), "category": m.category}
-            for m in others
-            if store.material_path(pdir, m).exists()
-        ],
+        "supporting_materials_requested_count": len([m for m in others if store.material_path(pdir, m).exists()]),
     }
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "project_inventory.json", {"project_id": project_id, "material_count": len(meta.materials), "materials_used": materials_used})
@@ -280,12 +294,41 @@ def run_deep_run(
         warnings.append(f"tool_parse_failed:{exc}")
     _write_json(run_dir / "stage_01_structured_source.json", structured_source if isinstance(structured_source, dict) else {})
     supporting_docs = []
-    for m in others[:10]:
+    skipped_supporting_docs: list[dict[str, Any]] = []
+    manuscript_text = manuscript_doc.cleaned_text or ""
+    for m in others[:20]:
         path = store.material_path(pdir, m)
         try:
-            supporting_docs.append(parse_file(path))
+            sdoc = parse_file(path)
+            score = _support_relevance_score(manuscript_text, sdoc.cleaned_text or "")
+            if _is_probably_irrelevant_support(path.name):
+                skipped_supporting_docs.append(
+                    {"material_id": m.material_id, "path": str(path), "reason": "blocked_filename_marker", "score": score}
+                )
+                continue
+            if score < 0.04:
+                skipped_supporting_docs.append(
+                    {"material_id": m.material_id, "path": str(path), "reason": "low_relevance", "score": round(score, 4)}
+                )
+                continue
+            supporting_docs.append(sdoc)
         except Exception as exc:
             warnings.append(f"supporting_parse_failed:{path}:{exc}")
+    if skipped_supporting_docs:
+        _write_json(run_dir / "support_material_filtering.json", {"selected": [d.source_path.name for d in supporting_docs], "skipped": skipped_supporting_docs})
+    materials_used["supporting_materials_selected"] = [
+        {"name": d.source_path.name} for d in supporting_docs
+    ]
+    reason_counts: dict[str, int] = {}
+    for item in skipped_supporting_docs:
+        reason = str(item.get("reason", "unknown"))
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+    materials_used["supporting_materials_skipped_summary"] = {
+        "count": len(skipped_supporting_docs),
+        "reason_counts": reason_counts,
+    }
+    _write_json(run_dir / "project_materials_used.json", materials_used)
+    _write_json(run_dir / "context_manifest.json", {"project_id": project_id, "materials": materials_used, "warnings": warnings})
     chunk_document(manuscript_doc, max_chars=get_profile("deep").chunk_size, overlap=get_profile("deep").chunk_overlap)
     for d in supporting_docs:
         chunk_document(d, max_chars=get_profile("balanced").chunk_size, overlap=get_profile("balanced").chunk_overlap)
@@ -786,6 +829,9 @@ def run_deep_run(
     _write_json(run_dir / "stage_11_reconciliation.json", recon_payload)
     _write_md(run_dir / "stage_11_reconciliation.md", "Stage 11 Reconciliation", recon_payload)
     (run_dir / "stage_11_reconciliation.raw.txt").write_text(recon_raw, encoding="utf-8")
+    recon_qc = build_deep_reconciliation_summary(recon_payload)
+    _write_json(run_dir / "stage_11_reconciliation_qc.json", recon_qc)
+    _write_md(run_dir / "stage_11_reconciliation_qc.md", "Stage 11 Reconciliation QC", recon_qc)
     if orchestrator is not None and orchestrator.enabled and cfg.orchestrator.enable_final_synthesis_review:
         try:
             orch_final = orchestrator.final_synthesis_quality_check(

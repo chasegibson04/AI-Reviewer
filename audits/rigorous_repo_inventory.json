@@ -1,0 +1,41 @@
+{
+  "repo": "rigorous-main",
+  "top_level": [
+    "README.md",
+    "LICENSE.txt",
+    ".env.example",
+    "Agent1_Peer_Review/",
+    "Agent2_Outlet_Fit/"
+  ],
+  "agent1_peer_review": {
+    "entry_scripts": [
+      "run_local_aipeer_review.py",
+      "run_analysis.py",
+      "run_quality_control.py",
+      "run_executive_summary.py",
+      "pdf_generator.py"
+    ],
+    "core": [
+      "src/core/base_agent.py",
+      "src/core/config.py",
+      "src/core/report_template.py"
+    ],
+    "agents": {
+      "section": 10,
+      "rigor": 7,
+      "writing": 7,
+      "quality": 1,
+      "controller_exec": 2
+    },
+    "utils": [
+      "src/utils/pdf_parser.py",
+      "src/utils/combine_results.py"
+    ],
+    "requirements": "Agent1_Peer_Review/requirements.txt",
+    "tests_detected": 0
+  },
+  "agent2_outlet_fit": {
+    "status": "documentation_only_in_repo",
+    "code_detected": false
+  }
+}

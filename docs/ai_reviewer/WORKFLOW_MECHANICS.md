@@ -26,7 +26,8 @@ Before route:
 - `review <input_path>`: parses input path (file/folder)
 - `review --project <id>`:
   - default primary targets: all `manuscript_draft` materials
-  - `materials/other` are parsed as **supporting context docs**
+- `materials/other` are parsed as **supporting context docs**
+  - low-relevance/blocked supporting docs are filtered before grounding to prevent contamination
   - if no manuscript exists: graceful error with action message
 - `--material-ids`: explicit override of primary targets (can include non-manuscript)
 
@@ -84,6 +85,7 @@ If retrieval is enabled:
 2. Stage 01 ingest + normalization + source mode detection
    - parse manuscript
    - parse up to 10 supporting materials from `materials/other`
+   - filter low-overlap or blocked support files (for example unrelated benchmark artifacts)
    - chunk manuscript with deep profile chunk settings
 
 3. Stage 02 context synthesis

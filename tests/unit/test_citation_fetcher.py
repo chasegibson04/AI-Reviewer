@@ -137,3 +137,39 @@ def test_fetch_uses_doi_cache_before_download(monkeypatch, tmp_path: Path):
     assert report.enabled
     assert report.total_downloaded == 0
     assert report.entries[0]["status"] == "already_present_by_cache"
+
+
+def test_fetch_report_includes_query_policy_and_query_audit(monkeypatch, tmp_path: Path):
+    cfg = ReviewerConfig(
+        defaults=Defaults(strict_offline=False),
+        citation_fetch=CitationFetchConfig(
+            enabled=True,
+            methods=["dummy_method"],
+            max_refs_per_doc=10,
+            max_papers=10,
+        ),
+    )
+    from ai_reviewer.review import citation_fetcher as cf
+
+    def _dummy_method(ctx):
+        return CitationMethodResult(
+            status="no_oa_links",
+            doi=ctx.doi or "10.1234/abc",
+            title=ctx.title or "Dummy",
+            source="dummy",
+            candidate_count=0,
+            query_audit=[{"type": "doi_lookup", "len": len(ctx.doi or "10.1234/abc")}],
+        )
+
+    monkeypatch.setitem(cf.REGISTERED_CITATION_METHODS, "dummy_method", _dummy_method)
+    fetch_citations_for_documents(
+        docs=[_doc(tmp_path, "REFERENCES\n(1) Test. doi:10.1234/abc\n")],
+        project_root=tmp_path,
+        cfg=cfg,
+        logger=None,
+        run_dir=tmp_path,
+    )
+    payload_path = tmp_path / "artifacts" / "citation_fetch_report.json"
+    payload = __import__("json").loads(payload_path.read_text(encoding="utf-8"))
+    assert payload["query_policy"]["no_manuscript_raw_text"] is True
+    assert payload["entries"][0]["method_attempts"][0]["query_audit"][0]["type"] == "doi_lookup"

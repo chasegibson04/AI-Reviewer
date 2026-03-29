@@ -19,6 +19,7 @@ from ai_reviewer.orchestrator.controller import OrchestratorController, Orchestr
 from ai_reviewer.review.profiles import ReviewProfile
 from ai_reviewer.review.repair import ParseOutcome, parse_and_repair
 from ai_reviewer.review.render import write_review_bundle
+from ai_reviewer.review.rigorous_adapters import build_specialist_qc_summary
 from ai_reviewer.figures.figure_review import run_figure_review
 from ai_reviewer.review.schema import ActionItem, CompareSchema, DebugMetadata, ReviewSchema, SectionComment
 
@@ -781,6 +782,34 @@ def _augment_with_text_heuristics(
                 )
 
 
+def _support_overlap_score(manuscript_text: str, support_text: str) -> float:
+    ma = {t for t in re.split(r"\W+", manuscript_text.lower()) if len(t) > 4}
+    sb = {t for t in re.split(r"\W+", support_text.lower()) if len(t) > 4}
+    if not ma or not sb:
+        return 0.0
+    return len(ma & sb) / float(len(ma | sb))
+
+
+def _filter_support_docs_for_grounding(
+    doc: ParsedDocument,
+    support_docs: list[ParsedDocument],
+) -> tuple[list[ParsedDocument], list[dict[str, Any]]]:
+    selected: list[ParsedDocument] = []
+    skipped: list[dict[str, Any]] = []
+    manuscript_text = doc.cleaned_text[:40000]
+    for sdoc in support_docs:
+        name = sdoc.source_path.name.lower()
+        if any(k in name for k in ["openai gym", "gym_", "biogpt"]):
+            skipped.append({"source": sdoc.source_path.name, "reason": "blocked_filename_marker", "score": 0.0})
+            continue
+        score = _support_overlap_score(manuscript_text, sdoc.cleaned_text[:40000])
+        if score < 0.04:
+            skipped.append({"source": sdoc.source_path.name, "reason": "low_overlap", "score": round(score, 4)})
+            continue
+        selected.append(sdoc)
+    return selected, skipped
+
+
 def run_review(
     provider: Provider,
     doc: ParsedDocument,
@@ -809,6 +838,19 @@ def run_review(
 
     context = _context_from_doc(doc, profile, config)
     support_docs = supporting_docs or []
+    support_docs, skipped_support_docs = _filter_support_docs_for_grounding(doc, support_docs)
+    if skipped_support_docs:
+        warnings.append(f"support_docs_filtered:{len(skipped_support_docs)}")
+        (bundle_dir / "support_material_filtering.json").write_text(
+            json.dumps(
+                {
+                    "selected": [d.source_path.name for d in support_docs],
+                    "skipped": skipped_support_docs,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
     use_retrieval = bool(
         embedding_model
         and doc.chunks
@@ -1212,6 +1254,7 @@ def run_review(
 
     project_root = _find_project_root(doc.source_path_abs)
     est_duration, est_basis = _estimate_duration_seconds(project_root, profile.key, model, len(doc.cleaned_text))
+    specialist_summary = build_specialist_qc_summary(review)
     run_metadata = {
         "profile": profile.key,
         "model": model,
@@ -1231,6 +1274,8 @@ def run_review(
         "warnings_count": len(warnings),
         "guidance_injected": bool(guidance_text),
         "guidance_categories": guidance_categories or [],
+        "specialist_overall_score_0_to_5": specialist_summary.get("overall_score_0_to_5"),
+        "specialist_recommendation_count": len(specialist_summary.get("recommendations", [])),
     }
 
     write_review_bundle(
@@ -1245,6 +1290,34 @@ def run_review(
         chunk_manifest=_chunk_manifest(doc),
         retrieval_manifest=retrieval_manifest,
     )
+    (bundle_dir / "specialist_review_summary.json").write_text(
+        json.dumps(specialist_summary, indent=2),
+        encoding="utf-8",
+    )
+    qc_lines = [
+        "# Specialist Review Summary",
+        "",
+        "## Category Scores (0-5)",
+    ]
+    scores = specialist_summary.get("category_scores_0_to_5", {})
+    for k in [
+        "section_specificity_score",
+        "rigor_score",
+        "writing_score",
+        "actionability_score",
+        "trustworthiness_score",
+    ]:
+        qc_lines.append(f"- {k}: {scores.get(k)}")
+    qc_lines.extend(
+        [
+            f"- overall_score_0_to_5: {specialist_summary.get('overall_score_0_to_5')}",
+            "",
+            "## Recommendations",
+        ]
+    )
+    for item in specialist_summary.get("recommendations", []) or ["None"]:
+        qc_lines.append(f"- {item}")
+    (bundle_dir / "specialist_review_summary.md").write_text("\n".join(qc_lines).strip() + "\n", encoding="utf-8")
     if status_hook:
         status_hook("writing reports")
 

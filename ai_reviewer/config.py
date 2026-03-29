@@ -109,11 +109,11 @@ class CitationFetchConfig:
 
 @dataclass
 class Defaults:
-    balanced_review_model: str = "gemma3:27b"
-    deep_review_model: str = "llama3.3:70b-instruct-q4_K_M"
-    embedding_model: str = "mxbai-embed-large:latest"
+    balanced_review_model: str = "mistral-small3.2:latest"
+    deep_review_model: str = "phi4-reasoning:latest"
+    embedding_model: str = "bge-m3:latest"
     embedding_fallback_model: str = "nomic-embed-text-v2-moe:latest"
-    repair_models: list[str] = field(default_factory=lambda: ["mistral-small3.1:24b", "qwen2.5:7b-instruct"])
+    repair_models: list[str] = field(default_factory=lambda: ["qwen2.5:7b-instruct", "mistral-small3.2:latest"])
     default_profile: str = "balanced"
     output_root: str = "outputs"
     strict_offline: bool = True
@@ -276,11 +276,11 @@ def load_config(extra_path: str | None = None) -> ReviewerConfig:
 def write_example_local_config(path: Path) -> None:
     sample = {
         "defaults": {
-            "balanced_review_model": "gemma3:27b",
-            "deep_review_model": "llama3.3:70b-instruct-q4_K_M",
-            "embedding_model": "mxbai-embed-large:latest",
+            "balanced_review_model": "mistral-small3.2:latest",
+            "deep_review_model": "phi4-reasoning:latest",
+            "embedding_model": "bge-m3:latest",
             "embedding_fallback_model": "nomic-embed-text-v2-moe:latest",
-            "repair_models": ["mistral-small3.1:24b", "qwen2.5:7b-instruct"],
+            "repair_models": ["qwen2.5:7b-instruct", "mistral-small3.2:latest"],
             "output_root": "outputs",
             "strict_offline": True,
             "keep_raw_outputs": True,

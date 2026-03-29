@@ -274,10 +274,10 @@ Key deep-run outputs:
 - `final_deep_review_report.{json,md,txt,docx}`
 
 Default model stack:
-- context synthesis: `gemma3:27b`
-- deep critique stages: `llama3.3:70b-instruct-q4_K_M` (fallback when missing)
-- reconciliation/repair: `mistral-small3.1:24b` (fallback chain)
-- embeddings: `mxbai-embed-large:latest` (fallback `nomic-embed-text-v2-moe:latest`)
+- context synthesis: `mistral-small3.2:latest`
+- deep critique stages: `llama3.3:70b-instruct-q4_K_M` (fallback to `phi4-reasoning:latest`)
+- reconciliation/repair: `qwen2.5:7b-instruct` (fallback chain includes `mistral-small3.2:latest`)
+- embeddings: `bge-m3:latest` (fallback `nomic-embed-text-v2-moe:latest`)
 
 Review bundles include:
 - `run_metadata.json`

@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-03-28",
+  "updated": [
+    "README.md",
+    "docs/ai_reviewer/MODEL_SELECTION.md",
+    "docs/ai_reviewer/orchestrator_design.md",
+    "docs/ai_reviewer/WORKFLOW_MECHANICS.md",
+    "docs/ai_reviewer/FULL_SYSTEM_REPORT_FOR_LLM.md",
+    "audits/project_access_guard.md"
+  ],
+  "inspected_no_change": [
+    "docs/ai_reviewer/ARCHITECTURE.md",
+    "docs/ai_reviewer/PRIVACY_AUDIT.md",
+    "docs/ai_reviewer/PROJECTS_AND_SLACK.md",
+    "docs/ai_reviewer/SECURITY.md",
+    "docs/ai_reviewer/TRAINING_MATERIALS.md",
+    "docs/ai_reviewer/TROUBLESHOOTING.md",
+    "docs/citation_fetch_methods.md"
+  ],
+  "doc_debt": [
+    "Add dedicated SAFE_ONLINE_VERIFICATION.md",
+    "Add dedicated QUALITY_GATES.md"
+  ]
+}

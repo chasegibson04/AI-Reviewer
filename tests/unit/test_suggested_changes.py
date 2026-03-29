@@ -158,3 +158,44 @@ def test_suggested_changes_rejects_markdown_heading(tmp_path: Path):
     )
     assert applied == []
     assert changes[0]["skip_reason"] == "markdown_heading"
+
+
+def test_suggested_changes_structure_issue_can_apply_when_localized(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    original = "This section outlines the workflow and then jumps abruptly to results without a transition."
+    _write_docx(base_docx, [original])
+    comments = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "structure/organization",
+            "severity": "medium",
+            "critique": "The sentence transition is abrupt and should bridge workflow setup to results.",
+            "suggested_revision": "Add a transition clause before presenting results.",
+            "anchor_text": "jumps abruptly to results",
+        }
+    ]
+    responses = [
+        json.dumps(
+            {
+                "revised_text": "This section outlines the workflow and then introduces the results with a clear transition to maintain narrative continuity.",
+                "rationale": "Adds transition language and improves flow.",
+                "confidence": 0.8,
+            }
+        ),
+        json.dumps({"ok": True, "fluency_score": 0.95, "faithfulness_score": 0.9, "alignment_score": 0.85, "issues": []}),
+    ]
+    provider = DummyProvider(responses)
+    changes, applied = _generate_suggested_changes(
+        base_docx=base_docx,
+        comments=comments,
+        source_mode={"mode": "original_docx"},
+        project_id="p1",
+        run_id="r1",
+        provider=provider,
+        model="test-chat",
+        rewrite_model="test-chat",
+        timeout_seconds=30,
+    )
+    assert changes[0]["status"] == "applied"
+    assert applied

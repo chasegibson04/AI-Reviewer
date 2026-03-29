@@ -1,0 +1,157 @@
+{
+  "date": "2026-03-28",
+  "scope": "inspection_only_no_integration",
+  "project_access_guard": {
+    "approved_projects": [
+      "20260325163524_test-existingphactorpaper",
+      "20260327051312_miniaturization_d2b"
+    ],
+    "blacklisted_projects": [
+      "20260324221200_horseshoe_crabs1"
+    ],
+    "horseshoe_touched": false
+  },
+  "stage_a_static_audit": {
+    "rigorous_main": {
+      "summary": "API-first OpenAI-centric multi-agent manuscript reviewer producing JSON + PDF report.",
+      "entrypoints": [
+        "Agent1_Peer_Review/run_local_aipeer_review.py",
+        "Agent1_Peer_Review/run_analysis.py",
+        "Agent1_Peer_Review/run_quality_control.py",
+        "Agent1_Peer_Review/run_executive_summary.py"
+      ],
+      "agent_counts": {
+        "section": 10,
+        "rigor": 7,
+        "writing": 7,
+        "quality": 1,
+        "controller_and_exec_summary": 2
+      },
+      "dependencies": [
+        "openai",
+        "pymupdf",
+        "pytesseract",
+        "reportlab",
+        "langchain"
+      ],
+      "tests_detected": 0,
+      "privacy_posture": "cloud_api_first",
+      "deliverables": [
+        "per-agent JSON",
+        "combined category JSON",
+        "quality_control_results.json",
+        "executive_summary.json",
+        "PDF report"
+      ]
+    },
+    "ai_reviewer": {
+      "summary": "Local-first project-scoped manuscript review/editing platform with run-level artifacts and DOCX outputs.",
+      "entrypoints": [
+        "ai_reviewer/cli.py: review",
+        "ai_reviewer/cli.py: deep-run",
+        "ai_reviewer/cli.py: compare",
+        "ai_reviewer/cli.py: evaluate-paper"
+      ],
+      "footprint": {
+        "ai_reviewer_py_files": 58,
+        "tests_py_files": 57
+      },
+      "privacy_posture": "strict_offline_local_ollama_default",
+      "deliverables": [
+        "validated_review.json",
+        "review_report.{md,txt,docx}",
+        "commented manuscript DOCX",
+        "suggested-changes DOCX",
+        "comment/suggested-change manifests",
+        "validation artifacts",
+        "deep-run stage artifacts"
+      ]
+    }
+  },
+  "stage_b_runtime_check": {
+    "attempted": true,
+    "target": "rigorous-main Agent1 runtime",
+    "command": "python rigorous-main/Agent1_Peer_Review/run_local_aipeer_review.py",
+    "result": "blocked",
+    "blockers": [
+      "ModuleNotFoundError: pytesseract",
+      "dependency setup incomplete in current env"
+    ],
+    "notes": "No empirical quality benchmark completed because Rigorous runtime was not executable without extra setup."
+  },
+  "comparison": {
+    "where_rigorous_stronger": [
+      "Explicit specialist role taxonomy (S/R/W agents)",
+      "Structured category-level QA pass",
+      "Narrative PDF report synthesis packaging"
+    ],
+    "where_ai_reviewer_stronger": [
+      "Local-first and strict-offline posture",
+      "Project/run-level traceability and operational robustness",
+      "Commented DOCX and suggested-changes DOCX author-facing deliverables",
+      "Validation and testing coverage"
+    ],
+    "major_incompatibilities": [
+      "Rigorous OpenAI-centric runtime conflicts with AI-Reviewer local-first defaults",
+      "Rigorous script-chain orchestration incompatible with AI-Reviewer project workflow model",
+      "Rigorous report-centric output model does not directly match AI-Reviewer inline manuscript editing artifacts"
+    ],
+    "direct_merge_recommendation": "no"
+  },
+  "borrow_adapt_ignore_matrix": {
+    "borrow_soon": [
+      "Role taxonomy pattern (section/rigor/writing)",
+      "Category-level reconciliation schema",
+      "Scoring normalization by category"
+    ],
+    "adapt_carefully": [
+      "Executive summary synthesis pattern",
+      "Category-specific suggestion schema",
+      "Section-specific prompt structure"
+    ],
+    "benchmark_first": [
+      "24-agent brute-force decomposition vs current deep-run quality/latency",
+      "QC strictness thresholds and retry heuristics",
+      "Outlet-fit workflow as optional mode"
+    ],
+    "ignore": [
+      "OpenAI-hardcoded runtime assumptions",
+      "Direct script-chain replacement of project-first CLI architecture",
+      "Non-product scaffolding unrelated to manuscript editorial deliverables"
+    ]
+  },
+  "integration_roadmap_candidates": [
+    {
+      "item": "Rigorous-inspired rubric pack for section/rigor/writing",
+      "expected_value": "high",
+      "risk": "medium",
+      "difficulty": "medium",
+      "local_first_compatibility": "high",
+      "sequence": 1
+    },
+    {
+      "item": "Deep-run category reconciliation stage (QC-lite)",
+      "expected_value": "high",
+      "risk": "medium",
+      "difficulty": "medium",
+      "local_first_compatibility": "high",
+      "sequence": 2
+    },
+    {
+      "item": "Structured category scoring artifact aligned with manifests",
+      "expected_value": "medium",
+      "risk": "low",
+      "difficulty": "low",
+      "local_first_compatibility": "high",
+      "sequence": 3
+    },
+    {
+      "item": "Benchmark adapter comparing current deep-run vs role-specialized variant",
+      "expected_value": "medium",
+      "risk": "medium",
+      "difficulty": "medium",
+      "local_first_compatibility": "high",
+      "sequence": 4
+    }
+  ]
+}

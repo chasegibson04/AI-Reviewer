@@ -5,7 +5,7 @@ The orchestrator is a bounded controller that improves quality control across sp
 It does not replace specialist reviewers and does not run open-ended autonomous loops.
 
 ## Model
-- Default orchestrator model: `qwen3:8b`
+- Default orchestrator model: `phi4-reasoning:latest`
 - Low creativity (`temperature=0.0`)
 - JSON-constrained outputs for controller decisions
 
@@ -40,4 +40,3 @@ Written to run-local bundle directories:
 - `orchestrator_final_synthesis_check.json` (deep-run)
 
 Each artifact contains stage-scoped decisions and quality signals for audit/debug.
-

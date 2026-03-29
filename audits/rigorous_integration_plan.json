@@ -1,0 +1,51 @@
+{
+  "date": "2026-03-28",
+  "source_artifacts": [
+    "audits/rigorous_comparison_report.md",
+    "audits/rigorous_comparison_report.json"
+  ],
+  "ranked_recommendations": {
+    "borrow_soon": [
+      "role taxonomy pattern (section/rigor/writing)",
+      "category-level reconciliation schema",
+      "category scoring normalization"
+    ],
+    "adapt_carefully": [
+      "executive-summary synthesis pattern",
+      "section-specific prompt structure"
+    ],
+    "benchmark_first": [
+      "large specialist swarm decomposition",
+      "outlet-fit workflow"
+    ],
+    "ignore": [
+      "OpenAI-hardcoded runtime assumptions",
+      "script-chain architecture replacement"
+    ]
+  },
+  "selected_for_implementation": [
+    "specialist_qc_summary_standard_review",
+    "category_scoring_artifact",
+    "deep_reconciliation_qc_summary"
+  ],
+  "deferred": [
+    "specialist_swarm",
+    "outlet_fit_module",
+    "provider_runtime_changes"
+  ],
+  "constraints": {
+    "local_first_preserved": true,
+    "docx_deliverables_preserved": true,
+    "no_repo_merge": true
+  },
+  "module_mapping": {
+    "adapter_module": "ai_reviewer/review/rigorous_adapters.py",
+    "standard_review_integration": "ai_reviewer/review/engine.py",
+    "deep_run_integration": "ai_reviewer/review/deep_run.py",
+    "tests": [
+      "tests/unit/test_rigorous_adapters.py",
+      "tests/integration/test_pipeline.py",
+      "tests/integration/test_deep_run.py"
+    ]
+  }
+}

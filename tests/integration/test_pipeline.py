@@ -73,3 +73,5 @@ def test_ingest_review_pipeline(tmp_path: Path):
     assert result.review.summary == "Test summary"
     assert (bundle / "reports" / "review.md").exists()
     assert (bundle / "artifacts" / "review.validated.json").exists()
+    assert (bundle / "specialist_review_summary.json").exists()
+    assert (bundle / "specialist_review_summary.md").exists()

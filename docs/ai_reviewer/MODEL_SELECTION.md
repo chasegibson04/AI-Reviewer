@@ -2,10 +2,10 @@
 
 ## Default Policy
 
-- Balanced reviewer: `gemma3:27b`
-- Deep reviewer: `llama3.3:70b-instruct-q4_K_M` (if installed)
-- Repair fallback: `mistral-small3.1:24b`, `qwen2.5:7b-instruct`
-- Embedding default: `mxbai-embed-large:latest`
+- Balanced reviewer: `mistral-small3.2:latest`
+- Deep reviewer: `phi4-reasoning:latest`
+- Repair fallback: `qwen2.5:7b-instruct`, `mistral-small3.2:latest`
+- Embedding default: `bge-m3:latest`
 - Embedding fallback: `nomic-embed-text-v2-moe:latest`
 
 ## Choosing For Task
@@ -15,12 +15,12 @@
   - model: smaller/medium local chat model
 - Production review memo:
   - profile: `balanced`
-  - model: `gemma3:27b`
+  - model: `mistral-small3.2:latest`
 - Deep technical critique:
   - profile: `deep` or `methods`
-  - model: `llama3.3:70b-instruct-q4_K_M`
+  - model: `phi4-reasoning:latest`
 - Formatting rescue:
-  - repair model: `mistral-small3.1:24b` or `qwen2.5:7b-instruct`
+  - repair model: `qwen2.5:7b-instruct` or `mistral-small3.2:latest`
 
 ## How To Evaluate Models Locally
 

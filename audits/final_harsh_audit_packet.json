@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-03-28",
+  "project_access_guard": {
+    "horseshoe_crab_excluded": true,
+    "approved_projects": [
+      "20260325163524_test-existingphactorpaper",
+      "20260327051312_miniaturization_d2b"
+    ]
+  },
+  "baseline_vs_final": {
+    "phactor": {
+      "baseline_run": "20260328_175942_deep_run",
+      "final_run": "20260328_220607_deep_run",
+      "baseline": {
+        "suggested_changes_total": 11,
+        "suggested_changes_applied": 5,
+        "comments_added": 13
+      },
+      "final": {
+        "suggested_changes_total": 11,
+        "suggested_changes_applied": 10,
+        "comments_added": 13
+      }
+    },
+    "miniaturization": {
+      "baseline_run": "20260328_182044_deep_run",
+      "final_run": "20260328_222544_deep_run",
+      "baseline": {
+        "suggested_changes_total": 6,
+        "suggested_changes_applied": 3,
+        "comments_added": 8
+      },
+      "final": {
+        "suggested_changes_total": 6,
+        "suggested_changes_applied": 6,
+        "comments_added": 7
+      }
+    }
+  },
+  "validation_runs": [
+    {
+      "project": "20260325163524_test-existingphactorpaper",
+      "run_id": "20260328_211938_review",
+      "workflow": "review",
+      "profile": "balanced"
+    },
+    {
+      "project": "20260327051312_miniaturization_d2b",
+      "run_id": "20260328_212802_review",
+      "workflow": "review",
+      "profile": "balanced"
+    },
+    {
+      "project": "20260325163524_test-existingphactorpaper",
+      "run_id": "20260328_220607_deep_run",
+      "workflow": "deep-run"
+    },
+    {
+      "project": "20260327051312_miniaturization_d2b",
+      "run_id": "20260328_222544_deep_run",
+      "workflow": "deep-run"
+    }
+  ],
+  "changes_applied": [
+    "Improved sentence-level issue harvesting and reduced template-only comments.",
+    "Removed over-broad structural-global skip behavior for suggested rewrites.",
+    "Added rewrite relevance gates and deterministic fallback rewrite path.",
+    "Added support-material relevance filtering and blocked-marker suppression.",
+    "Added citation query policy and query audit metadata for safe online mode.",
+    "Reconciled defaults in config and model/orchestrator docs."
+  ],
+  "tests": {
+    "full_pytest": "108 passed",
+    "new_tests": [
+      "tests/unit/test_support_filtering.py",
+      "tests/unit/test_suggested_changes.py::test_suggested_changes_structure_issue_can_apply_when_localized",
+      "tests/unit/test_citation_fetcher.py::test_fetch_report_includes_query_policy_and_query_audit"
+    ]
+  },
+  "remaining_limitations": [
+    "Section mapping for miniaturization still leaves some body-level bucket usage.",
+    "Sparse-review enrichment still triggers frequently.",
+    "Physical Mac long-run validation not executed in this session."
+  ]
+}

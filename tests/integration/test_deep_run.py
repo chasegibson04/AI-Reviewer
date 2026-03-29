@@ -99,6 +99,7 @@ def test_deep_run_project_with_manuscript_and_other(tmp_path: Path):
     )
     assert result.status == "success"
     assert (run_dir / "final_deep_review_report.json").exists()
+    assert (run_dir / "stage_11_reconciliation_qc.json").exists()
     assert json.loads((run_dir / "training_guidance_used.json").read_text(encoding="utf-8"))["enabled"] is True
 
 
@@ -120,4 +121,3 @@ def test_deep_run_other_only_fails_gracefully(tmp_path: Path):
             embedding_model="mxbai-embed-large:latest",
             disable_training_guidance=True,
         )
-

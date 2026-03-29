@@ -33,7 +33,7 @@ def review_to_comment_entries(
     review: Any,
     doc: ParsedDocument | None = None,
     base_docx: Path | None = None,
-    max_comments: int = 24,
+    max_comments: int = 36,
 ) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
     for idx, sec in enumerate(review.section_specific_comments, start=1):
@@ -45,11 +45,11 @@ def review_to_comment_entries(
         entries.append(
             {
                 "paragraph_index": idx,
-                "issue_type": "structure/organization",
+                "issue_type": "section_issue",
                 "severity": sec.severity,
                 "critique": critique,
-                "suggested_revision": f"Proposed edit: revise the opening of '{sec.section}' to explicitly reflect: {critique}",
-                "rationale": "Section-level issue tied to review schema output; aim to align opening claim with critique.",
+                "suggested_revision": "Proposed edit: revise the sentence that carries this claim so it states one concrete condition and one explicit limitation.",
+                "rationale": "Section-specific issue from review output with local revision guidance.",
             }
         )
     for idx, item in enumerate(review.extracted_action_items, start=len(entries) + 1):
@@ -65,8 +65,7 @@ def review_to_comment_entries(
                 "severity": item.priority,
                 "critique": action,
                 "suggested_revision": (
-                    "Suggested rewrite: add one sentence that specifies the exact condition, metric, and observed outcome, "
-                    "and add one sentence that states the limitation or boundary of the claim."
+                    "Suggested rewrite: replace vague phrasing with one sentence naming the condition/metric/outcome and one sentence stating boundary conditions."
                 ),
                 "rationale": "Derived from extracted action item requiring manuscript-local clarification.",
             }
@@ -82,7 +81,7 @@ def review_to_comment_entries(
         ("redundancy", getattr(review, "major_weaknesses", [])),
     ]
     for label, items in category_pairs:
-        for item in items[:2]:
+        for item in items[:4]:
             text = str(item).strip()
             if not text:
                 continue
@@ -118,6 +117,20 @@ def review_to_comment_entries(
                 break
         if len(entries) >= max_comments:
             break
+    detail_candidates = [str(t).strip() for t in getattr(review, "detailed_reviewer_comments", []) if str(t).strip()]
+    for text in detail_candidates:
+        if len(entries) >= max_comments:
+            break
+        entries.append(
+            {
+                "paragraph_index": len(entries) + 1,
+                "issue_type": "clarity",
+                "severity": "medium",
+                "critique": text,
+                "suggested_revision": "Suggested rewrite: tighten the sentence to one core claim, one supporting detail, and remove ambiguous qualifiers.",
+                "rationale": "Detailed reviewer comment promoted into local actionable guidance.",
+            }
+        )
     if not entries:
         for idx, text in enumerate(review.detailed_reviewer_comments[:max_comments], start=1):
             entries.append(
@@ -152,11 +165,11 @@ def review_to_comment_entries(
                 }
             )
 
-    # Inject concrete sentence-level edits from the manuscript body when possible.
+    # Inject sentence-level edits from manuscript text for better coverage and utility.
     if base_docx is not None:
         docx = Document(str(base_docx))
         paragraphs = [p.text.strip() for p in docx.paragraphs]
-        locked_used: set[int] = set()
+        per_para_added: dict[int, int] = {}
         for pidx, text in enumerate(paragraphs):
             if len(entries) >= max_comments:
                 break
@@ -181,26 +194,45 @@ def review_to_comment_entries(
             for s in sentences:
                 if len(entries) >= max_comments:
                     break
-                if len(s.split()) < 22:
+                if len(s.split()) < 14:
                     continue
-                if pidx in locked_used:
+                if per_para_added.get(pidx, 0) >= 2:
                     break
-                if " was " in f" {s.lower()} " or " were " in f" {s.lower()} ":
+                slow = s.lower()
+                issue_type = None
+                critique = None
+                rewrite = None
+                if " was " in f" {slow} " or " were " in f" {slow} ":
                     rewrite = _rewrite_candidate(s)
+                    issue_type = "grammar/style"
+                    critique = f"Passive construction weakens readability and agency: {s[:220]}"
+                elif len(s.split()) >= 34:
+                    rewrite = _rewrite_candidate(s)
+                    issue_type = "clarity"
+                    critique = f"Overlong sentence likely burdens comprehension: {s[:220]}"
+                elif any(k in slow for k in ["very", "highly", "robust", "always", "never", "every", "all "]):
+                    rewrite = _rewrite_candidate(s)
+                    issue_type = "evidence/overclaim concern"
+                    critique = f"Potentially overstated wording should be calibrated to evidence scope: {s[:220]}"
+                elif any(k in slow for k in ["this suggests", "this indicates", "this demonstrates"]) and len(s.split()) > 18:
+                    rewrite = _rewrite_candidate(s)
+                    issue_type = "clarity"
+                    critique = f"Inference phrase may need tighter grounding and explicit condition: {s[:220]}"
+                if issue_type and critique and rewrite:
                     entries.append(
                         {
                             "paragraph_index": pidx,
-                            "issue_type": "grammar/style",
+                            "issue_type": issue_type,
                             "severity": "medium",
-                            "critique": f"Passive or long sentence reduces clarity: {s[:220]}",
+                            "critique": critique,
                             "suggested_revision": f"Suggested rewrite: {rewrite}",
-                            "rationale": "Sentence-level clarity pass on manuscript text.",
+                            "rationale": "Sentence-level editorial pass grounded in local manuscript text.",
                             "locked_paragraph": True,
                             "anchor_text": s,
+                            "span_sentence": s,
                         }
                     )
-                    locked_used.add(pidx)
-                    break
+                    per_para_added[pidx] = per_para_added.get(pidx, 0) + 1
 
     # Add manuscript-specific claim calibration prompts if phrases appear.
     if doc is not None:
@@ -246,6 +278,8 @@ def review_to_comment_entries(
         if any(x in suggestion.lower() for x in ["apply action:", "address:", "revise wording to address this issue"]):
             suggestion = "Rewrite this location with concrete condition, evidence statement, and limitation language."
             e["suggested_revision"] = suggestion
+        if _looks_generic_comment(critique, suggestion):
+            continue
         if _is_absurd_comment(critique, suggestion):
             continue
         sig = (e.get("issue_type", ""), critique[:180].lower())
@@ -255,6 +289,24 @@ def review_to_comment_entries(
         clean.append(e)
         if len(clean) >= max_comments:
             break
+    if not clean:
+        fallback_text = ""
+        detail_comments = [str(x).strip() for x in getattr(review, "detailed_reviewer_comments", []) if str(x).strip()]
+        if detail_comments:
+            fallback_text = detail_comments[0]
+        else:
+            fallback_text = "Tighten this paragraph by replacing vague wording with one concrete claim and one supporting detail."
+        clean.append(
+            {
+                "comment_id": f"cmt_{uuid4().hex[:10]}",
+                "paragraph_index": 0,
+                "issue_type": "clarity",
+                "severity": "medium",
+                "critique": fallback_text,
+                "suggested_revision": "Proposed edit: rewrite the first sentence to clearly state the claim and evidence.",
+                "rationale": "Fallback to ensure at least one actionable comment when all generated comments are filtered.",
+            }
+        )
     return clean
 
 
@@ -293,6 +345,21 @@ def _is_absurd_comment(critique: str, suggestion: str) -> bool:
         "delete affiliation",
     ]
     return any(p in text for p in blocked_patterns)
+
+
+def _looks_generic_comment(critique: str, suggestion: str) -> bool:
+    c = critique.lower().strip()
+    s = suggestion.lower().strip()
+    if len(c) < 28:
+        return True
+    generic_starts = ("clarify", "improve", "discuss", "elaborate", "add detail", "address this")
+    if c.startswith(generic_starts):
+        return True
+    if s in {"", "suggested rewrite:", "proposed edit:"}:
+        return True
+    if "improve clarity" in s and len(s.split()) < 8:
+        return True
+    return False
 
 
 def _limit_comments_per_paragraph(entries: list[dict[str, Any]], max_per_paragraph: int = 2) -> list[dict[str, Any]]:
@@ -804,7 +871,7 @@ def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None
         return False, "markdown_heading"
     if re.match(r"^\s*\*\*\[[^\]]+\]\*\*", r):
         return False, "markdown_section_label"
-    if len(r) < 0.6 * len(o) or len(r) > 1.6 * len(o):
+    if len(r) < 0.5 * len(o) or len(r) > 1.85 * len(o):
         return False, "length_drift"
     orig_nums = _numeric_tokens(o)
     rev_nums = _numeric_tokens(r)
@@ -813,6 +880,18 @@ def _basic_rewrite_checks(original: str, revised: str) -> tuple[bool, str | None
     if _token_overlap(o, r) < 0.35:
         return False, "low_overlap"
     return True, None
+
+
+def _is_global_issue_not_localized(group: list[dict[str, Any]], original: str) -> bool:
+    text = " ".join([str(c.get("critique", "")) for c in group]).lower()
+    if any(k in text for k in ["whole manuscript", "overall structure", "global framing", "throughout the paper"]):
+        return True
+    # If there is no concrete anchor and only abstract structural language, keep as unresolved.
+    has_anchor = any(str(c.get("anchor_text", "")).strip() for c in group)
+    structural_only = all(str(c.get("issue_type", "")).lower() in {"structure/organization", "framing", "global"} for c in group)
+    if structural_only and not has_anchor and not re.search(r"(sentence|phrase|word|term|claim)", text):
+        return True
+    return False
 
 
 def _verify_rewrite(
@@ -874,7 +953,7 @@ def _generate_suggested_changes(
     applied: list[dict[str, Any]] = []
     blocked_sections = {"front_matter", "references", "header_footer"}
     abstract_allowed = {"evidence/overclaim concern", "clarity", "structure/organization"}
-    global_issue_types = {"structure/organization", "framing", "global"}
+    global_issue_types = {"framing", "global"}
     for pidx, group in sorted(grouped.items(), key=lambda x: x[0]):
         section = section_by_idx.get(pidx, "body")
         original = paragraphs[pidx].strip()
@@ -900,6 +979,10 @@ def _generate_suggested_changes(
             "skip_reason": None,
         }
         if issue_types and all(it.lower() in global_issue_types for it in issue_types):
+            base_entry["skip_reason"] = "global_issue_not_localized"
+            changes.append(base_entry)
+            continue
+        if _is_global_issue_not_localized(group, original):
             base_entry["skip_reason"] = "global_issue_not_localized"
             changes.append(base_entry)
             continue
@@ -1018,6 +1101,17 @@ def _generate_suggested_changes(
         except Exception:
             ok_verify, verdict = False, {"ok": False, "issues": ["verifier_failed"]}
         base_entry["verification"] = verdict
+        issues_text = ""
+        if isinstance(verdict, dict):
+            issues = verdict.get("issues", "")
+            issues_text = " ".join([str(x) for x in issues]) if isinstance(issues, list) else str(issues)
+            if "does not address" in issues_text.lower():
+                ok_verify = False
+            try:
+                if float(verdict.get("alignment_score", 1.0)) < 0.55:
+                    ok_verify = False
+            except Exception:
+                pass
         if not ok_verify:
             issues = verdict.get("issues", []) if isinstance(verdict, dict) else []
             if issues:
@@ -1065,14 +1159,25 @@ def _generate_suggested_changes(
                 except Exception:
                     ok_verify = False
             if not ok_verify:
-                base_entry["skip_reason"] = "rewrite_rejected_low_quality"
-                changes.append(base_entry)
-                continue
+                # Deterministic fallback when rewrite quality is uncertain but we can still make a safe local edit.
+                fallback = _rewrite_candidate(original)
+                ok_fallback, fallback_reason = _basic_rewrite_checks(original, fallback)
+                if ok_fallback:
+                    revised = fallback
+                    rationale = "Deterministic local clarity rewrite fallback applied after model rewrite failed quality checks."
+                    confidence = 0.45
+                    base_entry["verification"] = {"ok": True, "fallback": True, "reason": "model_rewrite_rejected"}
+                    ok_verify = True
+                else:
+                    base_entry["skip_reason"] = fallback_reason or "rewrite_rejected_low_quality"
+                    changes.append(base_entry)
+                    continue
         try:
-            if float(verdict.get("faithfulness_score", 1.0)) < 0.6:
-                base_entry["skip_reason"] = "rewrite_rejected_meaning_change"
-                changes.append(base_entry)
-                continue
+            if not (isinstance(base_entry.get("verification"), dict) and base_entry["verification"].get("fallback")):
+                if float(verdict.get("faithfulness_score", 1.0)) < 0.6:
+                    base_entry["skip_reason"] = "rewrite_rejected_meaning_change"
+                    changes.append(base_entry)
+                    continue
         except Exception:
             pass
         base_entry["revised_text"] = revised[:1200]

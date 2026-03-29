@@ -52,6 +52,7 @@ class CitationMethodResult:
     title: str | None = None
     source: str | None = None
     candidate_count: int = 0
+    query_audit: list[dict] | None = None
 
 
 CitationMethod = Callable[[CitationMethodContext], CitationMethodResult]
@@ -192,6 +193,12 @@ def _find_pdf_urls_for_doi(doi: str, cfg: ReviewerConfig, timeout: int) -> list[
     return urls
 
 
+def _sanitize_query_text(text: str, max_chars: int = 220) -> str:
+    cleaned = re.sub(r"\s+", " ", (text or "").strip())
+    cleaned = re.sub(r"[^A-Za-z0-9 .,:;()_+\-/]", "", cleaned)
+    return cleaned[:max_chars]
+
+
 def _download_pdf(url: str, dest: Path, timeout: int) -> str:
     r = _requests_get(url, timeout, accept_pdf=True)
     if not r:
@@ -210,7 +217,7 @@ def _crossref_lookup(reference: str) -> tuple[str | None, str | None]:
         return None, None
     try:
         cr = Crossref()
-        res = cr.works(query=reference, limit=1)
+        res = cr.works(query=_sanitize_query_text(reference), limit=1)
         items = (res or {}).get("message", {}).get("items", [])
         if not items:
             return None, None
@@ -226,6 +233,7 @@ def _method_doi_open_access_apis(ctx: CitationMethodContext) -> CitationMethodRe
     doi = ctx.doi
     if not doi:
         return CitationMethodResult(status="no_doi")
+    query_audit = [{"type": "doi_lookup", "len": len(doi)}]
     cached_path = ctx.doi_cache.get(doi.lower())
     if cached_path and Path(cached_path).exists():
         return CitationMethodResult(
@@ -235,10 +243,11 @@ def _method_doi_open_access_apis(ctx: CitationMethodContext) -> CitationMethodRe
             title=ctx.title,
             source="doi_cache",
             candidate_count=0,
+            query_audit=query_audit,
         )
     urls = _find_pdf_urls_for_doi(doi, ctx.cfg, ctx.timeout)
     if not urls:
-        return CitationMethodResult(status="no_oa_links", doi=doi, title=ctx.title, candidate_count=0)
+        return CitationMethodResult(status="no_oa_links", doi=doi, title=ctx.title, candidate_count=0, query_audit=query_audit)
     name = _safe_filename((ctx.title or doi).replace("/", "_"))
     dest = ctx.dest_dir / name
     if dest.exists():
@@ -249,6 +258,7 @@ def _method_doi_open_access_apis(ctx: CitationMethodContext) -> CitationMethodRe
             title=ctx.title,
             source="existing",
             candidate_count=len(urls),
+            query_audit=query_audit,
         )
     status = "no_oa_links"
     for source, url in urls:
@@ -261,18 +271,20 @@ def _method_doi_open_access_apis(ctx: CitationMethodContext) -> CitationMethodRe
                 title=ctx.title,
                 source=source,
                 candidate_count=len(urls),
+                query_audit=query_audit,
             )
         status = f"failed:{dl}"
         time.sleep(random.uniform(0.2, 0.6))
-    return CitationMethodResult(status=status, doi=doi, title=ctx.title, candidate_count=len(urls))
+    return CitationMethodResult(status=status, doi=doi, title=ctx.title, candidate_count=len(urls), query_audit=query_audit)
 
 
 def _method_crossref_lookup_then_oa(ctx: CitationMethodContext) -> CitationMethodResult:
     if ctx.doi:
         return CitationMethodResult(status="skip_has_doi", doi=ctx.doi, title=ctx.title)
-    doi, title = _crossref_lookup(ctx.reference)
+    safe_ref = _sanitize_query_text(ctx.reference)
+    doi, title = _crossref_lookup(safe_ref)
     if not doi:
-        return CitationMethodResult(status="no_doi", title=ctx.title)
+        return CitationMethodResult(status="no_doi", title=ctx.title, query_audit=[{"type": "crossref_title_lookup", "len": len(safe_ref)}])
     nested = CitationMethodContext(
         reference=ctx.reference,
         doi=doi,
@@ -285,6 +297,7 @@ def _method_crossref_lookup_then_oa(ctx: CitationMethodContext) -> CitationMetho
     out = _method_doi_open_access_apis(nested)
     out.doi = out.doi or doi
     out.title = out.title or title
+    out.query_audit = [{"type": "crossref_title_lookup", "len": len(safe_ref)}, *((out.query_audit or []))]
     return out
 
 
@@ -403,6 +416,8 @@ def fetch_citations_for_documents(
                 if result.title and not entry.get("title"):
                     entry["title"] = result.title
                 attempt = {"method": method_name, "status": result.status, "source": result.source}
+                if result.query_audit:
+                    attempt["query_audit"] = result.query_audit
                 entry["method_attempts"].append(attempt)
                 if result.status.startswith("downloaded:") or result.status == "already_present":
                     entry["status"] = result.status
@@ -439,6 +454,11 @@ def fetch_citations_for_documents(
         "total_downloaded": report.total_downloaded,
         "total_cache_hits": total_cache_hits,
         "doi_cache_entries": len(doi_cache),
+        "query_policy": {
+            "no_manuscript_raw_text": True,
+            "allowed_query_types": ["doi_lookup", "crossref_title_lookup"],
+            "query_sanitization": "whitespace normalized, symbol filtering, max length 220",
+        },
         "entries": report.entries,
     }
     if run_dir:
