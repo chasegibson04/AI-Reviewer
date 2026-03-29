@@ -15,6 +15,9 @@ from ai_reviewer.tools.docx_tools import (
     create_commented_docx_copy,
     create_docx_from_plain_text,
     create_suggested_changes_docx,
+    get_docx_paragraph_texts,
+    inspect_docx_annotation_state,
+    normalize_review_artifact_text,
     validate_commented_docx,
     validate_suggested_changes_docx,
 )
@@ -23,10 +26,20 @@ from ai_reviewer.tools.docx_tools import (
 def detect_source_mode(path: Path) -> dict[str, Any]:
     suffix = path.suffix.lower()
     if suffix == ".docx":
-        return {"mode": "original_docx", "base_type": "docx"}
+        state = inspect_docx_annotation_state(path) if path.exists() else {"annotation_state": "unknown_docx_state"}
+        return {
+            "mode": "original_docx",
+            "base_type": "docx",
+            "annotation_state": state.get("annotation_state"),
+            "docx_annotation_state": state,
+        }
     if suffix == ".pdf":
         return {"mode": "pdf_only_surrogate", "base_type": "pdf"}
     return {"mode": "surrogate_other_source", "base_type": suffix.lstrip(".")}
+
+
+def _analysis_paragraphs(base_docx: Path) -> list[str]:
+    return [text.strip() for text in get_docx_paragraph_texts(base_docx, normalize_review_artifacts=True)]
 
 
 def _split_sentences(text: str) -> list[str]:
@@ -73,8 +86,7 @@ def _calibrate_claim_sentence(sentence: str) -> str:
 
 
 def _build_sentence_level_candidates(base_docx: Path, max_comments: int) -> list[dict[str, Any]]:
-    docx = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in docx.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     section_by_idx = _build_section_index_map(paragraphs)
     candidates: list[dict[str, Any]] = []
     per_section: dict[str, int] = {}
@@ -322,8 +334,7 @@ def review_to_comment_entries(
 
     # Inject sentence-level edits from manuscript text for better coverage and utility.
     if base_docx is not None:
-        docx = Document(str(base_docx))
-        paragraphs = [p.text.strip() for p in docx.paragraphs]
+        paragraphs = _analysis_paragraphs(base_docx)
         per_para_added: dict[int, int] = {}
         for pidx, text in enumerate(paragraphs):
             if len(entries) >= max_comments:
@@ -401,9 +412,8 @@ def review_to_comment_entries(
         for phrase in claim_hits[:3]:
             anchor_index = None
             if base_docx is not None:
-                docx = Document(str(base_docx))
-                for i, p in enumerate(docx.paragraphs):
-                    if phrase in (p.text or "").lower():
+                for i, text in enumerate(_analysis_paragraphs(base_docx)):
+                    if phrase in text.lower():
                         anchor_index = i
                         break
             entry = {
@@ -549,8 +559,7 @@ def _comment_entry_quality_ok(entry: dict[str, Any], paragraph_text: str) -> boo
 
 
 def _filter_comment_entries_by_paragraph_quality(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
-    doc = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     filtered: list[dict[str, Any]] = []
     for e in entries:
         pidx = e.get("paragraph_index")
@@ -889,8 +898,7 @@ def _build_section_index_map(paragraphs: list[str]) -> dict[int, str]:
 
 
 def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
-    doc = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     non_empty = [idx for idx, text in enumerate(paragraphs) if text]
     if not non_empty:
         return entries
@@ -1019,8 +1027,7 @@ def _assign_paragraph_indices(entries: list[dict[str, Any]], base_docx: Path) ->
 
 
 def _localize_comment_entries(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
-    doc = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     section_by_idx = _build_section_index_map(paragraphs)
     for entry in entries:
         pidx = entry.get("paragraph_index")
@@ -1071,8 +1078,7 @@ def _localize_comment_entries(entries: list[dict[str, Any]], base_docx: Path) ->
 
 
 def _enrich_comment_suggestions(entries: list[dict[str, Any]], base_docx: Path) -> list[dict[str, Any]]:
-    doc = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     templated_markers = [
         "add a sentence",
         "tone down",
@@ -1182,8 +1188,7 @@ def _balance_comment_entries(entries: list[dict[str, Any]], base_docx: Path, max
 
 
 def _section_map_for_docx(base_docx: Path) -> list[dict[str, Any]]:
-    doc = Document(str(base_docx))
-    paragraphs = [p.text.strip() for p in doc.paragraphs]
+    paragraphs = _analysis_paragraphs(base_docx)
     out: list[dict[str, Any]] = []
     section_by_idx = _build_section_index_map(paragraphs)
     for idx, text in enumerate(paragraphs):
@@ -1372,8 +1377,9 @@ def _generate_suggested_changes(
     rewrite_model: str | None,
     timeout_seconds: int,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    docx = Document(str(base_docx))
-    paragraphs = [p.text or "" for p in docx.paragraphs]
+    raw_docx = Document(str(base_docx))
+    raw_paragraphs = [p.text or "" for p in raw_docx.paragraphs]
+    paragraphs = [normalize_review_artifact_text(text).strip() for text in raw_paragraphs]
     section_by_idx = _section_lookup_for_docx(base_docx)
     grouped: dict[int, list[dict[str, Any]]] = {}
     for c in comments:
@@ -1691,7 +1697,7 @@ def build_annotated_manuscript_output(
             }
         ]
     reviewed_docx = output_dir / reviewed_name
-    result = create_commented_docx_copy(base_docx, reviewed_docx, comments)
+    result = create_commented_docx_copy(base_docx, reviewed_docx, comments, comment_tag=run_id)
     validation = validate_commented_docx(base_docx, reviewed_docx)
     section_map = _section_map_for_docx(base_docx)
     changes_manifest, applied_changes = _generate_suggested_changes(
@@ -1741,6 +1747,7 @@ def build_annotated_manuscript_output(
         "manifest_path": str(manifest_path),
         "changes_proposed": len(changes_manifest),
         "changes_applied": suggested_result.get("changes_applied", 0),
+        "follow_up_changes_applied": suggested_result.get("follow_up_changes_applied", 0),
         "applied_paragraph_indices": suggested_result.get("applied_paragraph_indices", []),
         "front_matter_changed_count": front_matter_changed,
         "references_changed_count": references_changed,
@@ -1753,7 +1760,13 @@ def build_annotated_manuscript_output(
         "project_id": project_id,
         "manuscript_source_path": str(source_path),
         "source_mode": source_mode["mode"],
+        "annotation_state": source_mode.get("annotation_state"),
+        "docx_annotation_state": source_mode.get("docx_annotation_state"),
         "surrogate_base_path": str(base_docx) if source_mode["mode"] != "original_docx" else None,
+        "annotation_policy": (
+            "Preserve existing DOCX comments and visible suggested-change blocks; "
+            "strip visible AI-Reviewer suggestion blocks from analysis text; layer new comments and follow-up suggested changes on top."
+        ),
         "notes": [],
     }
     return {
@@ -1763,6 +1776,8 @@ def build_annotated_manuscript_output(
         "reviewed_docx": str(reviewed_docx),
         "comments_requested": len(comments),
         "comments_added": result.get("comments_added", 0),
+        "existing_comments_before": result.get("existing_comments_before", 0),
+        "existing_comments_after": result.get("existing_comments_after", 0),
         "anchored_paragraph_indices": result.get("anchored_paragraph_indices", []),
         "comment_targets": comments,
         "validation": validation,

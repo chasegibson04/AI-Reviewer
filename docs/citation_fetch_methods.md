@@ -38,6 +38,10 @@ Method signature:
   - DOI-based OA lookup + PDF download.
 - `crossref_lookup_then_oa`
   - Title/reference lookup via Crossref, then OA DOI download.
+- `local_project_pdf_match`
+  - Fallback that reuses an existing PDF already present under `materials/other` when DOI/title strongly matches.
+- `crossref_short_title_then_oa`
+  - Fallback that retries Crossref using a shortened sanitized title/query before OA DOI download.
 
 These are adapted from `Copy of PaperScraperV2` ideas (title extraction, Crossref lookup, robust PDF-byte validation).
 
@@ -50,6 +54,16 @@ Per-run report:
 - `projects/<project_id>/runs/<run_id>/artifacts/citation_fetch_report.json`
 
 This report includes method order, attempts, statuses, saved paths, and totals.
+
+Fallback behavior:
+
+- The existing DOI/OA and Crossref lookup path remains primary.
+- Local PDF reuse and shortened-title lookup are appended as fallbacks, not replacements.
+- Query audit types now include:
+  - `doi_lookup`
+  - `crossref_title_lookup`
+  - `crossref_short_title_lookup`
+  - `local_pdf_title_match`
 
 ## Important runtime switches
 

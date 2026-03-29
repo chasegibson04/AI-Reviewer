@@ -173,3 +173,46 @@ def test_fetch_report_includes_query_policy_and_query_audit(monkeypatch, tmp_pat
     payload = __import__("json").loads(payload_path.read_text(encoding="utf-8"))
     assert payload["query_policy"]["no_manuscript_raw_text"] is True
     assert payload["entries"][0]["method_attempts"][0]["query_audit"][0]["type"] == "doi_lookup"
+
+
+def test_fetch_local_project_pdf_match_fallback(tmp_path: Path):
+    cfg = ReviewerConfig(
+        defaults=Defaults(strict_offline=False),
+        citation_fetch=CitationFetchConfig(
+            enabled=True,
+            methods=["local_project_pdf_match"],
+            max_refs_per_doc=10,
+            max_papers=10,
+        ),
+    )
+    other = tmp_path / "materials" / "other"
+    other.mkdir(parents=True, exist_ok=True)
+    existing = other / "Predicting_Reaction_Outcomes_Local_Copy.pdf"
+    existing.write_bytes(b"%PDF-1.4\n")
+
+    report = fetch_citations_for_documents(
+        docs=[_doc(tmp_path, 'REFERENCES\n(1) "Predicting Reaction Outcomes" J. Test 2020.\n')],
+        project_root=tmp_path,
+        cfg=cfg,
+        logger=None,
+        run_dir=tmp_path,
+    )
+    assert report.enabled
+    assert report.entries[0]["status"] == "already_present_by_local_match"
+
+
+def test_fetch_default_method_order_includes_fallbacks(tmp_path: Path):
+    cfg = ReviewerConfig(
+        defaults=Defaults(strict_offline=False),
+        citation_fetch=CitationFetchConfig(enabled=True, methods=[]),
+    )
+    fetch_citations_for_documents(
+        docs=[_doc(tmp_path, "REFERENCES\n(1) Test. doi:10.1234/abc\n")],
+        project_root=tmp_path,
+        cfg=cfg,
+        logger=None,
+        run_dir=tmp_path,
+    )
+    payload = __import__("json").loads((tmp_path / "artifacts" / "citation_fetch_report.json").read_text(encoding="utf-8"))
+    assert "local_project_pdf_match" in payload["methods"]
+    assert "crossref_short_title_then_oa" in payload["methods"]

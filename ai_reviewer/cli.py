@@ -14,6 +14,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeEl
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich.table import Table
+from typer.models import OptionInfo
 
 from ai_reviewer.benchmarks.runner import benchmark_models, write_benchmark_report
 from ai_reviewer.config import load_config, write_example_local_config
@@ -235,6 +236,21 @@ def _print_run_outcome(title: str, run_dir: Path, key_files: list[Path], verifie
         for issue in issues or []:
             lines.append(f"- {issue}")
     console.print(Panel.fit("\n".join(lines), title="Run Summary"))
+
+
+def _parse_optional_csv_option(value: object) -> list[str] | None:
+    if value is None or isinstance(value, OptionInfo):
+        return None
+    if isinstance(value, str):
+        parts = [x.strip() for x in value.split(",") if x.strip()]
+        return parts or None
+    if isinstance(value, (list, tuple, set)):
+        parts = [str(x).strip() for x in value if str(x).strip()]
+        return parts or None
+    text = str(value).strip()
+    if not text:
+        return None
+    return [text]
 
 
 def _resolve_docs(input_path: Optional[Path], project: Optional[str], material_ids: Optional[str]):
@@ -866,7 +882,7 @@ def deep_run_cmd(
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)
-        context_ids = [x.strip() for x in context_material_ids.split(",")] if context_material_ids else None
+        context_ids = _parse_optional_csv_option(context_material_ids)
         result = run_deep_run(
             provider=provider,
             cfg=cfg,

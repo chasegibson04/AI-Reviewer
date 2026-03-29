@@ -135,6 +135,13 @@ def _safe_filename(text: str) -> str:
     return (name[:80] + ".pdf") if not name.lower().endswith(".pdf") else name[:84]
 
 
+def _normalized_title_tokens(text: str) -> set[str]:
+    cleaned = _sanitize_query_text(text or "", max_chars=500).lower()
+    tokens = re.findall(r"[a-z0-9]{4,}", cleaned)
+    stop = {"with", "from", "using", "into", "this", "that", "these", "those", "journal", "article"}
+    return {tok for tok in tokens if tok not in stop}
+
+
 def _requests_get(url: str, timeout: int, accept_pdf: bool = False) -> requests.Response | None:
     headers = {
         "User-Agent": (
@@ -301,17 +308,92 @@ def _method_crossref_lookup_then_oa(ctx: CitationMethodContext) -> CitationMetho
     return out
 
 
+def _method_local_project_pdf_match(ctx: CitationMethodContext) -> CitationMethodResult:
+    title_tokens = _normalized_title_tokens(ctx.title or ctx.reference)
+    doi = (ctx.doi or "").lower().strip()
+    matches: list[tuple[float, Path]] = []
+    for path in sorted(ctx.dest_dir.glob("*.pdf")):
+        haystack = f"{path.stem} {path.name}".lower()
+        score = 0.0
+        if doi and doi.replace("/", "_") in haystack:
+            score += 2.0
+        pdf_tokens = _normalized_title_tokens(path.stem)
+        if title_tokens and pdf_tokens:
+            overlap = len(title_tokens & pdf_tokens) / float(len(title_tokens | pdf_tokens))
+            score += overlap
+        if score >= 0.45:
+            matches.append((score, path))
+    if not matches:
+        return CitationMethodResult(
+            status="no_local_match",
+            doi=ctx.doi,
+            title=ctx.title,
+            query_audit=[{"type": "local_pdf_title_match", "len": len(" ".join(sorted(title_tokens)))}],
+        )
+    matches.sort(key=lambda item: item[0], reverse=True)
+    best = matches[0][1]
+    return CitationMethodResult(
+        status="already_present_by_local_match",
+        saved_path=str(best),
+        doi=ctx.doi,
+        title=ctx.title,
+        source="local_other_dir_match",
+        candidate_count=len(matches),
+        query_audit=[{"type": "local_pdf_title_match", "len": len(" ".join(sorted(title_tokens)))}],
+    )
+
+
+def _method_crossref_short_title_then_oa(ctx: CitationMethodContext) -> CitationMethodResult:
+    if ctx.doi:
+        return CitationMethodResult(status="skip_has_doi", doi=ctx.doi, title=ctx.title)
+    base_title = ctx.title or extract_title(ctx.reference)
+    words = _sanitize_query_text(base_title, max_chars=220).split()
+    if not words:
+        return CitationMethodResult(status="no_title_tokens", title=ctx.title)
+    shortened = " ".join(words[: min(len(words), 12)])
+    doi, title = _crossref_lookup(shortened)
+    if not doi:
+        return CitationMethodResult(
+            status="no_doi",
+            title=ctx.title,
+            query_audit=[{"type": "crossref_short_title_lookup", "len": len(shortened)}],
+        )
+    nested = CitationMethodContext(
+        reference=ctx.reference,
+        doi=doi,
+        title=title or ctx.title,
+        cfg=ctx.cfg,
+        timeout=ctx.timeout,
+        dest_dir=ctx.dest_dir,
+        doi_cache=ctx.doi_cache,
+    )
+    out = _method_doi_open_access_apis(nested)
+    out.doi = out.doi or doi
+    out.title = out.title or title
+    out.query_audit = [{"type": "crossref_short_title_lookup", "len": len(shortened)}, *((out.query_audit or []))]
+    return out
+
+
 REGISTERED_CITATION_METHODS: dict[str, CitationMethod] = {
     # Fast path when DOI exists in the reference string.
     "doi_open_access_apis": _method_doi_open_access_apis,
     # Fallback path inspired by PaperScraperV2: title->Crossref->OA APIs.
     "crossref_lookup_then_oa": _method_crossref_lookup_then_oa,
+    # Local fallback: reuse PDFs already present in materials/other when title/DOI strongly matches.
+    "local_project_pdf_match": _method_local_project_pdf_match,
+    # Network fallback: shorten noisy reference/title strings before Crossref lookup.
+    "crossref_short_title_then_oa": _method_crossref_short_title_then_oa,
 }
 
 
 def _resolve_method_order(cfg: ReviewerConfig) -> list[str]:
     ordered = [m.strip() for m in (cfg.citation_fetch.methods or []) if m.strip()]
-    return ordered or ["doi_open_access_apis", "crossref_lookup_then_oa"]
+    if not ordered:
+        ordered = ["doi_open_access_apis", "crossref_lookup_then_oa"]
+    for fallback in ["local_project_pdf_match", "crossref_short_title_then_oa"]:
+        if fallback not in ordered:
+            ordered.append(fallback)
+    return ordered
 
 
 def _doi_cache_path(other_dir: Path) -> Path:
@@ -419,7 +501,7 @@ def fetch_citations_for_documents(
                 if result.query_audit:
                     attempt["query_audit"] = result.query_audit
                 entry["method_attempts"].append(attempt)
-                if result.status.startswith("downloaded:") or result.status == "already_present":
+                if result.status.startswith("downloaded:") or result.status in {"already_present", "already_present_by_local_match"}:
                     entry["status"] = result.status
                     entry["saved_path"] = result.saved_path
                     if entry.get("doi") and entry.get("saved_path"):
@@ -456,7 +538,7 @@ def fetch_citations_for_documents(
         "doi_cache_entries": len(doi_cache),
         "query_policy": {
             "no_manuscript_raw_text": True,
-            "allowed_query_types": ["doi_lookup", "crossref_title_lookup"],
+            "allowed_query_types": ["doi_lookup", "crossref_title_lookup", "crossref_short_title_lookup", "local_pdf_title_match"],
             "query_sanitization": "whitespace normalized, symbol filtering, max length 220",
         },
         "entries": report.entries,
