@@ -46,7 +46,7 @@ Merge order:
 
 Important repo defaults:
 - `strict_offline: true`
-- citation fetch enabled but skipped under strict offline
+- citation fetch enabled and still allowed under strict offline using sanitized metadata/OA queries
 - `deep_run_routing.mode: default`
 
 Important caveat:

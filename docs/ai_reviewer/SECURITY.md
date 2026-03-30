@@ -17,7 +17,7 @@
 
 When `defaults.strict_offline: true`:
 - non-local Ollama URLs are rejected
-- citation metadata/download stages are skipped
+- citation metadata/download stages are still allowed under the citation query policy
 - scholarly helper tools return disabled/offline status
 
 ## Safe-Online Behavior
@@ -32,6 +32,6 @@ When strict offline is intentionally disabled:
 ## Recommended Practice
 
 - keep Ollama local-only
-- keep `strict_offline: true` unless you explicitly need metadata retrieval
+- keep `strict_offline: true` to prevent non-local model/provider egress
 - review artifacts after runs instead of trusting success banners alone
 - use `diagnose`, `doctor`, and the testing procedure before release work

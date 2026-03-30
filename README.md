@@ -145,7 +145,7 @@ Current behavior on native and pre-annotated DOCX:
 ## Verification Notes
 
 - strict offline remains the default
-- safe-online citation fetch is metadata-only
+- citation fetch is metadata/OA-only and still runs under strict offline
 - citation fetch labels now distinguish:
   - `citation_exists`
   - `metadata_match_likely`

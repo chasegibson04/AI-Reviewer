@@ -1,6 +1,6 @@
 # Citation Fetch Methods
 
-Citation fetch runs before `review` and `deep-run` when enabled and not blocked by strict offline mode.
+Citation fetch runs before `review` and `deep-run` when enabled.
 
 ## Integration Points
 
@@ -58,7 +58,12 @@ Allowed query types currently include:
 - `AI_REVIEWER_CITATION_FETCH_METHODS=...`
 - `AI_REVIEWER_STRICT_OFFLINE=true|false`
 
-If `strict_offline=true`, citation fetch exits early with `reason = strict_offline`.
+`strict_offline` now applies to model/provider egress, not to citation metadata/download.
+
+Current behavior:
+- citation fetch still runs when `strict_offline=true`
+- queries remain privacy-constrained and sanitized
+- no raw manuscript text is sent
 
 ## Extension Point
 

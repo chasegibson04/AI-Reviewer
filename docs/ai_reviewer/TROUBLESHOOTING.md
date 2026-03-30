@@ -64,12 +64,11 @@ Actions:
 1. set `defaults.ollama_base_url: http://127.0.0.1:11434`
 2. keep `defaults.strict_offline: true`
 
-## 7. Safe-Online Citation Fetch Needs To Be Tested
+## 7. Citation Fetch Needs To Be Tested
 
 Use an explicit override:
 
 ```powershell
-$env:AI_REVIEWER_STRICT_OFFLINE='false'
 python -m ai_reviewer.cli review <manuscript> --project <id> --profile balanced
 ```
 

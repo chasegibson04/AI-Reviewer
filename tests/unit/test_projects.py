@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from ai_reviewer.projects.schema import EvaluationRecord, ProjectDefaults, RunRecord
 from ai_reviewer.projects.store import ProjectStore
@@ -54,3 +55,23 @@ def test_project_store_lifecycle(tmp_path: Path):
     _, after_remove = store.get_project(meta.project_id)
     assert not after_remove.materials
 
+
+def test_project_store_backfills_missing_material_relative_path(tmp_path: Path):
+    store = ProjectStore(tmp_path / "projects")
+    defaults = ProjectDefaults(review_model="gemma3:27b", embedding_model="mxbai-embed-large:latest")
+    pdir, meta = store.create_project("Legacy Project", "", [], defaults)
+
+    source = tmp_path / "legacy.md"
+    source.write_text("# Legacy\n\ntext", encoding="utf-8")
+    material = store.add_material(meta.project_id, source, "manuscript_draft")
+
+    project_json = pdir / "project.json"
+    payload = json.loads(project_json.read_text(encoding="utf-8"))
+    payload["materials"][0].pop("relative_path", None)
+    project_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    _, loaded = store.get_project(meta.project_id)
+    assert loaded.materials[0].relative_path == f"materials/managed/{material.material_id}/{material.filename}"
+
+    rewritten = json.loads(project_json.read_text(encoding="utf-8"))
+    assert rewritten["materials"][0]["relative_path"] == f"materials/managed/{material.material_id}/{material.filename}"

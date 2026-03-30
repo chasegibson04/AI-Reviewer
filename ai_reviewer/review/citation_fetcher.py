@@ -491,8 +491,6 @@ def fetch_citations_for_documents(
 ) -> CitationFetchReport:
     if not cfg.citation_fetch.enabled:
         return CitationFetchReport(False, "disabled", 0, 0, 0, [])
-    if cfg.defaults.strict_offline:
-        return CitationFetchReport(False, "strict_offline", 0, 0, 0, [])
 
     other_dir = project_root / "materials" / "other"
     other_dir.mkdir(parents=True, exist_ok=True)

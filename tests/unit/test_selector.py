@@ -100,3 +100,34 @@ def test_select_deep_run_stage_models_max_quality_mac_safe_fallback(monkeypatch)
     assert stack["final_arbitration"] == "qwen3:14b"
     assert stack["line_edits"] == "qwen3:14b"
     assert "mxbai-embed-large:latest" not in stack.values()
+
+
+def test_select_deep_run_stage_models_mac_arm_prefers_stronger_installed_text_models(monkeypatch):
+    import ai_reviewer.models.selector as selector
+
+    monkeypatch.setattr(selector, "detect_platform", lambda: type("X", (), {"is_mac_arm": True})())
+    cfg = load_config()
+    installed = [
+        "deepseek-coder-v2:latest",
+        "qwen3:32b",
+        "qwen3-vl:8b",
+        "gemma3:27b",
+        "qwen3:14b",
+        "mistral-small3.1:24b",
+        "qwen2.5:7b-instruct",
+        "mxbai-embed-large:latest",
+        "bge-m3:latest",
+        "qwen3:8b",
+        "phi4-reasoning:latest",
+        "mistral-small3.2:latest",
+    ]
+    stack = select_deep_run_stage_models(installed, cfg, mode="max_quality")
+    assert stack["high_level_review"] == "qwen3:32b"
+    assert stack["adversarial_review"] == "qwen3:32b"
+    assert stack["methods_verification"] == "qwen3:32b"
+    assert stack["final_arbitration"] == "qwen3:32b"
+    assert stack["supporting_digest"] == "gemma3:27b"
+    assert stack["line_edits"] == "gemma3:27b"
+    assert "qwen3-vl:8b" not in stack.values()
+    assert "mxbai-embed-large:latest" not in stack.values()
+    assert "bge-m3:latest" not in stack.values()

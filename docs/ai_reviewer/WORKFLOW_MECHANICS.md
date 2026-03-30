@@ -129,7 +129,7 @@ Validation artifacts:
 
 ## 5. Citation Fetch and Verification
 
-Citation fetch runs before `review` and `deep-run` when enabled and not blocked by strict offline mode.
+Citation fetch runs before `review` and `deep-run` when enabled.
 
 Current configured method chain:
 - `doi_open_access_apis`

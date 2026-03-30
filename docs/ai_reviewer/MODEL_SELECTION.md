@@ -72,6 +72,7 @@ Do not claim `max_quality` is universally better until reconciliation/final arbi
 - Mac ARM fallback is explicit when a 70B lane is unavailable
 
 Mac ARM fallback examples:
+- `qwen3:32b`
 - `qwen3:14b`
 - `gemma3:27b`
 - `mistral-small3.1:24b`

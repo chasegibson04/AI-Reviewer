@@ -226,10 +226,11 @@ def select_deep_run_stage_models(
     ]
     if platform_info.is_mac_arm:
         max_quality_reasoning_candidates = [
+            "qwen3:32b",
+            "qwen3:14b",
             config.defaults.deep_review_model,
             roles.deep_model,
             "llama3.3:70b-instruct-q4_K_M",
-            "qwen3:14b",
             "gemma3:27b",
             "mistral-small3.1:24b",
             "phi4-reasoning:latest",
