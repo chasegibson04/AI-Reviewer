@@ -74,4 +74,4 @@ Validation artifacts explicitly track:
 
 - final synthesis still falls back too often in deep-run
 - figure review is still text-only on validated paths
-- suggested revisions are visible suggestion blocks, not Word track changes
+- suggested revisions are rendered as tracked insertions/deletions in the suggested-revisions DOCX

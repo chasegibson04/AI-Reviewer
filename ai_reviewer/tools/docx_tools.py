@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import difflib
 import re
+import shutil
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -19,8 +22,11 @@ except Exception:  # pragma: no cover
 
 
 W_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+XML_NS = "http://www.w3.org/XML/1998/namespace"
 SUGGESTED_CHANGE_MARKER = "[Suggested change]"
 FOLLOWUP_SUGGESTED_CHANGE_MARKER = "[Suggested change - follow-up]"
+
+ET.register_namespace("w", W_NS["w"])
 
 
 def normalize_review_artifact_text(text: str) -> str:
@@ -298,6 +304,72 @@ def extract_docx_body_text(path: Path) -> str:
     return "\n".join(p.text for p in doc.paragraphs)
 
 
+def _preserve_space(node: ET.Element, text: str) -> None:
+    if text.startswith(" ") or text.endswith(" ") or "  " in text or "\n" in text or "\t" in text:
+        node.set(f"{{{XML_NS}}}space", "preserve")
+
+
+def _append_text_run(parent: ET.Element, text: str) -> None:
+    if not text:
+        return
+    run = ET.SubElement(parent, f"{{{W_NS['w']}}}r")
+    text_el = ET.SubElement(run, f"{{{W_NS['w']}}}t")
+    _preserve_space(text_el, text)
+    text_el.text = text
+
+
+def _append_tracked_change(parent: ET.Element, kind: str, text: str, change_id: int, author: str, date_iso: str) -> None:
+    if not text:
+        return
+    tag = f"{{{W_NS['w']}}}{'ins' if kind == 'ins' else 'del'}"
+    wrapper = ET.SubElement(
+        parent,
+        tag,
+        {
+            f"{{{W_NS['w']}}}id": str(change_id),
+            f"{{{W_NS['w']}}}author": author,
+            f"{{{W_NS['w']}}}date": date_iso,
+        },
+    )
+    run = ET.SubElement(wrapper, f"{{{W_NS['w']}}}r")
+    text_tag = f"{{{W_NS['w']}}}{'t' if kind == 'ins' else 'delText'}"
+    text_el = ET.SubElement(run, text_tag)
+    _preserve_space(text_el, text)
+    text_el.text = text
+
+
+def _tokenize_for_track_changes(text: str) -> list[str]:
+    return re.findall(r"\s+|[^\s]+", text or "", flags=re.MULTILINE)
+
+
+def _replace_paragraph_with_track_changes(paragraph_el: ET.Element, original: str, revised: str, change_seed: int, author: str, date_iso: str) -> int:
+    original_tokens = _tokenize_for_track_changes(original)
+    revised_tokens = _tokenize_for_track_changes(revised)
+    matcher = difflib.SequenceMatcher(a=original_tokens, b=revised_tokens)
+    preserved = [child for child in list(paragraph_el) if child.tag == f"{{{W_NS['w']}}}pPr"]
+    for child in list(paragraph_el):
+        if child not in preserved:
+            paragraph_el.remove(child)
+    change_count = 0
+    for opcode, i1, i2, j1, j2 in matcher.get_opcodes():
+        if opcode == "equal":
+            _append_text_run(paragraph_el, "".join(original_tokens[i1:i2]))
+            continue
+        if opcode in {"replace", "delete"}:
+            deleted = "".join(original_tokens[i1:i2])
+            if deleted:
+                _append_tracked_change(paragraph_el, "del", deleted, change_seed + change_count, author, date_iso)
+                change_count += 1
+        if opcode in {"replace", "insert"}:
+            inserted = "".join(revised_tokens[j1:j2])
+            if inserted:
+                _append_tracked_change(paragraph_el, "ins", inserted, change_seed + change_count, author, date_iso)
+                change_count += 1
+    if change_count == 0:
+        _append_text_run(paragraph_el, revised or original)
+    return change_count
+
+
 def validate_commented_docx(base_docx: Path, reviewed_docx: Path) -> dict:
     base = Document(str(base_docx))
     reviewed = Document(str(reviewed_docx))
@@ -349,7 +421,8 @@ def create_suggested_changes_docx(
     before_state = inspect_docx_annotation_state(source_docx)
     applied = 0
     applied_indices: list[int] = []
-    follow_up_applied = 0
+    tracked_change_elements_added = 0
+    paragraph_rewrites: dict[int, tuple[str, str]] = {}
     for change in changes:
         if change.get("status") != "applied":
             continue
@@ -359,26 +432,47 @@ def create_suggested_changes_docx(
             continue
         if idx >= len(doc.paragraphs):
             continue
-        existing_text = (doc.paragraphs[idx].text or "").strip()
-        original_text = (change.get("original_text") or existing_text).strip()
-        if revised and revised in existing_text:
+        existing_text = normalize_review_artifact_text(doc.paragraphs[idx].text or "").strip()
+        original_text = normalize_review_artifact_text(change.get("original_text") or existing_text).strip()
+        if not original_text:
+            original_text = existing_text
+        if not original_text or revised == original_text:
             continue
-        if SUGGESTED_CHANGE_MARKER in existing_text or FOLLOWUP_SUGGESTED_CHANGE_MARKER in existing_text:
-            visible = f"{existing_text}\n{FOLLOWUP_SUGGESTED_CHANGE_MARKER} {revised}"
-            follow_up_applied += 1
-        else:
-            visible = f"{existing_text or original_text}\n{SUGGESTED_CHANGE_MARKER} {revised}"
-        doc.paragraphs[idx].text = visible
+        paragraph_rewrites[idx] = (original_text, revised)
         applied += 1
         applied_indices.append(idx)
     output_docx.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(str(output_docx))
+    shutil.copy2(source_docx, output_docx)
+    if paragraph_rewrites:
+        with zipfile.ZipFile(str(output_docx), "r") as zf:
+            archive = {name: zf.read(name) for name in zf.namelist()}
+        root = ET.fromstring(archive["word/document.xml"])
+        paragraphs_xml = root.findall(".//w:body/w:p", W_NS)
+        date_iso = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        change_seed = 1000
+        for idx in sorted(paragraph_rewrites):
+            if idx < 0 or idx >= len(paragraphs_xml):
+                continue
+            original_text, revised = paragraph_rewrites[idx]
+            tracked_change_elements_added += _replace_paragraph_with_track_changes(
+                paragraphs_xml[idx],
+                original_text,
+                revised,
+                change_seed + (idx * 10),
+                "AI-Reviewer",
+                date_iso,
+            )
+        archive["word/document.xml"] = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+        with zipfile.ZipFile(str(output_docx), "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for name, payload in archive.items():
+                zf.writestr(name, payload)
     after_state = inspect_docx_annotation_state(output_docx)
     return {
         "output": str(output_docx),
         "changes_applied": applied,
         "applied_paragraph_indices": applied_indices,
-        "follow_up_changes_applied": follow_up_applied,
+        "follow_up_changes_applied": 0,
+        "tracked_change_elements_added": tracked_change_elements_added,
         "existing_suggested_change_blocks_before": before_state.get("existing_suggested_change_blocks", 0),
         "existing_suggested_change_blocks_after": after_state.get("existing_suggested_change_blocks", 0),
     }
@@ -396,6 +490,10 @@ def validate_suggested_changes_docx(base_docx: Path, suggested_docx: Path) -> di
         0,
         int(after_state.get("existing_suggested_change_blocks", 0)) - int(before_state.get("existing_suggested_change_blocks", 0)),
     )
+    new_tracked_changes_added = max(
+        0,
+        int(after_state.get("tracked_change_total", 0)) - int(before_state.get("tracked_change_total", 0)),
+    )
     return {
         "base_docx": str(base_docx),
         "suggested_docx": str(suggested_docx),
@@ -406,7 +504,9 @@ def validate_suggested_changes_docx(base_docx: Path, suggested_docx: Path) -> di
         "input_annotation_state": before_state,
         "output_annotation_state": after_state,
         "new_suggested_change_blocks_added": new_blocks_added,
+        "new_tracked_change_elements_added": new_tracked_changes_added,
+        "track_changes_present": int(after_state.get("tracked_change_total", 0)) > 0,
         "input_preannotated": input_preannotated,
-        "silent_noop_suspected": input_preannotated and new_blocks_added == 0,
-        "meaningful_new_review_state": new_blocks_added > 0,
+        "silent_noop_suspected": input_preannotated and new_blocks_added == 0 and new_tracked_changes_added == 0,
+        "meaningful_new_review_state": new_blocks_added > 0 or new_tracked_changes_added > 0,
     }

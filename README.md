@@ -130,7 +130,7 @@ Validation/manifests:
 - `suggested_changes_validation.json`
 
 Current limitation:
-- suggested revisions are still visible suggestion-block markup, not native Word track changes
+- suggested revisions now render as Word tracked insertions/deletions in the suggested-revisions DOCX
 
 ## Native DOCX Notes
 
@@ -139,7 +139,7 @@ Current behavior on native and pre-annotated DOCX:
 - preserve visible prior suggested-change blocks
 - strip visible suggestion blocks from analysis text
 - layer new comments on top
-- append follow-up suggested changes when needed
+- render new suggested revisions as tracked changes against the clean paragraph text
 - validate `meaningful_new_review_state` and `silent_noop_suspected`
 
 ## Verification Notes

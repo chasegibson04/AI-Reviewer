@@ -1,4 +1,6 @@
 from pathlib import Path
+import zipfile
+import re
 
 from docx import Document
 
@@ -16,6 +18,12 @@ from ai_reviewer.tools.docx_tools import (
     validate_commented_docx,
     validate_suggested_changes_docx,
 )
+
+
+def _count_track_changes(path: Path) -> tuple[int, int]:
+    with zipfile.ZipFile(str(path), "r") as zf:
+        xml = zf.read("word/document.xml").decode("utf-8", errors="ignore")
+    return len(re.findall(r"<w:ins\b", xml)), len(re.findall(r"<w:del\b", xml))
 
 
 def _add_existing_comment(doc: Document, paragraph_index: int, text: str, author: str = "Editor", initials: str = "ED") -> None:
@@ -86,11 +94,13 @@ def test_suggested_changes_docx_applies_edits(tmp_path: Path):
     )
     assert out.exists()
     assert result["changes_applied"] == 1
-    reopened = Document(str(out))
-    assert "Paragraph one." in reopened.paragraphs[1].text
-    assert "[Suggested change] Paragraph one updated." in reopened.paragraphs[1].text
+    ins_count, del_count = _count_track_changes(out)
+    assert ins_count >= 1
+    assert del_count >= 1
     validation = validate_suggested_changes_docx(source, out)
     assert validation["structure_intact"] is True
+    assert validation["track_changes_present"] is True
+    assert validation["meaningful_new_review_state"] is True
 
 
 def test_scholarly_lookup_offline_no_network():
@@ -217,11 +227,11 @@ def test_followup_suggested_changes_append_marker_on_preannotated_docx(tmp_path:
             }
         ],
     )
-    reopened = Document(str(out))
-    assert FOLLOWUP_SUGGESTED_CHANGE_MARKER in reopened.paragraphs[1].text
+    ins_count, del_count = _count_track_changes(out)
+    assert ins_count >= 1
+    assert del_count >= 1
     validation = validate_suggested_changes_docx(source, out)
-    assert validation["new_suggested_change_blocks_added"] >= 1
-    assert result["follow_up_changes_applied"] == 1
+    assert validation["new_tracked_change_elements_added"] >= 1
     assert validation["meaningful_new_review_state"] is True
 
 
@@ -300,8 +310,9 @@ def test_re_review_of_prior_suggested_docx_adds_followup_block_without_breaking(
     assert out["source_mode"]["annotation_state"] == "prior_ai_reviewer_annotated_docx"
     assert out["validation"]["meaningful_new_review_state"] is True
     assert out["suggested_changes_validation"]["meaningful_new_review_state"] is True
-    reopened = Document(out["suggested_changes_docx"])
-    assert FOLLOWUP_SUGGESTED_CHANGE_MARKER in reopened.paragraphs[1].text
+    ins_count, del_count = _count_track_changes(Path(out["suggested_changes_docx"]))
+    assert ins_count >= 1
+    assert del_count >= 1
 
 
 def test_pre_suggested_docx_without_safe_new_rewrite_is_flagged_as_noop_risk(tmp_path: Path):

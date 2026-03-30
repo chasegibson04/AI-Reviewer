@@ -10,6 +10,8 @@ from ai_reviewer.review.manuscript_annotation import (
     _balance_comment_entries,
     _comment_entry_quality_ok,
     _dedupe_comment_entries,
+    _final_comment_arbitration,
+    _final_suggested_change_arbitration,
     _generate_suggested_changes,
     _localize_comment_entries,
     _revise_comment_entries,
@@ -756,3 +758,115 @@ def test_suggested_changes_nonlocal_methods_expansion_abstains(tmp_path: Path):
     )
     assert applied == []
     assert changes[0]["skip_reason"] == "no_safe_local_rewrite"
+
+
+def test_final_comment_arbitration_can_drop_generic_comment(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    paragraph = "Chemical synthesis is a primary bottleneck in drug development and motivates the workflow."
+    _write_docx(base_docx, [paragraph])
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "clarity",
+            "severity": "medium",
+            "anchor_text": paragraph,
+            "critique": "Improve the introduction section.",
+            "suggested_revision": "Suggested wording direction: improve the section.",
+            "rationale": "Generic note.",
+        }
+    ]
+    provider = DummyProvider([json.dumps({"action": "drop", "deletion_reason": "generic and not locally useful"})])
+    revised = _final_comment_arbitration(entries, base_docx, provider, "test-chat", 30)
+    assert revised == []
+
+
+def test_final_comment_arbitration_can_revise_comment(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    paragraph = "This workflow is experimentally demonstrated across the tested set and then applied to additional reaction classes."
+    _write_docx(base_docx, [paragraph])
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "clarity",
+            "severity": "medium",
+            "anchor_text": paragraph,
+            "critique": "Clarify this sentence.",
+            "suggested_revision": "Suggested wording direction: improve clarity in this sentence with better wording and clearer scope boundaries.",
+            "rationale": "Weak initial note.",
+        }
+    ]
+    provider = DummyProvider(
+        [
+            json.dumps(
+                {
+                    "action": "revise",
+                    "issue_type": "evidence/overclaim concern",
+                    "severity": "high",
+                    "critique": 'This sentence reads broader than the demonstrated evidence: "This workflow is experimentally demonstrated across the tested set and then applied to additional reaction classes." State which reaction classes were actually tested here.',
+                    "suggested_revision": "Suggested wording direction: keep the tested set in the main clause and move any broader application claim into a separate, explicitly qualified sentence.",
+                    "rationale": "The comment should focus on the evidence boundary in the target sentence.",
+                }
+            )
+        ]
+    )
+    revised = _final_comment_arbitration(entries, base_docx, provider, "test-chat", 30)
+    assert len(revised) == 1
+    assert revised[0]["issue_type"] == "evidence/overclaim concern"
+    assert "demonstrated evidence" in revised[0]["critique"]
+
+
+def test_final_suggested_change_arbitration_can_drop_weak_rewrite(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    original = "This workflow is experimentally demonstrated across the tested set."
+    _write_docx(base_docx, [original])
+    changes = [
+        {
+            "change_id": "chg1",
+            "target_paragraph_index": 0,
+            "target_span": original,
+            "original_text": original,
+            "revised_text": "This workflow is very good and broadly useful.",
+            "status": "applied",
+            "issue_types": ["evidence/overclaim concern"],
+            "rationale": "Weak rewrite.",
+        }
+    ]
+    provider = DummyProvider([json.dumps({"action": "drop", "deletion_reason": "overclaiming revision"})])
+    revised = _final_suggested_change_arbitration(changes, base_docx, provider, "test-chat", 30)
+    assert revised[0]["status"] == "skipped"
+    assert revised[0]["skip_reason"] == "final_audit_rejected"
+
+
+def test_final_suggested_change_arbitration_can_revise_rewrite(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    original = "This workflow is experimentally demonstrated across the tested set."
+    _write_docx(base_docx, [original])
+    changes = [
+        {
+            "change_id": "chg1",
+            "target_paragraph_index": 0,
+            "target_span": original,
+            "original_text": original,
+            "revised_text": "This workflow is experimentally demonstrated broadly.",
+            "status": "applied",
+            "issue_types": ["evidence/overclaim concern"],
+            "rationale": "Weak rewrite.",
+        }
+    ]
+    provider = DummyProvider(
+        [
+            json.dumps(
+                {
+                    "action": "revise",
+                    "revised_text": "This workflow is experimentally demonstrated in the tested cases.",
+                    "rationale": "Keeps the claim tied to the tested scope.",
+                }
+            ),
+            json.dumps({"ok": True, "fluency_score": 0.93, "faithfulness_score": 0.92, "alignment_score": 0.9, "issues": []}),
+        ]
+    )
+    revised = _final_suggested_change_arbitration(changes, base_docx, provider, "test-chat", 30)
+    assert revised[0]["status"] == "applied"
+    assert revised[0]["revised_text"] == "This workflow is experimentally demonstrated in the tested cases."

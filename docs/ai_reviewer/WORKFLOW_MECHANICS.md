@@ -119,7 +119,7 @@ Current behavior:
 DOCX behavior:
 - existing comments are preserved
 - visible prior suggestion blocks are preserved but removed from analysis text
-- follow-up suggested changes are appended when prior suggestion blocks already exist
+- visible prior suggestion blocks are removed from analysis text before generating new tracked changes
 
 Validation artifacts:
 - `manuscript_comment_manifest.json`
@@ -182,5 +182,5 @@ Current behavior:
 
 - balanced review memos can still read too generically
 - final deep synthesis still falls back too often because reconciliation/arbitration schema compliance is weak
-- suggested revisions are not native Word track changes
+- suggested revisions are emitted as tracked insertions/deletions in the suggested-revisions DOCX
 - figure review is not yet a reliable quality booster

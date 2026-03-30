@@ -135,7 +135,7 @@ Validation tracks:
 Suggested revisions are span-faithful where possible and now abstain more aggressively on malformed or non-local issues.
 
 Current limitation:
-- output is still visible suggestion-block markup, not Word track changes
+- suggested-revisions DOCX now renders tracked insertions/deletions instead of visible suggestion-block markup
 
 ## 8. Verification and Privacy
 

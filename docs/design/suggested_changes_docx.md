@@ -38,4 +38,4 @@ Manifest entries now record span-faithful provenance such as:
 
 ## Current Product Limitation
 
-The output format is still visible suggestion-block markup, not native Word track changes.
+The output format is now native Word tracked insertions/deletions at the paragraph diff level.

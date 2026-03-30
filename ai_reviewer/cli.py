@@ -581,6 +581,8 @@ def review(
                         provider=provider,
                         model=selected_model,
                         rewrite_model=selected_model,
+                        comment_audit_model=roles.deep_model,
+                        suggestion_audit_model=roles.deep_model,
                         timeout_seconds=cfg.timeouts.chat_seconds,
                     )
                     (bundle / "manuscript_comment_manifest.json").write_text(json.dumps(annotation, indent=2), encoding="utf-8")

@@ -1309,6 +1309,8 @@ def run_deep_run(
                 or model_stack.get("structural_triage")
             ),
             rewrite_model=model_stack.get("line_edits") or model_stack.get("context_synthesis"),
+            comment_audit_model=model_stack.get("final_arbitration") or model_stack.get("high_level_review") or model_stack.get("line_edits"),
+            suggestion_audit_model=model_stack.get("final_arbitration") or model_stack.get("line_edits"),
             timeout_seconds=cfg.timeouts.chat_seconds,
         )
         _write_json(run_dir / "manuscript_comment_manifest.json", annotation)

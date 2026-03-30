@@ -859,6 +859,129 @@ def _limit_comments_per_paragraph(entries: list[dict[str, Any]], max_per_paragra
     return [e for e in entries if id(e) in kept_set]
 
 
+def _paper_context_snapshot(base_docx: Path, max_chars: int = 900) -> str:
+    paragraphs = _analysis_paragraphs(base_docx)
+    section_by_idx = _build_section_index_map(paragraphs)
+    sections = ["abstract", "introduction", "methods", "results", "discussion", "conclusions"]
+    lines: list[str] = []
+    for section in sections:
+        seen = 0
+        for idx, text in enumerate(paragraphs):
+            if section_by_idx.get(idx) != section:
+                continue
+            cleaned = text.strip()
+            if not cleaned or _is_heading_paragraph(cleaned):
+                continue
+            lines.append(f"[{section}] {cleaned[:180]}")
+            seen += 1
+            if seen >= 2:
+                break
+    snapshot = "\n".join(lines).strip()
+    return snapshot[:max_chars]
+
+
+def _final_comment_arbitration(
+    entries: list[dict[str, Any]],
+    base_docx: Path,
+    provider: Provider | None,
+    model: str | None,
+    timeout_seconds: int,
+) -> list[dict[str, Any]]:
+    if not entries or provider is None or not model:
+        return entries
+    paragraphs = _analysis_paragraphs(base_docx)
+    section_by_idx = _build_section_index_map(paragraphs)
+    paper_snapshot = _paper_context_snapshot(base_docx)
+    items: list[dict[str, Any]] = []
+    index_by_id: dict[str, dict[str, Any]] = {}
+    for entry in entries:
+        pidx = entry.get("paragraph_index")
+        if not isinstance(pidx, int) or not (0 <= pidx < len(paragraphs)):
+            continue
+        paragraph = paragraphs[pidx]
+        section = section_by_idx.get(pidx, "body")
+        anchor = str(entry.get("anchor_text", "") or entry.get("span_sentence", "")).strip()
+        cid = str(entry.get("comment_id") or f"cmt_{uuid4().hex[:10]}")
+        entry["comment_id"] = cid
+        index_by_id[cid] = entry
+        items.append(
+            {
+                "comment_id": cid,
+                "section": section,
+                "anchor_sentence": anchor[:320],
+                "paragraph": paragraph[:420],
+                "previous_paragraph": paragraphs[pidx - 1][:180] if pidx > 0 else "",
+                "next_paragraph": paragraphs[pidx + 1][:180] if pidx + 1 < len(paragraphs) else "",
+                "candidate_comment": {
+                    "issue_type": str(entry.get("issue_type", "")),
+                    "severity": str(entry.get("severity", "medium")),
+                    "critique": str(entry.get("critique", ""))[:420],
+                    "suggested_revision": str(entry.get("suggested_revision", ""))[:420],
+                    "rationale": str(entry.get("rationale", ""))[:220],
+                },
+            }
+        )
+    if not items:
+        return entries
+    payload = {
+        "paper_snapshot": paper_snapshot[:700],
+        "items": items,
+    }
+    system_prompt = (
+        "You are the final editorial arbiter for inline manuscript comments. "
+        "Judge each candidate comment in context. Return ONLY JSON with key decisions, where decisions is a list of objects with keys: "
+        "comment_id, action, issue_type, severity, critique, suggested_revision, rationale, deletion_reason. "
+        "action must be keep, revise, or drop. Drop comments that are generic, weakly grounded, redundant, or not author-helpful."
+    )
+    try:
+        resp = provider.chat(
+            ChatRequest(
+                model=model,
+                system_prompt=system_prompt,
+                user_prompt=json.dumps(payload, ensure_ascii=False),
+                temperature=0.0,
+                max_tokens=1400,
+                timeout_seconds=timeout_seconds,
+                metadata={"purpose": "final_comment_arbitration_batch"},
+            )
+        )
+        parsed = json.loads(extract_json_candidate(resp.content) or resp.content)
+    except Exception:
+        parsed = {"decisions": []}
+    decisions = parsed.get("decisions", []) if isinstance(parsed, dict) else []
+    if not decisions and len(items) == 1 and isinstance(parsed, dict):
+        single = dict(parsed)
+        single.setdefault("comment_id", items[0]["comment_id"])
+        decisions = [single]
+    decisions_by_id = {
+        str(item.get("comment_id")): item
+        for item in decisions
+        if isinstance(item, dict) and str(item.get("comment_id", "")).strip()
+    }
+    revised_entries: list[dict[str, Any]] = []
+    for entry in entries:
+        cid = str(entry.get("comment_id", ""))
+        if cid not in index_by_id:
+            revised_entries.append(entry)
+            continue
+        paragraph = paragraphs[int(entry["paragraph_index"])]
+        parsed = decisions_by_id.get(cid, {"action": "keep"})
+        action = str(parsed.get("action", "keep")).strip().lower()
+        if action == "drop":
+            continue
+        candidate = dict(entry)
+        if action == "revise":
+            for key in ["issue_type", "severity", "critique", "suggested_revision", "rationale"]:
+                value = parsed.get(key, candidate.get(key))
+                if isinstance(value, str) and value.strip():
+                    candidate[key] = value.strip()
+        if _comment_entry_quality_ok(candidate, paragraph):
+            revised_entries.append(candidate)
+        elif _comment_entry_quality_ok(entry, paragraph):
+            revised_entries.append(entry)
+    return revised_entries
+
+
 def _is_front_or_back_matter_text(text: str) -> bool:
     t = text.lower().strip()
     if not t:
@@ -2291,6 +2414,129 @@ def _generate_suggested_changes(
     return changes, applied
 
 
+def _final_suggested_change_arbitration(
+    changes: list[dict[str, Any]],
+    base_docx: Path,
+    provider: Provider | None,
+    model: str | None,
+    timeout_seconds: int,
+) -> list[dict[str, Any]]:
+    if not changes or provider is None or not model:
+        return changes
+    paragraphs = _analysis_paragraphs(base_docx)
+    section_by_idx = _build_section_index_map(paragraphs)
+    paper_snapshot = _paper_context_snapshot(base_docx)
+    items: list[dict[str, Any]] = []
+    applicable_ids: set[str] = set()
+    for change in changes:
+        if str(change.get("status", "")) != "applied":
+            continue
+        pidx = change.get("target_paragraph_index")
+        if not isinstance(pidx, int) or not (0 <= pidx < len(paragraphs)):
+            continue
+        original = str(change.get("original_text", "") or paragraphs[pidx]).strip()
+        revised = str(change.get("revised_text", "") or "").strip()
+        section = section_by_idx.get(pidx, "body")
+        change_id = str(change.get("change_id") or f"chg_{uuid4().hex[:10]}")
+        change["change_id"] = change_id
+        applicable_ids.add(change_id)
+        items.append(
+            {
+                "change_id": change_id,
+                "section": section,
+                "target_span": str(change.get("target_span", ""))[:320],
+                "paragraph": paragraphs[pidx][:420],
+                "previous_paragraph": paragraphs[pidx - 1][:180] if pidx > 0 else "",
+                "next_paragraph": paragraphs[pidx + 1][:180] if pidx + 1 < len(paragraphs) else "",
+                "candidate_change": {
+                    "issue_types": change.get("issue_types", []),
+                    "original_text": original[:420],
+                    "revised_text": revised[:420],
+                    "rationale": str(change.get("rationale", "") or "")[:220],
+                },
+            }
+        )
+    if not items:
+        return changes
+    payload = {"paper_snapshot": paper_snapshot[:700], "items": items}
+    system_prompt = (
+        "You are the final editorial arbiter for manuscript suggested revisions. "
+        "Judge each candidate revision in context. Return ONLY JSON with key decisions, where decisions is a list of objects with keys: "
+        "change_id, action, revised_text, rationale, deletion_reason. "
+        "action must be keep, revise, or drop. Drop revisions that are awkward, generic, semantically drifted, or not responsive."
+    )
+    try:
+        resp = provider.chat(
+            ChatRequest(
+                model=model,
+                system_prompt=system_prompt,
+                user_prompt=json.dumps(payload, ensure_ascii=False),
+                temperature=0.0,
+                max_tokens=1400,
+                timeout_seconds=timeout_seconds,
+                metadata={"purpose": "final_suggested_change_arbitration_batch"},
+            )
+        )
+        parsed = json.loads(extract_json_candidate(resp.content) or resp.content)
+    except Exception:
+        parsed = {"decisions": []}
+    decisions = parsed.get("decisions", []) if isinstance(parsed, dict) else []
+    if not decisions and len(items) == 1 and isinstance(parsed, dict):
+        single = dict(parsed)
+        single.setdefault("change_id", items[0]["change_id"])
+        decisions = [single]
+    decisions_by_id = {
+        str(item.get("change_id")): item
+        for item in decisions
+        if isinstance(item, dict) and str(item.get("change_id", "")).strip()
+    }
+    revised_changes: list[dict[str, Any]] = []
+    for change in changes:
+        if str(change.get("change_id", "")) not in applicable_ids:
+            revised_changes.append(change)
+            continue
+        original = str(change.get("original_text", "")).strip()
+        parsed = decisions_by_id.get(str(change.get("change_id", "")), {"action": "keep"})
+        action = str(parsed.get("action", "keep")).strip().lower()
+        if action == "drop":
+            dropped = dict(change)
+            dropped["status"] = "skipped"
+            dropped["skip_reason"] = "final_audit_rejected"
+            revised_changes.append(dropped)
+            continue
+        candidate = dict(change)
+        if action == "revise":
+            revised_text = str(parsed.get("revised_text", "") or "").strip()
+            rationale = str(parsed.get("rationale", "") or "").strip()
+            ok_basic, reason = _basic_rewrite_checks(original, revised_text)
+            if ok_basic:
+                if provider is not None and model:
+                    ok_verify, verdict = _verify_rewrite(
+                        provider=provider,
+                        model=model,
+                        original=original,
+                        revised=revised_text,
+                        critique="; ".join(str(x) for x in candidate.get("issue_types", []))[:800],
+                        timeout_seconds=timeout_seconds,
+                    )
+                    verdict_ok, verdict_reason = _verdict_passes(verdict)
+                    if ok_verify and verdict_ok:
+                        candidate["revised_text"] = revised_text[:1200]
+                        candidate["rationale"] = rationale or candidate.get("rationale")
+                        candidate["verification"] = verdict
+                    else:
+                        candidate["status"] = "skipped"
+                        candidate["skip_reason"] = verdict_reason or "final_audit_rejected"
+                else:
+                    candidate["revised_text"] = revised_text[:1200]
+                    candidate["rationale"] = rationale or candidate.get("rationale")
+            else:
+                candidate["status"] = "skipped"
+                candidate["skip_reason"] = reason or "final_audit_rejected"
+        revised_changes.append(candidate)
+    return revised_changes
+
+
 def build_annotated_manuscript_output(
     source_path: Path,
     doc: ParsedDocument,
@@ -2301,6 +2547,8 @@ def build_annotated_manuscript_output(
     provider: Provider | None = None,
     model: str | None = None,
     rewrite_model: str | None = None,
+    comment_audit_model: str | None = None,
+    suggestion_audit_model: str | None = None,
     timeout_seconds: int = 120,
 ) -> dict[str, Any]:
     source_mode = detect_source_mode(source_path)
@@ -2318,6 +2566,17 @@ def build_annotated_manuscript_output(
     comments = _localize_comment_entries(comments, base_docx)
     comments = _revise_comment_entries(comments, base_docx)
     comments = _enrich_comment_suggestions(comments, base_docx)
+    comments = _dedupe_comment_entries(comments)
+    comments = _filter_comment_entries_by_paragraph_quality(comments, base_docx)
+    comments = _balance_comment_entries(comments, base_docx, max_comments=36)
+    comments = _limit_comments_per_paragraph(comments, max_per_paragraph=2)
+    comments = _final_comment_arbitration(
+        comments,
+        base_docx=base_docx,
+        provider=provider,
+        model=comment_audit_model or rewrite_model or model,
+        timeout_seconds=timeout_seconds,
+    )
     comments = _dedupe_comment_entries(comments)
     comments = _filter_comment_entries_by_paragraph_quality(comments, base_docx)
     comments = _balance_comment_entries(comments, base_docx, max_comments=36)
@@ -2350,6 +2609,13 @@ def build_annotated_manuscript_output(
         rewrite_model=rewrite_model,
         timeout_seconds=timeout_seconds,
     )
+    changes_manifest = _final_suggested_change_arbitration(
+        changes_manifest,
+        base_docx=base_docx,
+        provider=provider,
+        model=suggestion_audit_model or comment_audit_model or rewrite_model or model,
+        timeout_seconds=timeout_seconds,
+    )
     suggested_docx = output_dir / suggested_name
     suggested_result = create_suggested_changes_docx(
         source_docx=base_docx,
@@ -2358,6 +2624,7 @@ def build_annotated_manuscript_output(
             {
                 "paragraph_index": entry.get("target_paragraph_index"),
                 "revised_text": entry.get("revised_text"),
+                "original_text": entry.get("original_text"),
                 "status": entry.get("status"),
             }
             for entry in changes_manifest
