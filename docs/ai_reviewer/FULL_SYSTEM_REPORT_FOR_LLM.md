@@ -60,18 +60,26 @@ Important caveat:
 2. optional citation fetch stage
 3. parse manuscript
 4. filter support materials before grounding
-5. optional retrieval
-6. generate/repair review output
-7. enrich sparse output when needed
-8. generate commented manuscript output
-9. generate suggested-revision output
-10. verify required artifacts
+5. build support / assertion / citation / compliance artifacts
+6. optional retrieval
+7. generate/repair review output with verification context
+8. enrich sparse output when needed
+9. generate commented manuscript output
+10. generate suggested-revision output
+11. verify required artifacts
 
 Artifacts per document include:
 - `validated_review.json`
 - `review_report.md`
 - `run_metadata.json`
 - `section_map.json`
+- `support_ingest_report.json`
+- `support_usage_ledger.json`
+- `assertion_ledger.json`
+- `claim_verification_summary.json`
+- `claim_to_citation_map.json`
+- `citation_verification_ledger.json`
+- `format_compliance_report.json`
 - comment/suggested-change manifests
 - commented/suggested DOCX validation JSONs
 
@@ -152,6 +160,7 @@ Query policy:
 - no long manuscript excerpts
 - no support-paper full text
 - query logging records type and length only
+- `verification_query_audit.json` is written when citation fetch runs
 
 Verification labels distinguish retrieval from proof:
 - `citation_exists`
@@ -161,6 +170,7 @@ Verification labels distinguish retrieval from proof:
 - `needs_human_verification`
 
 The system does not currently verify full claim-to-paper support.
+It now does extract manuscript claims, link many of them to local citation markers, record support-paper plausibility separately, and mark unresolved items honestly.
 
 ## 9. Optional Layers
 
@@ -174,6 +184,7 @@ Context-pack/compliance:
 - deterministic opt-in layer
 - useful for concrete requirements like missing reporting items
 - should not replace normal manuscript review
+- baseline manuscript format/reporting checks are now visible even without an optional context pack
 
 ## 10. Honest Current Gaps
 

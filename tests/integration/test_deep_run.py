@@ -107,6 +107,11 @@ def test_deep_run_project_with_manuscript_and_other(tmp_path: Path):
     assert support_payload["verification_scope"] == "internal_consistency_check_only"
     consistency = json.loads((run_dir / "internal_consistency_checks.json").read_text(encoding="utf-8"))
     assert consistency["verification_scope"] == "internal_consistency_check_only"
+    assert (run_dir / "support_ingest_report.json").exists()
+    assert (run_dir / "support_usage_ledger.json").exists()
+    assert (run_dir / "assertion_ledger.json").exists()
+    assert (run_dir / "claim_to_citation_map.json").exists()
+    assert (run_dir / "citation_verification_ledger.json").exists()
     stack_payload = json.loads((run_dir / "stage_model_stack.json").read_text(encoding="utf-8"))
     assert stack_payload["routing_mode"] == "default"
     assert stack_payload["model_stack"]["reconciliation"] == "mistral-small3.1:24b"

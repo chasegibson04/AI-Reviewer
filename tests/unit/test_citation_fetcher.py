@@ -199,6 +199,10 @@ def test_fetch_report_includes_query_policy_and_query_audit(monkeypatch, tmp_pat
     assert payload["query_policy"]["no_support_paper_full_text"] is True
     assert payload["entries"][0]["method_attempts"][0]["query_audit"][0]["type"] == "doi_lookup"
     assert "text" not in payload["entries"][0]["method_attempts"][0]["query_audit"][0]
+    audit_payload = __import__("json").loads((tmp_path / "artifacts" / "verification_query_audit.json").read_text(encoding="utf-8"))
+    assert audit_payload["policy"]["no_manuscript_raw_text"] is True
+    assert "doi_lookup" in audit_payload["query_types_seen"]
+    assert audit_payload["max_query_length_seen"] >= len("10.1234/abc")
 
 
 def test_fetch_report_distinguishes_citation_existence_from_support(monkeypatch, tmp_path: Path):

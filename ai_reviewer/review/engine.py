@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 import logging
+import statistics
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
-import statistics
+from typing import Any, Callable
 
 from ai_reviewer.config import ReviewerConfig
 from ai_reviewer.ingest.chunking import chunk_document
@@ -22,6 +22,19 @@ from ai_reviewer.review.render import write_review_bundle
 from ai_reviewer.review.rigorous_adapters import build_specialist_qc_summary
 from ai_reviewer.figures.figure_review import run_figure_review
 from ai_reviewer.review.schema import ActionItem, CompareSchema, DebugMetadata, ReviewSchema, SectionComment
+from ai_reviewer.review.verification import (
+    build_assertion_review_md,
+    build_citation_accuracy_report_md,
+    build_citation_verification_ledger,
+    build_claim_to_citation_map,
+    build_format_compliance_report,
+    build_support_ingest_report,
+    build_support_relevance_report_md,
+    enrich_assertion_ledger,
+    extract_assertion_ledger,
+    filter_support_docs_for_grounding,
+    internal_consistency_checks,
+)
 
 
 @dataclass
@@ -782,127 +795,6 @@ def _augment_with_text_heuristics(
                 )
 
 
-def _support_overlap_score(manuscript_text: str, support_text: str) -> float:
-    ma = {t for t in re.split(r"\W+", manuscript_text.lower()) if len(t) > 4}
-    sb = {t for t in re.split(r"\W+", support_text.lower()) if len(t) > 4}
-    if not ma or not sb:
-        return 0.0
-    return len(ma & sb) / float(len(ma | sb))
-
-
-def _support_verification_entry(source: str, score: float, selected: bool, reason: str | None = None) -> dict[str, Any]:
-    labels = [
-        "support_relationship_plausible" if selected else "support_relationship_not_verified",
-        "internal_consistency_check_only",
-        "needs_human_verification",
-    ]
-    return {
-        "source": source,
-        "score": round(score, 4),
-        "selected": selected,
-        "reason": reason,
-        "verification": {
-            "labels": labels,
-            "verification_scope": "internal_consistency_check_only",
-            "selection_basis": "lexical_overlap_only",
-            "provenance": "project_support_material",
-        },
-    }
-
-
-def _extract_named_section(text: str, heading_pattern: str, fallback_chars: int = 0) -> str:
-    if not text:
-        return ""
-    lines = text.splitlines()
-    capture = False
-    captured: list[str] = []
-    pattern = re.compile(heading_pattern, re.IGNORECASE)
-    heading_like = re.compile(r"^\s{0,3}(abstract|introduction|background|methods?|experimental|results?|discussion|conclusions?|references)\b", re.IGNORECASE)
-    for line in lines:
-        stripped = line.strip()
-        if not capture and pattern.match(stripped):
-            capture = True
-            continue
-        if capture:
-            if heading_like.match(stripped):
-                break
-            captured.append(stripped)
-    section_text = "\n".join([ln for ln in captured if ln]).strip()
-    if section_text:
-        return section_text
-    if fallback_chars > 0:
-        return text[:fallback_chars].strip()
-    return ""
-
-
-def _internal_consistency_checks(doc: ParsedDocument) -> dict[str, Any]:
-    text = doc.cleaned_text or ""
-    abstract_text = _extract_named_section(text, r"^\s*abstract\b", fallback_chars=2200)
-    conclusion_text = _extract_named_section(text, r"^\s*conclusions?\b", fallback_chars=0)
-    if not conclusion_text:
-        conclusion_text = _extract_named_section(text, r"^\s*discussion\b", fallback_chars=0)
-    body_text = text
-    if abstract_text and abstract_text in body_text:
-        body_text = body_text.replace(abstract_text, "", 1)
-    if conclusion_text and conclusion_text in body_text:
-        body_text = body_text.replace(conclusion_text, "", 1)
-    findings: list[dict[str, Any]] = []
-    broad_markers = ["always", "never", "all ", "every ", "proves", "clearly demonstrates"]
-    abstract_low = abstract_text.lower()
-    body_low = body_text.lower()
-    conclusion_low = conclusion_text.lower()
-    if abstract_text and any(marker in abstract_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
-        findings.append(
-            {
-                "label": "abstract_scope_broader_than_body",
-                "severity": "medium",
-                "details": "Opening summary uses broader certainty language than the body text.",
-            }
-        )
-    if conclusion_text and any(marker in conclusion_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
-        findings.append(
-            {
-                "label": "conclusion_scope_broader_than_body",
-                "severity": "medium",
-                "details": "Conclusion/discussion appears broader than the body evidence language.",
-            }
-        )
-    return {
-        "labels": ["internal_consistency_check_only"],
-        "verification_scope": "internal_consistency_check_only",
-        "abstract_present": bool(abstract_text),
-        "conclusion_present": bool(conclusion_text),
-        "finding_count": len(findings),
-        "findings": findings,
-        "needs_human_verification": bool(findings),
-    }
-
-
-def _filter_support_docs_for_grounding(
-    doc: ParsedDocument,
-    support_docs: list[ParsedDocument],
-) -> tuple[list[ParsedDocument], list[dict[str, Any]], list[dict[str, Any]]]:
-    selected: list[ParsedDocument] = []
-    skipped: list[dict[str, Any]] = []
-    selected_audit: list[dict[str, Any]] = []
-    manuscript_text = doc.cleaned_text[:40000]
-    for sdoc in support_docs:
-        name = sdoc.source_path.name.lower()
-        if any(k in name for k in ["openai gym", "gym_", "biogpt"]):
-            skipped.append(_support_verification_entry(sdoc.source_path.name, 0.0, selected=False, reason="blocked_filename_marker"))
-            continue
-        score = _support_overlap_score(manuscript_text, sdoc.cleaned_text[:40000])
-        if score >= 0.95:
-            skipped.append(_support_verification_entry(sdoc.source_path.name, score, selected=False, reason="manuscript_like_duplicate"))
-            continue
-        if score < 0.04:
-            skipped.append(_support_verification_entry(sdoc.source_path.name, score, selected=False, reason="low_overlap"))
-            continue
-        selected.append(sdoc)
-        selected_audit.append(_support_verification_entry(sdoc.source_path.name, score, selected=True, reason=None))
-    return selected, skipped, selected_audit
-
-
 def run_review(
     provider: Provider,
     doc: ParsedDocument,
@@ -931,7 +823,8 @@ def run_review(
 
     context = _context_from_doc(doc, profile, config)
     support_docs = supporting_docs or []
-    support_docs, skipped_support_docs, selected_support_docs = _filter_support_docs_for_grounding(doc, support_docs)
+    support_ingest_report = build_support_ingest_report(doc, support_docs)
+    support_docs, skipped_support_docs, selected_support_docs = filter_support_docs_for_grounding(doc, support_docs)
     if skipped_support_docs or selected_support_docs:
         warnings.append(f"support_docs_filtered:{len(skipped_support_docs)}")
         (bundle_dir / "support_material_filtering.json").write_text(
@@ -951,11 +844,29 @@ def run_review(
             ),
             encoding="utf-8",
         )
-    internal_consistency = _internal_consistency_checks(doc)
+    (bundle_dir / "support_ingest_report.json").write_text(json.dumps(support_ingest_report, indent=2), encoding="utf-8")
+    (bundle_dir / "support_relevance_report.md").write_text(build_support_relevance_report_md(support_ingest_report), encoding="utf-8")
+    internal_consistency = internal_consistency_checks(doc)
     (bundle_dir / "internal_consistency_checks.json").write_text(
         json.dumps(internal_consistency, indent=2),
         encoding="utf-8",
     )
+    assertion_ledger = extract_assertion_ledger(doc)
+    claim_to_citation = build_claim_to_citation_map(doc, assertion_ledger)
+    citation_ledger = build_citation_verification_ledger(doc, assertion_ledger, support_docs, bundle_dir)
+    verification_enrichment = enrich_assertion_ledger(assertion_ledger, claim_to_citation, citation_ledger, support_docs, doc.cleaned_text)
+    assertion_ledger = verification_enrichment["assertion_ledger"]
+    support_usage_ledger = verification_enrichment["support_usage_ledger"]
+    claim_verification_summary = verification_enrichment["claim_verification_summary"]
+    format_compliance = build_format_compliance_report(doc)
+    (bundle_dir / "assertion_ledger.json").write_text(json.dumps(assertion_ledger, indent=2), encoding="utf-8")
+    (bundle_dir / "assertion_review.md").write_text(build_assertion_review_md(assertion_ledger), encoding="utf-8")
+    (bundle_dir / "claim_to_citation_map.json").write_text(json.dumps(claim_to_citation, indent=2), encoding="utf-8")
+    (bundle_dir / "citation_verification_ledger.json").write_text(json.dumps(citation_ledger, indent=2), encoding="utf-8")
+    (bundle_dir / "citation_accuracy_report.md").write_text(build_citation_accuracy_report_md(citation_ledger), encoding="utf-8")
+    (bundle_dir / "support_usage_ledger.json").write_text(json.dumps(support_usage_ledger, indent=2), encoding="utf-8")
+    (bundle_dir / "claim_verification_summary.json").write_text(json.dumps(claim_verification_summary, indent=2), encoding="utf-8")
+    (bundle_dir / "format_compliance_report.json").write_text(json.dumps(format_compliance, indent=2), encoding="utf-8")
     use_retrieval = bool(
         embedding_model
         and doc.chunks
@@ -978,6 +889,20 @@ def run_review(
             "Supporting references context (use to check whether manuscript assertions appear backed by supplied materials):\n"
             + "\n\n".join(support_summary_blocks)
         )
+    verification_context = {
+        "support_ingest": {
+            "available_support_docs": support_ingest_report.get("available_support_docs", 0),
+            "selected_support_docs": support_ingest_report.get("selected_support_docs", 0),
+        },
+        "claim_verification_summary": claim_verification_summary,
+        "internal_consistency_findings": internal_consistency.get("findings", []),
+        "format_compliance_findings": format_compliance.get("findings", [])[:8],
+        "citation_summary": {
+            "reference_count": citation_ledger.get("reference_count", 0),
+            "linked_reference_count": citation_ledger.get("linked_reference_count", 0),
+        },
+    }
+    context = f"{context}\n\nVerification context (be explicit about unresolved checks):\n{json.dumps(verification_context, indent=2)[:7000]}"
 
     if use_retrieval:
         if status_hook:
@@ -1184,6 +1109,17 @@ def run_review(
 
     _ensure_minimum_detail(review)
     _filter_hallucinated_review_content(review, doc)
+    if format_compliance.get("findings"):
+        existing_writing = {str(x).strip() for x in review.writing_organization_concerns}
+        for finding in format_compliance.get("findings", [])[:5]:
+            msg = str(finding.get("message", "")).strip()
+            if msg and msg not in existing_writing:
+                review.writing_organization_concerns.append(msg)
+                existing_writing.add(msg)
+    if claim_verification_summary.get("likely_overstated", 0):
+        concern = "High-priority claims were screened, but some remain likely overstated or only plausibly supported; verify exact claim-to-citation support."
+        if concern not in review.citation_reference_concerns:
+            review.citation_reference_concerns.append(concern)
     if not _summary_matches_doc(review.summary, doc):
         abstract = _extract_abstract(doc)
         if abstract:
@@ -1374,6 +1310,9 @@ def run_review(
         "page_count": doc.page_count,
         "headings": doc.headings[:50],
         "ingest_timestamp": doc.ingest_timestamp,
+        "support_ingest_selected": support_ingest_report.get("selected_support_docs", 0),
+        "claims_extracted": assertion_ledger.get("claim_count", 0),
+        "citations_linked_to_claims": citation_ledger.get("linked_reference_count", 0),
     }
 
     project_root = _find_project_root(doc.source_path_abs)
@@ -1400,6 +1339,12 @@ def run_review(
         "guidance_categories": guidance_categories or [],
         "specialist_overall_score_0_to_5": specialist_summary.get("overall_score_0_to_5"),
         "specialist_recommendation_count": len(specialist_summary.get("recommendations", [])),
+        "support_docs_available": support_ingest_report.get("available_support_docs", 0),
+        "support_docs_selected": support_ingest_report.get("selected_support_docs", 0),
+        "claims_checked": claim_verification_summary.get("claims_checked", 0),
+        "likely_overstated_claims": claim_verification_summary.get("likely_overstated", 0),
+        "citation_reference_count": citation_ledger.get("reference_count", 0),
+        "citation_linked_reference_count": citation_ledger.get("linked_reference_count", 0),
     }
 
     write_review_bundle(

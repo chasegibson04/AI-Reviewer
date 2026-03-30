@@ -610,10 +610,37 @@ def fetch_citations_for_documents(
         },
         "entries": report.entries,
     }
+    query_audit = {
+        "policy": payload["query_policy"],
+        "methods": active_methods,
+        "total_references": report.total_references,
+        "query_types_seen": sorted(
+            {
+                str(audit.get("type"))
+                for entry in report.entries
+                for attempt in entry.get("method_attempts", [])
+                for audit in (attempt.get("query_audit", []) or [])
+                if str(audit.get("type", "")).strip()
+            }
+        ),
+        "max_query_length_seen": max(
+            [
+                int(audit.get("len", 0))
+                for entry in report.entries
+                for attempt in entry.get("method_attempts", [])
+                for audit in (attempt.get("query_audit", []) or [])
+            ]
+            or [0]
+        ),
+    }
     if run_dir:
         (run_dir / "artifacts").mkdir(parents=True, exist_ok=True)
         (run_dir / "artifacts" / "citation_fetch_report.json").write_text(
             json.dumps(payload, indent=2),
+            encoding="utf-8",
+        )
+        (run_dir / "artifacts" / "verification_query_audit.json").write_text(
+            json.dumps(query_audit, indent=2),
             encoding="utf-8",
         )
     if logger:

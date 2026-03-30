@@ -51,6 +51,7 @@ Validated policy:
 - high-level/hostile/methods/final arbitration: strongest available critique model
 - line edits/style alignment: strong editor-capable chat model
 - reconciliation: strong editor/review model rather than repair-class fallback
+- the strongest critique/arbitration stages now receive explicit claim-verification, citation-linkage, support-ingest, and compliance summaries
 
 ## 3. Benchmark Interpretation
 

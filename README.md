@@ -89,6 +89,7 @@ Behavior:
 - `materials/manuscript` is the primary review target set
 - `materials/other` is treated as supporting context only
 - support materials are filtered before grounding to reduce contamination
+- support ingestion, selection, and usage are now written into explicit artifacts
 
 ## Deep-Run Summary
 
@@ -146,13 +147,29 @@ Current behavior on native and pre-annotated DOCX:
 
 - strict offline remains the default
 - citation fetch is metadata/OA-only and still runs under strict offline
+- support/claim/citation/compliance checking now writes explicit artifacts per run:
+  - `support_ingest_report.json`
+  - `support_usage_ledger.json`
+  - `assertion_ledger.json`
+  - `claim_verification_summary.json`
+  - `claim_to_citation_map.json`
+  - `citation_verification_ledger.json`
+  - `format_compliance_report.json`
 - citation fetch labels now distinguish:
   - `citation_exists`
   - `metadata_match_likely`
   - `support_relationship_not_verified`
   - `external_metadata_check_only`
   - `needs_human_verification`
+- support papers in `materials/other` can inform plausibility/context checks, but they do not override manuscript-grounded judgment
 - this system does not claim full claim-to-paper verification
+
+Direct real-project validation helper:
+
+```powershell
+python scripts\run_support_claim_validation.py
+Get-Content audits\support_claim_validation\summary.json
+```
 
 ## Optional Layers
 

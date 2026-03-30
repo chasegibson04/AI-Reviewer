@@ -91,6 +91,13 @@ Recommendation:
 Check:
 - `context_pack_used.json`
 - `stage_10b_compliance_check.json`
+- `support_ingest_report.json`
+- `support_usage_ledger.json`
+- `assertion_ledger.json`
+- `claim_verification_summary.json`
+- `claim_to_citation_map.json`
+- `citation_verification_ledger.json`
+- `format_compliance_report.json`
 
 Context-pack is optional and deterministic.
 It is useful when it adds concrete policy checks, but it should not replace manuscript-first review.

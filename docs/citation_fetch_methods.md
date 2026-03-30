@@ -26,6 +26,7 @@ Per-run citation artifacts include:
 - per-reference attempts and statuses
 - normalized reference strings
 - query policy
+- query audit summary
 - verification policy
 - per-entry verification labels
 
@@ -51,6 +52,9 @@ Allowed query types currently include:
 - `crossref_title_lookup`
 - `crossref_short_title_lookup`
 - `local_pdf_title_match`
+
+Additional audit artifact:
+- `artifacts/verification_query_audit.json`
 
 ## Runtime Switches
 

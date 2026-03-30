@@ -26,18 +26,20 @@ Before routing it:
 - `review --project <id>` targets manuscript materials by default
 - `materials/other` are supporting docs only
 - support docs are filtered by overlap and blocked markers before grounding
+- support ingest and support usage are written into explicit ledgers
 
 ### Main runtime steps
 
 Per primary document:
 1. parse source
 2. optional citation fetch stage
-3. optional retrieval build/use
-4. main review generation
-5. sparse-output enrichment when needed
-6. commented manuscript output
-7. suggested-revision output
-8. output verification
+3. support ingest / assertion / citation / compliance artifact generation
+4. optional retrieval build/use
+5. main review generation with verification context
+6. sparse-output enrichment when needed
+7. commented manuscript output
+8. suggested-revision output
+9. output verification
 
 ### Source modes
 
@@ -126,6 +128,13 @@ Validation artifacts:
 - `commented_docx_validation.json`
 - `manuscript_suggested_changes_manifest.json`
 - `suggested_changes_validation.json`
+- `support_ingest_report.json`
+- `support_usage_ledger.json`
+- `assertion_ledger.json`
+- `claim_verification_summary.json`
+- `claim_to_citation_map.json`
+- `citation_verification_ledger.json`
+- `format_compliance_report.json`
 
 ## 5. Citation Fetch and Verification
 
@@ -150,6 +159,12 @@ Current verification labels distinguish retrieval from support:
 - `external_metadata_check_only`
 - `needs_human_verification`
 
+Additional verification artifacts now expose:
+- which support docs were available, parsed, selected, and skipped
+- which manuscript claims were extracted and checked
+- which references were linked to local claims
+- which checks were internal only versus citation-linked/plausibility-only
+
 ## 6. Optional Layers
 
 ### Figure review
@@ -169,6 +184,7 @@ Current behavior:
 - optional context materials can add deterministic compliance constraints
 - findings are written to compliance artifacts and propagated into final weaknesses/actions
 - keep opt-in; do not let it replace normal manuscript review
+- baseline manuscript format/reporting checks are also written even without a context pack
 
 ## 7. Failure and Fallback Behavior
 

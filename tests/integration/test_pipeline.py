@@ -153,6 +153,12 @@ def test_support_filtering_and_internal_consistency_artifacts_are_written(tmp_pa
     assert support_payload["verification_scope"] == "internal_consistency_check_only"
     assert any(item["verification"]["labels"][0] == "support_relationship_plausible" for item in support_payload["selected"])
     assert any(item["reason"] == "low_overlap" for item in support_payload["skipped"])
+    assert (bundle / "support_ingest_report.json").exists()
+    assert (bundle / "support_usage_ledger.json").exists()
+    assert (bundle / "assertion_ledger.json").exists()
+    assert (bundle / "claim_to_citation_map.json").exists()
+    assert (bundle / "citation_verification_ledger.json").exists()
+    assert (bundle / "format_compliance_report.json").exists()
 
     consistency = __import__("json").loads((bundle / "internal_consistency_checks.json").read_text(encoding="utf-8"))
     assert consistency["verification_scope"] == "internal_consistency_check_only"
@@ -188,3 +194,5 @@ def test_support_filtering_blocks_manuscript_like_duplicate(tmp_path: Path):
     support_payload = __import__("json").loads((bundle / "support_material_filtering.json").read_text(encoding="utf-8"))
     assert support_payload["selected"] == []
     assert any(item["reason"] == "manuscript_like_duplicate" for item in support_payload["skipped"])
+    usage = __import__("json").loads((bundle / "support_usage_ledger.json").read_text(encoding="utf-8"))
+    assert usage["usage_count"] == 0

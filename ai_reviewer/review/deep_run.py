@@ -23,6 +23,20 @@ from ai_reviewer.review.profiles import get_profile
 from ai_reviewer.review.repair import extract_json_candidate
 from ai_reviewer.review.docx_export import write_markdown_as_docx
 from ai_reviewer.review.rigorous_adapters import build_deep_reconciliation_summary
+from ai_reviewer.review.verification import (
+    build_assertion_review_md,
+    build_citation_accuracy_report_md,
+    build_citation_verification_ledger,
+    build_claim_to_citation_map,
+    build_format_compliance_report,
+    build_support_ingest_report,
+    build_support_relevance_report_md,
+    enrich_assertion_ledger,
+    extract_assertion_ledger,
+    internal_consistency_checks_from_text,
+    support_verification_entry,
+    token_overlap,
+)
 from ai_reviewer.training.cache import TrainingCacheManager
 from ai_reviewer.tools.registry import ToolRegistry
 
@@ -475,6 +489,7 @@ def run_deep_run(
     supporting_docs = []
     skipped_supporting_docs: list[dict[str, Any]] = []
     selected_supporting_docs: list[dict[str, Any]] = []
+    support_parse_failures: list[dict[str, str]] = []
     manuscript_text = manuscript_doc.cleaned_text or ""
     for m in support_materials[:20]:
         path = store.material_path(pdir, m)
@@ -518,6 +533,7 @@ def run_deep_run(
             )
         except Exception as exc:
             warnings.append(f"supporting_parse_failed:{path}:{exc}")
+            support_parse_failures.append({"path": str(path), "error": str(exc)})
     _write_json(
         run_dir / "support_material_filtering.json",
         {
@@ -532,6 +548,13 @@ def run_deep_run(
             },
         },
     )
+    support_ingest_report = build_support_ingest_report(
+        manuscript_doc,
+        supporting_docs,
+        parse_failures=support_parse_failures,
+    )
+    _write_json(run_dir / "support_ingest_report.json", support_ingest_report)
+    (run_dir / "support_relevance_report.md").write_text(build_support_relevance_report_md(support_ingest_report), encoding="utf-8")
     materials_used["supporting_materials_selected"] = [
         {"name": d.source_path.name} for d in supporting_docs
     ]
@@ -545,7 +568,21 @@ def run_deep_run(
     }
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "context_manifest.json", {"project_id": project_id, "materials": materials_used, "warnings": warnings})
-    _write_json(run_dir / "internal_consistency_checks.json", _internal_consistency_checks(manuscript_text))
+    _write_json(run_dir / "internal_consistency_checks.json", internal_consistency_checks_from_text(manuscript_text))
+    assertion_ledger = extract_assertion_ledger(manuscript_doc)
+    claim_to_citation = build_claim_to_citation_map(manuscript_doc, assertion_ledger)
+    citation_ledger = build_citation_verification_ledger(manuscript_doc, assertion_ledger, supporting_docs, run_dir)
+    verification_enrichment = enrich_assertion_ledger(assertion_ledger, claim_to_citation, citation_ledger, supporting_docs, manuscript_text)
+    assertion_ledger = verification_enrichment["assertion_ledger"]
+    support_usage_ledger = verification_enrichment["support_usage_ledger"]
+    claim_verification_summary = verification_enrichment["claim_verification_summary"]
+    _write_json(run_dir / "assertion_ledger.json", assertion_ledger)
+    (run_dir / "assertion_review.md").write_text(build_assertion_review_md(assertion_ledger), encoding="utf-8")
+    _write_json(run_dir / "claim_to_citation_map.json", claim_to_citation)
+    _write_json(run_dir / "citation_verification_ledger.json", citation_ledger)
+    (run_dir / "citation_accuracy_report.md").write_text(build_citation_accuracy_report_md(citation_ledger), encoding="utf-8")
+    _write_json(run_dir / "support_usage_ledger.json", support_usage_ledger)
+    _write_json(run_dir / "claim_verification_summary.json", claim_verification_summary)
 
     context_docs: list[ParsedDocument] = []
     context_failures: list[dict[str, str]] = []
@@ -753,6 +790,11 @@ def run_deep_run(
         "training_guidance_enabled": training_used.get("enabled", False),
         "training_categories": training_used.get("categories", []),
         "context_pack_constraints": context_constraints,
+        "claim_verification_summary": claim_verification_summary,
+        "support_ingest_summary": {
+            "available_support_docs": support_ingest_report.get("available_support_docs", 0),
+            "selected_support_docs": support_ingest_report.get("selected_support_docs", 0),
+        },
     }
     _write_json(run_dir / "stage_04_context_pack.json", context_pack)
     _write_md(run_dir / "stage_04_context_pack.md", "Stage 4 Context/Evidence Linking", context_pack)
@@ -973,7 +1015,7 @@ def run_deep_run(
     _write_md(run_dir / "stage_10_style_alignment.md", "Stage 10 Style Alignment", style_payload)
     (run_dir / "stage_10_style_alignment.raw.txt").write_text(style_raw, encoding="utf-8")
 
-    compliance_payload = _run_compliance_check(manuscript_doc, context_constraints)
+    compliance_payload = build_format_compliance_report(manuscript_doc, context_constraints)
     _write_json(run_dir / "stage_10b_compliance_check.json", compliance_payload)
     _write_md(run_dir / "stage_10b_compliance_check.md", "Stage 10b Context-Pack Compliance Check", compliance_payload)
     stage_status["stage_11b_compliance_check"] = "ok"
@@ -1078,6 +1120,10 @@ def run_deep_run(
                 f"METHODS:\n{json.dumps(s5j)[:12000]}\n"
                 f"STYLE:\n{json.dumps(style_payload)[:8000]}\n"
                 f"LINE_EDITS:\n{json.dumps(stage6)[:12000]}\n"
+                f"CLAIM_VERIFICATION_SUMMARY:\n{json.dumps(claim_verification_summary)[:4000]}\n"
+                f"CITATION_VERIFICATION_SUMMARY:\n{json.dumps({'reference_count': citation_ledger.get('reference_count', 0), 'linked_reference_count': citation_ledger.get('linked_reference_count', 0)})[:2000]}\n"
+                f"SUPPORT_INGEST_SUMMARY:\n{json.dumps({'available_support_docs': support_ingest_report.get('available_support_docs', 0), 'selected_support_docs': support_ingest_report.get('selected_support_docs', 0)})[:2000]}\n"
+                f"COMPLIANCE:\n{json.dumps(compliance_payload)[:3000]}\n"
             ),
             timeout_seconds=cfg_deep.timeouts.chat_seconds,
         )
@@ -1117,6 +1163,9 @@ def run_deep_run(
                 f"METHODS:\n{json.dumps(s5j)[:10000]}\n"
                 f"STYLE:\n{json.dumps(style_payload)[:6000]}\n"
                 f"LINE_EDITS:\n{json.dumps(stage6)[:8000]}\n"
+                f"CLAIM_VERIFICATION_SUMMARY:\n{json.dumps(claim_verification_summary)[:4000]}\n"
+                f"CITATION_VERIFICATION_SUMMARY:\n{json.dumps({'reference_count': citation_ledger.get('reference_count', 0), 'linked_reference_count': citation_ledger.get('linked_reference_count', 0)})[:2000]}\n"
+                f"SUPPORT_INGEST_SUMMARY:\n{json.dumps({'available_support_docs': support_ingest_report.get('available_support_docs', 0), 'selected_support_docs': support_ingest_report.get('selected_support_docs', 0)})[:2000]}\n"
                 f"COMPLIANCE:\n{json.dumps(compliance_payload)[:3000]}\n"
                 f"WARNINGS:\n{json.dumps(warnings)[:2000]}\n"
             ),
@@ -1335,6 +1384,12 @@ def run_deep_run(
         "model_stack": model_stack,
         "training_guidance_used": training_used,
         "materials_used": materials_used,
+        "support_ingest": support_ingest_report,
+        "claim_verification_summary": claim_verification_summary,
+        "citation_verification_summary": {
+            "reference_count": citation_ledger.get("reference_count", 0),
+            "linked_reference_count": citation_ledger.get("linked_reference_count", 0),
+        },
         "context_pack_used": context_constraints,
         "compliance_check": compliance_payload,
         "stage_status": stage_status,

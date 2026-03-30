@@ -120,6 +120,18 @@ Expected result:
 
 - `support_material_filtering.json` exists
 - selected support items carry provenance/verification labels
+- `support_ingest_report.json` exists
+- `support_usage_ledger.json` exists
+- `assertion_ledger.json` exists
+- `claim_to_citation_map.json` exists
+- `citation_verification_ledger.json` exists
+
+Direct support / claim / citation audit on approved materials:
+
+```powershell
+python scripts\run_support_claim_validation.py
+Get-Content audits\support_claim_validation\summary.json
+```
 
 ### 4.6 Strict-offline OFF/ON
 
@@ -145,6 +157,7 @@ python -m ai_reviewer.cli review projects\20260327051312_miniaturization_d2b\mat
 Expected result:
 
 - `artifacts/citation_fetch_report.json` exists
+- `artifacts/verification_query_audit.json` exists
 - query policy declares:
   - no raw manuscript text
   - no long excerpts
@@ -198,8 +211,16 @@ For every new run, open and read:
 When present, also read:
 
 - `support_material_filtering.json`
+- `support_ingest_report.json`
+- `support_usage_ledger.json`
+- `assertion_ledger.json`
+- `claim_verification_summary.json`
+- `claim_to_citation_map.json`
+- `citation_verification_ledger.json`
+- `format_compliance_report.json`
 - `internal_consistency_checks.json`
 - `artifacts/citation_fetch_report.json`
+- `artifacts/verification_query_audit.json`
 - `stage_model_stack.json`
 - `deep_run_plan.json`
 

@@ -12,6 +12,7 @@
 - `ingest/retrieval.py`: local embedding retrieval
 - `review/engine.py`: standard review orchestration, support filtering, artifact writing
 - `review/deep_run.py`: staged deep-run orchestration, context-pack compliance, final synthesis
+- `review/verification.py`: support ingest scoring, claim extraction, citation linkage, compliance heuristics, verification ledgers
 - `review/manuscript_annotation.py`: comment anchoring, rewrite generation, abstention, manifests
 - `review/citation_fetcher.py`: pre-run citation fetch with verification labels and query policy
 - `tools/docx_tools.py`: DOCX annotation-state inspection, comment/suggestion writing, validation
@@ -44,6 +45,14 @@ The architecture is manuscript-first:
 - `materials/manuscript` is the primary source lane
 - `materials/other` is supporting-context only
 - support materials are filtered before grounding
+- support usage is now auditable through `support_ingest_report.json` and `support_usage_ledger.json`
+
+Verification artifacts now include:
+- `assertion_ledger.json`
+- `claim_verification_summary.json`
+- `claim_to_citation_map.json`
+- `citation_verification_ledger.json`
+- `format_compliance_report.json`
 
 ## Deep-Run Architecture Notes
 

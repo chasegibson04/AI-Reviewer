@@ -1,12 +1,1 @@
-{
-  "approved_projects": [
-    "20260325163524_test-existingphactorpaper",
-    "20260327051312_miniaturization_d2b"
-  ],
-  "enumerated_projects": [
-    "20260325163524_test-existingphactorpaper",
-    "20260327051312_miniaturization_d2b"
-  ],
-  "blacklisted_projects": [],
-  "rule": "use only approved projects for validation; do not inspect blacklisted projects"
-}
+{"approved_projects":["20260325163524_test-existingphactorpaper","20260327051312_miniaturization_d2b"],"enumerated_projects":["20260325163524_test-existingphactorpaper","20260327051312_miniaturization_d2b"],"blacklisted_projects":[],"horseshoe_crab_detected":false}

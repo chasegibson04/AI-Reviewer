@@ -22,6 +22,7 @@ Query policy written into artifacts:
 - `no_long_manuscript_excerpts: true`
 - `no_support_paper_full_text: true`
 - query logging records type and length only
+- `artifacts/verification_query_audit.json` records query types seen and max observed query length without storing raw queries
 
 Allowed query classes:
 - DOI lookup

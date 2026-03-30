@@ -52,6 +52,29 @@ def render_markdown(
     lines.append(f"- Confidence: {review.confidence:.2f}")
     lines.append(f"- Rationale: {rec.rationale}")
 
+    verification_lines: list[str] = []
+    if source_metadata:
+        for key, label in [
+            ("support_ingest_selected", "Support docs selected"),
+            ("claims_extracted", "Claims extracted"),
+            ("citations_linked_to_claims", "References linked to claims"),
+        ]:
+            if source_metadata.get(key) is not None:
+                verification_lines.append(f"- {label}: {source_metadata.get(key)}")
+    if run_metadata:
+        for key, label in [
+            ("claims_checked", "Claims checked"),
+            ("likely_overstated_claims", "Likely overstated claims"),
+            ("citation_reference_count", "References extracted"),
+            ("citation_linked_reference_count", "References linked to claims"),
+        ]:
+            if run_metadata.get(key) is not None:
+                verification_lines.append(f"- {label}: {run_metadata.get(key)}")
+    if verification_lines:
+        lines.append("")
+        lines.append("## Verification Snapshot")
+        lines.extend(verification_lines)
+
     sections = [
         ("Major Strengths", review.major_strengths),
         ("Major Weaknesses", review.major_weaknesses),

@@ -27,6 +27,7 @@ When strict offline is intentionally disabled:
 - no raw manuscript text is sent
 - no long manuscript excerpts are sent
 - query logging records type and length only
+- `artifacts/verification_query_audit.json` should contain only query classes and lengths, never raw queries
 - metadata retrieval still does not equal claim verification
 
 ## Recommended Practice
