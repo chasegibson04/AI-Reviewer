@@ -175,7 +175,7 @@ results/*
 config/local.yaml
 config/local.override.yaml
 outputs/
-projects/
+/projects/
 .venv/
 .pytest_cache/
 training_materials/
