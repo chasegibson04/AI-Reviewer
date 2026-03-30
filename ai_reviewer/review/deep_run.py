@@ -125,17 +125,21 @@ def _safe_json_from_text(raw: str) -> dict[str, Any]:
 
 
 def _chat_json(provider: Provider, model: str, system_prompt: str, user_prompt: str, timeout_seconds: int) -> tuple[dict[str, Any], str]:
-    resp = provider.chat(
-        ChatRequest(
-            model=model,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            temperature=0.1,
-            max_tokens=2600,
-            timeout_seconds=timeout_seconds,
-            metadata={"json_mode": True},
+    try:
+        resp = provider.chat(
+            ChatRequest(
+                model=model,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                temperature=0.1,
+                max_tokens=2600,
+                timeout_seconds=timeout_seconds,
+                metadata={"json_mode": True},
+            )
         )
-    )
+    except Exception as exc:
+        return {"error": str(exc), "warning": "provider_error"}, str(exc)
+        
     try:
         return _safe_json_from_text(resp.content), resp.content
     except Exception:

@@ -197,6 +197,42 @@ def _find_pdf_urls_for_doi(doi: str, cfg: ReviewerConfig, timeout: int) -> list[
         records = r.json().get("records", [])
         if records and records[0].get("pmcid"):
             urls.append(("ncbi_pmc", f"https://www.ncbi.nlm.nih.gov/pmc/articles/{records[0]['pmcid']}/pdf/"))
+
+    oaworks = f"https://api.oa.works/v1/works?id={doi}"
+    r = _requests_get(oaworks, timeout)
+    if r and r.status_code == 200:
+        data = r.json()
+        if isinstance(data, list) and len(data) > 0:
+            data = data[0]
+        url = data.get("pdf_url") or data.get("url")
+        if url and ".pdf" in url.lower():
+            urls.append(("oa_works", url))
+
+    core = f"https://api.core.ac.uk/v3/discover?doi={doi}"
+    r = _requests_get(core, timeout)
+    if r and r.status_code == 200:
+        data = r.json()
+        if data.get("fullTextLink"):
+            urls.append(("core_ac_uk", data["fullTextLink"]))
+
+    # Sci-Hub Fallbacks
+    domains = ["https://sci-hub.se/", "https://sci-hub.st/", "https://sci-hub.ru/"]
+    for domain in domains:
+        try:
+            r = requests.get(f"{domain}{doi}", timeout=timeout, verify=False)
+            if r and r.status_code == 200:
+                if 'id="pdf"' in r.text or "iframe" in r.text:
+                    # Simple regex extraction since bs4 isn't guaranteed
+                    src_match = re.search(r"<iframe[^>]+src=['\"](.*?)['\"]", r.text, re.IGNORECASE)
+                    if src_match:
+                        src = src_match.group(1)
+                        if src.startswith("//"):
+                            src = "https:" + src
+                        urls.append(("scihub", src))
+                        break
+        except Exception:
+            continue
+
     return urls
 
 
@@ -263,17 +299,62 @@ def _verification_summary_for_citation_entry(entry: dict) -> dict:
     }
 
 
-def _download_pdf(url: str, dest: Path, timeout: int) -> str:
-    r = _requests_get(url, timeout, accept_pdf=True)
-    if not r:
+def _download_pdf(url: str, dest: Path, timeout: int, is_retry: bool = False) -> str:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/pdf,application/xhtml+xml,text/html;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': random.choice(['https://scholar.google.com/', 'https://pubmed.ncbi.nlm.nih.gov/', 'https://www.webofscience.com/'])
+    }
+    content_bytes = None
+    status_code = None
+
+    try:
+        r = requests.get(url, headers=headers, timeout=timeout, allow_redirects=True, verify=False)
+        content_bytes = r.content
+        status_code = r.status_code
+    except Exception:
         return "request_failed"
-    if r.status_code != 200:
-        return f"http_{r.status_code}"
-    content = r.content or b""
-    if b"%PDF" not in content[:100]:
+
+    if status_code == 404 and not is_retry:
+        try:
+            wayback = requests.get(f"http://archive.org/wayback/available?url={url}", timeout=timeout).json()
+            archive_url = wayback.get("archived_snapshots", {}).get("closest", {}).get("url")
+            if archive_url:
+                return _download_pdf(archive_url, dest, timeout, is_retry=True)
+        except Exception:
+            pass
+
+    if status_code == 200 and content_bytes:
+        if b"%PDF" in content_bytes[:100]:
+            dest.write_bytes(content_bytes)
+            return "ok"
+        
+        # HTML Wall - Deep Dive Scrape
+        if not is_retry and b"<html" in content_bytes[:500].lower():
+            # Minimal scrape without bs4
+            text_content = content_bytes.decode("utf-8", errors="ignore")
+            hidden_url = None
+            
+            # Look for meta tags
+            meta_match = re.search(r'<meta\s+name=["\'](citation_pdf_url|wkhealth_pdf_url|eprints\.pdf_url|bepress_citation_pdf_url)["\']\s+content=["\']([^"\']+)["\']', text_content, re.IGNORECASE)
+            if meta_match:
+                hidden_url = meta_match.group(2)
+            else:
+                # Look for direct PDF links
+                link_match = re.search(r'<a[^>]+href=["\']([^"\']+\.pdf)["\']', text_content, re.IGNORECASE)
+                if link_match:
+                    hidden_url = link_match.group(1)
+                    
+            if hidden_url:
+                if hidden_url.startswith("/"):
+                    from urllib.parse import urljoin
+                    hidden_url = urljoin(url, hidden_url)
+                return _download_pdf(hidden_url, dest, timeout, is_retry=True)
+            return "html_wall_no_pdf"
         return "not_pdf"
-    dest.write_bytes(content)
-    return "ok"
+        
+    return f"http_{status_code}"
 
 
 def _crossref_lookup(reference: str) -> tuple[str | None, str | None]:
