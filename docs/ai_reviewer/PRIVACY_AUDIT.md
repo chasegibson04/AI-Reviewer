@@ -1,43 +1,54 @@
 # Privacy / Egress Audit
 
-This document summarizes known network egress paths and how strict offline mode constrains them.
+This document summarizes the real network and privacy boundaries of the current system.
 
 ## Static Egress Inventory
 
-| Path | Purpose | Default | Strict Offline Behavior | Manuscript Data Exposure |
+| Path | Purpose | Default | Strict-Offline Behavior | Manuscript Data Exposure |
 | --- | --- | --- | --- | --- |
-| `ai_reviewer/models/ollama_provider.py` | Local model calls to Ollama (`/api/chat`, `/api/embed`) | Enabled | Requires localhost/127.0.0.1; non-local URLs rejected | Manuscript content can be sent to local Ollama only |
-| `ai_reviewer/launcher_checks.py` | Launcher self-check to Ollama `/api/version` | Enabled | Localhost only | No manuscript data |
-| `ai_reviewer/review/citation_fetcher.py` | Optional citation DOI/metadata/OA lookup (Crossref/OpenAlex/Unpaywall/S2/EuropePMC/NCBI, depending on configured method path) | Enabled | Skipped with reason `strict_offline` | Query strings are sanitized and logged; no raw manuscript body is sent |
-| `ai_reviewer/tools/scholarly_tools.py` | DOI metadata via Crossref/OpenAlex | Disabled | Returns `{enabled: False}` in strict offline | No manuscript data in strict offline |
-| `ai_reviewer/slack/*` | Local Slack simulation file IO | Disabled unless invoked | No network usage | No manuscript data leaves machine |
-| Launcher pip install | Dependency setup | Enabled on first run | Uses pip network during setup only | No manuscript data |
+| `ai_reviewer/models/ollama_provider.py` | Local chat/embed calls to Ollama | Enabled | Non-local Ollama URLs rejected | Manuscript content can go to local Ollama only |
+| `ai_reviewer/launcher_checks.py` | Local Ollama health/version checks | Enabled | Localhost only | No manuscript data |
+| `ai_reviewer/review/citation_fetcher.py` | Optional citation metadata / OA lookup | Enabled | Skipped with `reason = strict_offline` | No raw manuscript text; only sanitized derived queries |
+| `ai_reviewer/tools/scholarly_tools.py` | Optional metadata helper calls | Disabled in strict offline | Returns disabled state in strict offline | No manuscript data in strict offline |
+| `ai_reviewer/slack/*` | Local Slack simulation only | Disabled unless invoked | No network path by default | No manuscript data leaves machine |
+| pip install / dependency setup | Environment setup | External only during install | Not part of manuscript runtime | No manuscript data |
 
-## Notes
-- There are no OpenAI/Anthropic/remote provider integrations in the runtime path.
-- Strict offline mode blocks non-local Ollama base URLs.
-- Citation fetch/lookup network calls are disabled when strict offline is enabled.
-- Citation fetch query audit fields are written per attempt for run-level inspection.
+## Safe-Online Citation Policy
 
-## Runtime Verification (Mac)
+When `strict_offline=false`, citation fetch is still privacy-constrained.
 
-Suggested commands to verify outbound connections during runtime:
+Query policy written into artifacts:
+- `no_manuscript_raw_text: true`
+- `no_long_manuscript_excerpts: true`
+- `no_support_paper_full_text: true`
+- query logging records type and length only
 
-1. Launcher startup:
-```
-nettop -m tcp -p <PID>
-```
-2. Minimal review:
-```
-lsof -i -n -P | grep ai_reviewer
-```
-3. Deep-run startup (no manuscript content required beyond smoke test):
-```
-netstat -an | grep ESTABLISHED
+Allowed query classes:
+- DOI lookup
+- Crossref title lookup
+- Crossref short-title lookup
+- local project PDF title match
+
+## What Is Not Verified
+
+Safe-online citation fetch does not prove that a cited paper supports a manuscript claim.
+Current verification labels are intentionally limited to metadata/retrieval status such as:
+- `citation_exists`
+- `metadata_match_likely`
+- `support_relationship_not_verified`
+- `external_metadata_check_only`
+- `needs_human_verification`
+
+## Runtime Verification
+
+Suggested checks:
+
+```powershell
+python -m ai_reviewer.cli diagnose
 ```
 
-Expected behavior in strict offline mode:
-- Only `127.0.0.1:11434` (Ollama) connections should appear.
-- No non-local endpoints should be contacted during review/deep-run workflows.
+In strict offline mode, expected runtime network behavior is:
+- local Ollama only
+- no remote citation fetch
 
-If non-local connections appear, disable strict offline override and inspect configuration.
+In safe-online mode, expected remote activity is limited to citation metadata/OA endpoints using sanitized derived queries only.

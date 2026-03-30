@@ -3,13 +3,10 @@
     "20260325163524_test-existingphactorpaper",
     "20260327051312_miniaturization_d2b"
   ],
-  "blacklisted_projects": [
-    "20260324221200_horseshoe_crabs1"
+  "enumerated_projects": [
+    "20260325163524_test-existingphactorpaper",
+    "20260327051312_miniaturization_d2b"
   ],
-  "confirmation": {
-    "horseshoe_crab_unused": true,
-    "approved_projects_only": true,
-    "refreshed_on": "2026-03-29",
-    "sprint_scope": "narrow_output_quality"
-  }
+  "blacklisted_projects": [],
+  "rule": "use only approved projects for validation; do not inspect blacklisted projects"
 }

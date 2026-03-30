@@ -1,74 +1,68 @@
-# Citation Fetch Integration (Pre-Run)
+# Citation Fetch Methods
 
-This repo now runs citation-paper download before review/deep-run analysis starts.
+Citation fetch runs before `review` and `deep-run` when enabled and not blocked by strict offline mode.
 
-## Where it is integrated
+## Integration Points
 
-1. Pre-run stage calls:
 - `ai_reviewer/cli.py`
-  - `review`: calls `fetch_citations_for_documents(...)` before review stages.
-  - `deep-run`: calls `fetch_citations_for_documents(...)` before deep-run stages.
-
-2. Citation fetch engine:
 - `ai_reviewer/review/citation_fetcher.py`
 
-## How to add/modify fetch methods
+## Current Method Chain
 
-The fetch pipeline is method-driven and ordered by config.
-
-1. Add a method function in:
-- `ai_reviewer/review/citation_fetcher.py`
-
-Method signature:
-- input: `CitationMethodContext`
-- output: `CitationMethodResult`
-
-2. Register it in:
-- `REGISTERED_CITATION_METHODS`
-
-3. Enable/order it in config:
-- `config/defaults.yaml` under:
-  - `citation_fetch.methods`
-- or env var:
-  - `AI_REVIEWER_CITATION_FETCH_METHODS=method_a,method_b`
-
-## Current built-in methods
-
+Configured order:
 - `doi_open_access_apis`
-  - DOI-based OA lookup + PDF download.
 - `crossref_lookup_then_oa`
-  - Title/reference lookup via Crossref, then OA DOI download.
 - `local_project_pdf_match`
-  - Fallback that reuses an existing PDF already present under `materials/other` when DOI/title strongly matches.
 - `crossref_short_title_then_oa`
-  - Fallback that retries Crossref using a shortened sanitized title/query before OA DOI download.
 
-These are adapted from `Copy of PaperScraperV2` ideas (title extraction, Crossref lookup, robust PDF-byte validation).
+Meaning:
+- DOI/OA and normal Crossref lookup remain primary
+- local project PDF reuse and shortened-title lookup are fallbacks, not replacements
 
-## Output location and artifacts
+## What The Artifact Now Records
 
-Downloaded files:
-- `projects/<project_id>/materials/other/*.pdf`
+Per-run citation artifacts include:
+- method order
+- per-reference attempts and statuses
+- normalized reference strings
+- query policy
+- verification policy
+- per-entry verification labels
 
-Per-run report:
-- `projects/<project_id>/runs/<run_id>/artifacts/citation_fetch_report.json`
+Current verification labels:
+- `citation_exists`
+- `metadata_match_likely`
+- `support_relationship_not_verified`
+- `external_metadata_check_only`
+- `needs_human_verification`
 
-This report includes method order, attempts, statuses, saved paths, and totals.
+These labels are intentionally honest: retrieval does not prove claim support.
 
-Fallback behavior:
+## Privacy Policy
 
-- The existing DOI/OA and Crossref lookup path remains primary.
-- Local PDF reuse and shortened-title lookup are appended as fallbacks, not replacements.
-- Query audit types now include:
-  - `doi_lookup`
-  - `crossref_title_lookup`
-  - `crossref_short_title_lookup`
-  - `local_pdf_title_match`
+When citation fetch is allowed online:
+- no raw manuscript text is sent
+- no long manuscript excerpts are sent
+- no support-paper full text is sent
+- query logging records type and length only
 
-## Important runtime switches
+Allowed query types currently include:
+- `doi_lookup`
+- `crossref_title_lookup`
+- `crossref_short_title_lookup`
+- `local_pdf_title_match`
+
+## Runtime Switches
 
 - `AI_REVIEWER_CITATION_FETCH_ENABLED=true|false`
 - `AI_REVIEWER_CITATION_FETCH_METHODS=...`
 - `AI_REVIEWER_STRICT_OFFLINE=true|false`
 
-If `strict_offline=true`, citation download is skipped intentionally.
+If `strict_offline=true`, citation fetch exits early with `reason = strict_offline`.
+
+## Extension Point
+
+To add a new method:
+1. add a method function in `ai_reviewer/review/citation_fetcher.py`
+2. register it in `REGISTERED_CITATION_METHODS`
+3. add it to `config/defaults.yaml` or `AI_REVIEWER_CITATION_FETCH_METHODS`

@@ -790,24 +790,117 @@ def _support_overlap_score(manuscript_text: str, support_text: str) -> float:
     return len(ma & sb) / float(len(ma | sb))
 
 
+def _support_verification_entry(source: str, score: float, selected: bool, reason: str | None = None) -> dict[str, Any]:
+    labels = [
+        "support_relationship_plausible" if selected else "support_relationship_not_verified",
+        "internal_consistency_check_only",
+        "needs_human_verification",
+    ]
+    return {
+        "source": source,
+        "score": round(score, 4),
+        "selected": selected,
+        "reason": reason,
+        "verification": {
+            "labels": labels,
+            "verification_scope": "internal_consistency_check_only",
+            "selection_basis": "lexical_overlap_only",
+            "provenance": "project_support_material",
+        },
+    }
+
+
+def _extract_named_section(text: str, heading_pattern: str, fallback_chars: int = 0) -> str:
+    if not text:
+        return ""
+    lines = text.splitlines()
+    capture = False
+    captured: list[str] = []
+    pattern = re.compile(heading_pattern, re.IGNORECASE)
+    heading_like = re.compile(r"^\s{0,3}(abstract|introduction|background|methods?|experimental|results?|discussion|conclusions?|references)\b", re.IGNORECASE)
+    for line in lines:
+        stripped = line.strip()
+        if not capture and pattern.match(stripped):
+            capture = True
+            continue
+        if capture:
+            if heading_like.match(stripped):
+                break
+            captured.append(stripped)
+    section_text = "\n".join([ln for ln in captured if ln]).strip()
+    if section_text:
+        return section_text
+    if fallback_chars > 0:
+        return text[:fallback_chars].strip()
+    return ""
+
+
+def _internal_consistency_checks(doc: ParsedDocument) -> dict[str, Any]:
+    text = doc.cleaned_text or ""
+    abstract_text = _extract_named_section(text, r"^\s*abstract\b", fallback_chars=2200)
+    conclusion_text = _extract_named_section(text, r"^\s*conclusions?\b", fallback_chars=0)
+    if not conclusion_text:
+        conclusion_text = _extract_named_section(text, r"^\s*discussion\b", fallback_chars=0)
+    body_text = text
+    if abstract_text and abstract_text in body_text:
+        body_text = body_text.replace(abstract_text, "", 1)
+    if conclusion_text and conclusion_text in body_text:
+        body_text = body_text.replace(conclusion_text, "", 1)
+    findings: list[dict[str, Any]] = []
+    broad_markers = ["always", "never", "all ", "every ", "proves", "clearly demonstrates"]
+    abstract_low = abstract_text.lower()
+    body_low = body_text.lower()
+    conclusion_low = conclusion_text.lower()
+    if abstract_text and any(marker in abstract_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
+        findings.append(
+            {
+                "label": "abstract_scope_broader_than_body",
+                "severity": "medium",
+                "details": "Opening summary uses broader certainty language than the body text.",
+            }
+        )
+    if conclusion_text and any(marker in conclusion_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
+        findings.append(
+            {
+                "label": "conclusion_scope_broader_than_body",
+                "severity": "medium",
+                "details": "Conclusion/discussion appears broader than the body evidence language.",
+            }
+        )
+    return {
+        "labels": ["internal_consistency_check_only"],
+        "verification_scope": "internal_consistency_check_only",
+        "abstract_present": bool(abstract_text),
+        "conclusion_present": bool(conclusion_text),
+        "finding_count": len(findings),
+        "findings": findings,
+        "needs_human_verification": bool(findings),
+    }
+
+
 def _filter_support_docs_for_grounding(
     doc: ParsedDocument,
     support_docs: list[ParsedDocument],
-) -> tuple[list[ParsedDocument], list[dict[str, Any]]]:
+) -> tuple[list[ParsedDocument], list[dict[str, Any]], list[dict[str, Any]]]:
     selected: list[ParsedDocument] = []
     skipped: list[dict[str, Any]] = []
+    selected_audit: list[dict[str, Any]] = []
     manuscript_text = doc.cleaned_text[:40000]
     for sdoc in support_docs:
         name = sdoc.source_path.name.lower()
         if any(k in name for k in ["openai gym", "gym_", "biogpt"]):
-            skipped.append({"source": sdoc.source_path.name, "reason": "blocked_filename_marker", "score": 0.0})
+            skipped.append(_support_verification_entry(sdoc.source_path.name, 0.0, selected=False, reason="blocked_filename_marker"))
             continue
         score = _support_overlap_score(manuscript_text, sdoc.cleaned_text[:40000])
+        if score >= 0.95:
+            skipped.append(_support_verification_entry(sdoc.source_path.name, score, selected=False, reason="manuscript_like_duplicate"))
+            continue
         if score < 0.04:
-            skipped.append({"source": sdoc.source_path.name, "reason": "low_overlap", "score": round(score, 4)})
+            skipped.append(_support_verification_entry(sdoc.source_path.name, score, selected=False, reason="low_overlap"))
             continue
         selected.append(sdoc)
-    return selected, skipped
+        selected_audit.append(_support_verification_entry(sdoc.source_path.name, score, selected=True, reason=None))
+    return selected, skipped, selected_audit
 
 
 def run_review(
@@ -838,19 +931,31 @@ def run_review(
 
     context = _context_from_doc(doc, profile, config)
     support_docs = supporting_docs or []
-    support_docs, skipped_support_docs = _filter_support_docs_for_grounding(doc, support_docs)
-    if skipped_support_docs:
+    support_docs, skipped_support_docs, selected_support_docs = _filter_support_docs_for_grounding(doc, support_docs)
+    if skipped_support_docs or selected_support_docs:
         warnings.append(f"support_docs_filtered:{len(skipped_support_docs)}")
         (bundle_dir / "support_material_filtering.json").write_text(
             json.dumps(
                 {
-                    "selected": [d.source_path.name for d in support_docs],
+                    "selected": selected_support_docs,
                     "skipped": skipped_support_docs,
+                    "verification_scope": "internal_consistency_check_only",
+                    "selection_basis": "lexical_overlap_only",
+                    "support_relationship_policy": {
+                        "selected_label": "support_relationship_plausible",
+                        "selected_meaning": "Support material appears topically relevant, but claim support was not verified.",
+                        "skipped_label": "support_relationship_not_verified",
+                    },
                 },
                 indent=2,
             ),
             encoding="utf-8",
         )
+    internal_consistency = _internal_consistency_checks(doc)
+    (bundle_dir / "internal_consistency_checks.json").write_text(
+        json.dumps(internal_consistency, indent=2),
+        encoding="utf-8",
+    )
     use_retrieval = bool(
         embedding_model
         and doc.chunks

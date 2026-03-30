@@ -1,24 +1,37 @@
 # AI-Reviewer Security Notes
 
-Default behavior is local-first and privacy-preserving:
-- Uses Ollama on `http://127.0.0.1:11434`
-- Does not require cloud API keys for normal review workflow
-- Strict offline mode blocks non-local Ollama endpoints
-- Scholarly DOI lookups (Crossref/OpenAlex) are disabled when strict offline is enabled
-- Optional context-pack inputs are local project materials and do not add new outbound surfaces by themselves
+## Default Posture
 
-Important risk distinction:
-- `ai-reviewer` commands are review-focused and do not run model-written code.
-- Legacy `ai_scientist` autonomous experiment code can execute model-written code and should be sandboxed.
+- local Ollama runtime
+- strict offline enabled by default in repo defaults
+- no silent cloud fallback
+- output artifacts retained for auditability
+- support/context materials are local files
 
-Recommended practices:
-- Keep Ollama local-only
-- Keep `defaults.strict_offline: true` for all manuscript workflows
-- Run with least-privilege filesystem access where possible
-- Keep raw artifacts for auditability
-- Use `ai-reviewer diagnose` and `doctor` before production runs
+## Important Risk Distinction
 
-Setup note:
-- Initial dependency install uses pip and may require internet access.
-- Runtime review workflows do not contact non-local endpoints in strict offline mode.
-- When strict offline is disabled, citation fetch can contact configured metadata/OA endpoints using sanitized derived queries only.
+- `ai-reviewer` commands are manuscript-review workflows and do not run model-written code
+- legacy `ai_scientist` code is a separate higher-risk surface and should be sandboxed if used at all
+
+## Strict-Offline Behavior
+
+When `defaults.strict_offline: true`:
+- non-local Ollama URLs are rejected
+- citation metadata/download stages are skipped
+- scholarly helper tools return disabled/offline status
+
+## Safe-Online Behavior
+
+When strict offline is intentionally disabled:
+- citation fetch can contact configured metadata/OA endpoints
+- no raw manuscript text is sent
+- no long manuscript excerpts are sent
+- query logging records type and length only
+- metadata retrieval still does not equal claim verification
+
+## Recommended Practice
+
+- keep Ollama local-only
+- keep `strict_offline: true` unless you explicitly need metadata retrieval
+- review artifacts after runs instead of trusting success banners alone
+- use `diagnose`, `doctor`, and the testing procedure before release work

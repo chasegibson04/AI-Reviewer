@@ -13,9 +13,7 @@ OUT_DIR = REPO_ROOT / "audits" / "docx_native_fixtures" / "generated"
 PROJECTS = {
     "project1": {
         "project_id": "20260325163524_test-existingphactorpaper",
-        "clean_source": REPO_ROOT / "projects" / "20260325163524_test-existingphactorpaper" / "runs" / "20260329_125842_deep_run" / "surrogate_manuscript_from_pdf_base.docx",
-        "prior_commented_source": REPO_ROOT / "projects" / "20260325163524_test-existingphactorpaper" / "runs" / "20260329_125842_deep_run" / "surrogate_manuscript_from_pdf_with_comments.docx",
-        "prior_suggested_source": REPO_ROOT / "projects" / "20260325163524_test-existingphactorpaper" / "runs" / "20260329_125842_deep_run" / "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
+        "native_name": "project1_clean_native.docx",
         "comment_targets": {
             "light": [
                 (7, "Editor A", "EA", "Abstract claim feels broad; tie the success claim to tested conditions."),
@@ -34,9 +32,7 @@ PROJECTS = {
     },
     "project2": {
         "project_id": "20260327051312_miniaturization_d2b",
-        "clean_source": REPO_ROOT / "projects" / "20260327051312_miniaturization_d2b" / "runs" / "20260329_131502_deep_run" / "surrogate_manuscript_from_pdf_base.docx",
-        "prior_commented_source": REPO_ROOT / "projects" / "20260327051312_miniaturization_d2b" / "runs" / "20260329_131502_deep_run" / "surrogate_manuscript_from_pdf_with_comments.docx",
-        "prior_suggested_source": REPO_ROOT / "projects" / "20260327051312_miniaturization_d2b" / "runs" / "20260329_131502_deep_run" / "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
+        "native_name": "project2_clean_native.docx",
         "comment_targets": {
             "light": [
                 (6, "Editor A", "EA", "Introduction framing is too dense for the opening claim."),
@@ -77,11 +73,45 @@ def _build_commented_fixture(source: Path, target: Path, targets: list[tuple[int
     doc.save(str(target))
 
 
+def _latest_path(paths: list[Path]) -> Path:
+    if not paths:
+        raise FileNotFoundError("No candidate paths found for fixture generation.")
+    return sorted(paths, key=lambda p: str(p))[-1]
+
+
+def _resolve_native_source(project_id: str, native_name: str) -> Path:
+    candidates = list((REPO_ROOT / "projects" / project_id / "materials" / "managed").rglob(native_name))
+    if candidates:
+        return _latest_path(candidates)
+    raise FileNotFoundError(f"No native DOCX source found for {project_id}: {native_name}")
+
+
+def _resolve_prior_comment_source(project_id: str) -> Path:
+    candidates = list((REPO_ROOT / "projects" / project_id / "runs").rglob("reviewed_manuscript_with_comments.docx"))
+    if candidates:
+        return _latest_path(candidates)
+    candidates = list((REPO_ROOT / "projects" / project_id / "runs").rglob("surrogate_manuscript_from_pdf_with_comments.docx"))
+    return _latest_path(candidates)
+
+
+def _resolve_prior_suggested_source(project_id: str) -> Path:
+    candidates = list((REPO_ROOT / "projects" / project_id / "runs").rglob("reviewed_manuscript_with_suggested_changes.docx"))
+    if candidates:
+        return _latest_path(candidates)
+    candidates = list((REPO_ROOT / "projects" / project_id / "runs").rglob("surrogate_manuscript_from_pdf_with_suggested_changes.docx"))
+    return _latest_path(candidates)
+
+
 def build_fixtures() -> dict:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     manifest: dict[str, dict] = {"output_dir": str(OUT_DIR), "fixtures": {}}
     for key, cfg in PROJECTS.items():
-        project_out = OUT_DIR / cfg["project_id"]
+        project_id = cfg["project_id"]
+        clean_source = _resolve_native_source(project_id, cfg["native_name"])
+        prior_commented_source = _resolve_prior_comment_source(project_id)
+        prior_suggested_source = _resolve_prior_suggested_source(project_id)
+
+        project_out = OUT_DIR / project_id
         project_out.mkdir(parents=True, exist_ok=True)
 
         clean = project_out / f"{key}_clean_native.docx"
@@ -90,22 +120,22 @@ def build_fixtures() -> dict:
         prior_comments = project_out / f"{key}_prior_ai_commented.docx"
         prior_suggested = project_out / f"{key}_prior_ai_suggested.docx"
 
-        shutil.copy2(cfg["clean_source"], clean)
-        _build_commented_fixture(cfg["clean_source"], light, cfg["comment_targets"]["light"])
-        _build_commented_fixture(cfg["clean_source"], heavy, cfg["comment_targets"]["heavy"])
-        shutil.copy2(cfg["prior_commented_source"], prior_comments)
-        shutil.copy2(cfg["prior_suggested_source"], prior_suggested)
+        shutil.copy2(clean_source, clean)
+        _build_commented_fixture(clean_source, light, cfg["comment_targets"]["light"])
+        _build_commented_fixture(clean_source, heavy, cfg["comment_targets"]["heavy"])
+        shutil.copy2(prior_commented_source, prior_comments)
+        shutil.copy2(prior_suggested_source, prior_suggested)
 
-        manifest["fixtures"][cfg["project_id"]] = {
+        manifest["fixtures"][project_id] = {
             "clean_native": str(clean),
             "commented_light": str(light),
             "commented_heavy": str(heavy),
             "prior_ai_commented": str(prior_comments),
             "prior_ai_suggested": str(prior_suggested),
             "sources": {
-                "clean_source": str(cfg["clean_source"]),
-                "prior_commented_source": str(cfg["prior_commented_source"]),
-                "prior_suggested_source": str(cfg["prior_suggested_source"]),
+                "clean_source": str(clean_source),
+                "prior_commented_source": str(prior_commented_source),
+                "prior_suggested_source": str(prior_suggested_source),
             },
         }
     manifest_path = OUT_DIR / "fixture_manifest.json"

@@ -32,7 +32,7 @@ class DeepRunProvider:
                 '"model_debug_metadata":{"provider":"ollama","model":"gemma3:27b","temperature":0.2,"parse_failures":0}'
                 "}"
             )
-        elif "reconcile" in lower:
+        elif "reconcile" in lower or "final arbitration" in lower:
             content = '{"consolidated_strengths":["x"],"consolidated_weaknesses":["y"],"disagreements":[],"priority_actions":["a"],"revision_plan":["p"],"response_to_reviewers_bullets":["r"],"confidence_notes":["c"]}'  # noqa: E501
         elif "style and formatting" in lower:
             content = '{"style_issues":["s"],"formatting_issues":["f"],"tone_issues":["t"],"alignment_actions":["a"]}'
@@ -68,7 +68,9 @@ def _cfg_with_training(tmp_path: Path, training_enabled: bool = True):
         f"training:\n"
         f"  enabled: {str(training_enabled).lower()}\n"
         f"  source_root: {(tmp_path / 'training_materials').as_posix()}\n"
-        f"  cache_root: {(tmp_path / 'training_cache').as_posix()}\n",
+        f"  cache_root: {(tmp_path / 'training_cache').as_posix()}\n"
+        f"deep_run_routing:\n"
+        f"  mode: default\n",
         encoding="utf-8",
     )
     if training_enabled:
@@ -101,6 +103,13 @@ def test_deep_run_project_with_manuscript_and_other(tmp_path: Path):
     assert (run_dir / "final_deep_review_report.json").exists()
     assert (run_dir / "stage_11_reconciliation_qc.json").exists()
     assert json.loads((run_dir / "training_guidance_used.json").read_text(encoding="utf-8"))["enabled"] is True
+    support_payload = json.loads((run_dir / "support_material_filtering.json").read_text(encoding="utf-8"))
+    assert support_payload["verification_scope"] == "internal_consistency_check_only"
+    consistency = json.loads((run_dir / "internal_consistency_checks.json").read_text(encoding="utf-8"))
+    assert consistency["verification_scope"] == "internal_consistency_check_only"
+    stack_payload = json.loads((run_dir / "stage_model_stack.json").read_text(encoding="utf-8"))
+    assert stack_payload["routing_mode"] == "default"
+    assert stack_payload["model_stack"]["reconciliation"] == "mistral-small3.1:24b"
 
 
 def test_deep_run_context_pack_materials_are_recorded(tmp_path: Path):
@@ -159,3 +168,39 @@ def test_deep_run_other_only_fails_gracefully(tmp_path: Path):
             embedding_model="mxbai-embed-large:latest",
             disable_training_guidance=True,
         )
+
+
+def test_deep_run_respects_max_quality_routing_mode(tmp_path: Path):
+    store = ProjectStore(tmp_path / "projects")
+    _, meta = store.create_project("Deep Max", "", [], ProjectDefaults(review_model="gemma3:27b"))
+    pdir, _ = store.get_project(meta.project_id)
+    (pdir / "materials" / "manuscript" / "main.md").write_text("# Main\n\nMethods and results.", encoding="utf-8")
+
+    cfg_path = tmp_path / "cfg_max.yaml"
+    cfg_path.write_text(
+        "training:\n"
+        "  enabled: false\n"
+        f"  source_root: {(tmp_path / 'training_materials').as_posix()}\n"
+        f"  cache_root: {(tmp_path / 'training_cache').as_posix()}\n"
+        "deep_run_routing:\n"
+        "  mode: max_quality\n",
+        encoding="utf-8",
+    )
+    cfg = load_config(str(cfg_path))
+    run_dir = tmp_path / "run_max"
+    run_deep_run(
+        provider=DeepRunProvider(),  # type: ignore[arg-type]
+        cfg=cfg,
+        logger=__import__("logging").getLogger("test"),
+        run_dir=run_dir,
+        project_id=meta.project_id,
+        store=store,
+        manuscript_id=None,
+        embedding_model="mxbai-embed-large:latest",
+        disable_training_guidance=True,
+    )
+    stack_payload = json.loads((run_dir / "stage_model_stack.json").read_text(encoding="utf-8"))
+    assert stack_payload["routing_mode"] == "max_quality"
+    assert stack_payload["model_stack"]["high_level_review"] == "llama3.3:70b-instruct-q4_K_M"
+    assert stack_payload["model_stack"]["reconciliation"] == "gemma3:27b"
+    assert (run_dir / "stage_11b_final_arbitration.json").exists()

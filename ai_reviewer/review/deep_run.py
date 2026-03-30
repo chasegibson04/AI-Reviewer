@@ -15,7 +15,7 @@ from ai_reviewer.ingest.loaders import parse_file
 from ai_reviewer.ingest.types import ParsedDocument
 from ai_reviewer.models.base import ChatRequest, Provider
 from ai_reviewer.orchestrator.controller import OrchestratorController, OrchestratorRuntimeState
-from ai_reviewer.models.selector import infer_model_roles, is_embedding_model, split_chat_and_embedding_models
+from ai_reviewer.models.selector import normalize_deep_run_routing_mode, select_deep_run_stage_models, split_chat_and_embedding_models
 from ai_reviewer.projects.store import ProjectStore
 from ai_reviewer.review.engine import run_review
 from ai_reviewer.review.manuscript_annotation import build_annotated_manuscript_output, detect_source_mode
@@ -67,36 +67,10 @@ def _chat_json(provider: Provider, model: str, system_prompt: str, user_prompt: 
 
 
 def _select_stage_models(installed_chat: list[str], cfg: ReviewerConfig) -> dict[str, str]:
-    chat_pool = [m for m in installed_chat if not is_embedding_model(m)]
-    roles = infer_model_roles(chat_pool, cfg)
-    def pick(preferred: str, fallback: str | None = None) -> str:
-        if preferred in chat_pool and not is_embedding_model(preferred):
-            return preferred
-        if fallback and fallback in chat_pool and not is_embedding_model(fallback):
-            return fallback
-        if chat_pool:
-            return chat_pool[0]
-        raise DeepRunError("No chat models available for deep run.")
-
-    critique = pick("llama3.3:70b-instruct-q4_K_M", pick("phi4-reasoning:latest", pick(cfg.defaults.deep_review_model, roles.balanced_model)))
-    synth = pick("mistral-small3.2:latest", pick(cfg.defaults.balanced_review_model, critique))
-    structural = pick("phi4-mini:latest", "qwen3:4b")
-    repair = pick("qwen2.5:7b-instruct", cfg.defaults.repair_models[-1] if cfg.defaults.repair_models else synth)
-    arbitration = pick("llama3.3:70b-instruct-q4_K_M", critique)
-    return {
-        "structural_triage": structural,
-        "supporting_digest": synth,
-        "manuscript_digest": synth,
-        "evidence_linking": synth,
-        "context_synthesis": synth,
-        "high_level_review": critique,
-        "adversarial_review": critique,
-        "methods_verification": critique,
-        "line_edits": synth,
-        "style_alignment": synth,
-        "reconciliation": repair,
-        "final_arbitration": arbitration,
-    }
+    try:
+        return select_deep_run_stage_models(installed_chat, cfg)
+    except ValueError as exc:
+        raise DeepRunError(str(exc)) from exc
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -177,6 +151,81 @@ def _support_relevance_score(manuscript_text: str, support_text: str) -> float:
     if not manuscript_text or not support_text:
         return 0.0
     return _token_overlap(manuscript_text[:20000], support_text[:20000])
+
+
+def _support_verification_entry(source: str, score: float, selected: bool, reason: str | None = None) -> dict[str, Any]:
+    labels = [
+        "support_relationship_plausible" if selected else "support_relationship_not_verified",
+        "internal_consistency_check_only",
+        "needs_human_verification",
+    ]
+    return {
+        "source": source,
+        "score": round(score, 4),
+        "selected": selected,
+        "reason": reason,
+        "verification": {
+            "labels": labels,
+            "verification_scope": "internal_consistency_check_only",
+            "selection_basis": "lexical_overlap_only",
+            "provenance": "project_support_material",
+        },
+    }
+
+
+def _extract_named_section(text: str, heading_pattern: str, fallback_chars: int = 0) -> str:
+    if not text:
+        return ""
+    lines = text.splitlines()
+    capture = False
+    captured: list[str] = []
+    pattern = re.compile(heading_pattern, re.IGNORECASE)
+    heading_like = re.compile(r"^\s{0,3}(abstract|introduction|background|methods?|experimental|results?|discussion|conclusions?|references)\b", re.IGNORECASE)
+    for line in lines:
+        stripped = line.strip()
+        if not capture and pattern.match(stripped):
+            capture = True
+            continue
+        if capture:
+            if heading_like.match(stripped):
+                break
+            captured.append(stripped)
+    section_text = "\n".join([ln for ln in captured if ln]).strip()
+    if section_text:
+        return section_text
+    if fallback_chars > 0:
+        return text[:fallback_chars].strip()
+    return ""
+
+
+def _internal_consistency_checks(text: str) -> dict[str, Any]:
+    abstract_text = _extract_named_section(text, r"^\s*abstract\b", fallback_chars=2200)
+    conclusion_text = _extract_named_section(text, r"^\s*conclusions?\b", fallback_chars=0)
+    if not conclusion_text:
+        conclusion_text = _extract_named_section(text, r"^\s*discussion\b", fallback_chars=0)
+    body_text = text
+    if abstract_text and abstract_text in body_text:
+        body_text = body_text.replace(abstract_text, "", 1)
+    if conclusion_text and conclusion_text in body_text:
+        body_text = body_text.replace(conclusion_text, "", 1)
+    findings: list[dict[str, Any]] = []
+    broad_markers = ["always", "never", "all ", "every ", "proves", "clearly demonstrates"]
+    abstract_low = abstract_text.lower()
+    body_low = body_text.lower()
+    conclusion_low = conclusion_text.lower()
+    if abstract_text and any(marker in abstract_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
+        findings.append({"label": "abstract_scope_broader_than_body", "severity": "medium", "details": "Opening summary uses broader certainty language than the body text."})
+    if conclusion_text and any(marker in conclusion_low for marker in broad_markers) and not any(marker in body_low for marker in broad_markers):
+        findings.append({"label": "conclusion_scope_broader_than_body", "severity": "medium", "details": "Conclusion/discussion appears broader than the body evidence language."})
+    return {
+        "labels": ["internal_consistency_check_only"],
+        "verification_scope": "internal_consistency_check_only",
+        "abstract_present": bool(abstract_text),
+        "conclusion_present": bool(conclusion_text),
+        "finding_count": len(findings),
+        "findings": findings,
+        "needs_human_verification": bool(findings),
+    }
 
 
 def _is_probably_irrelevant_support(filename: str) -> bool:
@@ -349,8 +398,17 @@ def run_deep_run(
     if embedding_model and embedding_model not in embed_models:
         warnings.append(f"Embedding model {embedding_model} not available as embedding; disabling embeddings for deep run.")
         embedding_model = None
+    routing_mode = normalize_deep_run_routing_mode(cfg.deep_run_routing.mode)
     model_stack = _select_stage_models(chat_models, cfg)
-    _write_json(run_dir / "deep_run_plan.json", {"project_id": project_id, "model_stack": model_stack})
+    _write_json(
+        run_dir / "deep_run_plan.json",
+        {
+            "project_id": project_id,
+            "routing_mode": routing_mode,
+            "model_stack": model_stack,
+        },
+    )
+    _write_json(run_dir / "stage_model_stack.json", {"routing_mode": routing_mode, "model_stack": model_stack})
     registry = ToolRegistry(cfg)
     _write_json(run_dir / "tool_manifest.json", {"availability": registry.availability(), "strict_offline": cfg.defaults.strict_offline})
     initial_source_mode = detect_source_mode(target_path)
@@ -397,6 +455,7 @@ def run_deep_run(
             "project_id": project_id,
             "run_dir": str(run_dir),
             "cache_root": str(cache_root),
+            "routing_mode": routing_mode,
             "model_stack": model_stack,
             "materials_used": materials_used,
         },
@@ -415,6 +474,7 @@ def run_deep_run(
     _write_json(run_dir / "stage_01_structured_source.json", structured_source if isinstance(structured_source, dict) else {})
     supporting_docs = []
     skipped_supporting_docs: list[dict[str, Any]] = []
+    selected_supporting_docs: list[dict[str, Any]] = []
     manuscript_text = manuscript_doc.cleaned_text or ""
     for m in support_materials[:20]:
         path = store.material_path(pdir, m)
@@ -423,19 +483,55 @@ def run_deep_run(
             score = _support_relevance_score(manuscript_text, sdoc.cleaned_text or "")
             if _is_probably_irrelevant_support(path.name):
                 skipped_supporting_docs.append(
-                    {"material_id": m.material_id, "path": str(path), "reason": "blocked_filename_marker", "score": score}
+                    {
+                        "material_id": m.material_id,
+                        "path": str(path),
+                        **_support_verification_entry(path.name, score, selected=False, reason="blocked_filename_marker"),
+                    }
+                )
+                continue
+            if score >= 0.95:
+                skipped_supporting_docs.append(
+                    {
+                        "material_id": m.material_id,
+                        "path": str(path),
+                        **_support_verification_entry(path.name, score, selected=False, reason="manuscript_like_duplicate"),
+                    }
                 )
                 continue
             if score < 0.04:
                 skipped_supporting_docs.append(
-                    {"material_id": m.material_id, "path": str(path), "reason": "low_relevance", "score": round(score, 4)}
+                    {
+                        "material_id": m.material_id,
+                        "path": str(path),
+                        **_support_verification_entry(path.name, score, selected=False, reason="low_relevance"),
+                    }
                 )
                 continue
             supporting_docs.append(sdoc)
+            selected_supporting_docs.append(
+                {
+                    "material_id": m.material_id,
+                    "path": str(path),
+                    **_support_verification_entry(path.name, score, selected=True, reason=None),
+                }
+            )
         except Exception as exc:
             warnings.append(f"supporting_parse_failed:{path}:{exc}")
-    if skipped_supporting_docs:
-        _write_json(run_dir / "support_material_filtering.json", {"selected": [d.source_path.name for d in supporting_docs], "skipped": skipped_supporting_docs})
+    _write_json(
+        run_dir / "support_material_filtering.json",
+        {
+            "selected": selected_supporting_docs,
+            "skipped": skipped_supporting_docs,
+            "verification_scope": "internal_consistency_check_only",
+            "selection_basis": "lexical_overlap_only",
+            "support_relationship_policy": {
+                "selected_label": "support_relationship_plausible",
+                "selected_meaning": "Support material appears topically relevant, but claim support was not verified.",
+                "skipped_label": "support_relationship_not_verified",
+            },
+        },
+    )
     materials_used["supporting_materials_selected"] = [
         {"name": d.source_path.name} for d in supporting_docs
     ]
@@ -449,6 +545,7 @@ def run_deep_run(
     }
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "context_manifest.json", {"project_id": project_id, "materials": materials_used, "warnings": warnings})
+    _write_json(run_dir / "internal_consistency_checks.json", _internal_consistency_checks(manuscript_text))
 
     context_docs: list[ParsedDocument] = []
     context_failures: list[dict[str, str]] = []
@@ -948,6 +1045,26 @@ def run_deep_run(
             "fallback_generated": True,
         }
 
+    def _apply_compliance_findings(payload: dict[str, Any]) -> dict[str, Any]:
+        if not compliance_payload.get("findings"):
+            return payload
+        payload.setdefault("consolidated_weaknesses", [])
+        payload.setdefault("priority_actions", [])
+        existing_weaknesses = {str(x).strip() for x in payload.get("consolidated_weaknesses", []) if str(x).strip()}
+        existing_actions = {str(x).strip() for x in payload.get("priority_actions", []) if str(x).strip()}
+        for finding in compliance_payload.get("findings", [])[:5]:
+            msg = str(finding.get("message", "")).strip()
+            if not msg:
+                continue
+            if msg not in existing_weaknesses:
+                payload["consolidated_weaknesses"].append(msg)
+                existing_weaknesses.add(msg)
+            action = f"Address compliance issue: {msg}"
+            if action not in existing_actions:
+                payload["priority_actions"].append(action)
+                existing_actions.add(action)
+        return payload
+
     try:
         recon_payload, recon_raw = _chat_json(
             provider=provider,
@@ -974,21 +1091,86 @@ def run_deep_run(
         recon_payload["confidence_notes"] = recon_payload.get("confidence_notes", []) + [str(exc), "Fallback reconciliation used."]
         recon_raw = str(exc)
         stage_status["stage_12_reconciliation"] = "failed"
+
+    recon_payload = _apply_compliance_findings(recon_payload)
+    recon_qc = build_deep_reconciliation_summary(recon_payload)
+
+    arbitration_payload: dict[str, Any] = {}
+    arbitration_raw = ""
+    arbitration_kept = False
+    arbitration_reason = "not_run"
+    arbitration_qc: dict[str, Any] = {}
+    try:
+        arbitration_payload, arbitration_raw = _chat_json(
+            provider=provider,
+            model=model_stack["final_arbitration"],
+            system_prompt="You are the final arbitration model for a deep manuscript review. Return strict JSON only.",
+            user_prompt=(
+                "Return JSON with keys: consolidated_strengths, consolidated_weaknesses, disagreements, "
+                "priority_actions, revision_plan, response_to_reviewers_bullets, confidence_notes.\n"
+                "Tighten the final synthesis so it is manuscript-specific, non-duplicative, and higher quality than CURRENT_RECON.\n"
+                "Do not invent evidence. Do not add unsupported claims. Preserve unresolved offline/verification limits.\n"
+                f"CURRENT_RECON:\n{json.dumps(recon_payload)[:12000]}\n"
+                f"CURRENT_RECON_QC:\n{json.dumps(recon_qc)[:4000]}\n"
+                f"HIGH_LEVEL:\n{json.dumps(s3j)[:10000]}\n"
+                f"HOSTILE:\n{json.dumps(s4j)[:10000]}\n"
+                f"METHODS:\n{json.dumps(s5j)[:10000]}\n"
+                f"STYLE:\n{json.dumps(style_payload)[:6000]}\n"
+                f"LINE_EDITS:\n{json.dumps(stage6)[:8000]}\n"
+                f"COMPLIANCE:\n{json.dumps(compliance_payload)[:3000]}\n"
+                f"WARNINGS:\n{json.dumps(warnings)[:2000]}\n"
+            ),
+            timeout_seconds=cfg_deep.timeouts.chat_seconds,
+        )
+        if required_recon_keys.issubset(set(arbitration_payload.keys())):
+            arbitration_payload = _apply_compliance_findings(arbitration_payload)
+            arbitration_qc = build_deep_reconciliation_summary(arbitration_payload)
+            current_score = float(recon_qc.get("reconciliation_quality_score_0_to_5", 0.0) or 0.0)
+            candidate_score = float(arbitration_qc.get("reconciliation_quality_score_0_to_5", 0.0) or 0.0)
+            current_fallback = bool(recon_payload.get("fallback_generated"))
+            if candidate_score > current_score or (current_fallback and candidate_score >= current_score):
+                recon_payload = arbitration_payload
+                recon_qc = arbitration_qc
+                arbitration_kept = True
+                arbitration_reason = "candidate_improved_or_replaced_fallback"
+                stage_status["stage_12b_final_arbitration"] = "ok"
+            else:
+                arbitration_reason = "candidate_not_better_than_current"
+                stage_status["stage_12b_final_arbitration"] = "ok"
+        else:
+            arbitration_reason = "schema_incomplete"
+            warnings.append("final_arbitration_schema_incomplete")
+            stage_status["stage_12b_final_arbitration"] = "failed"
+    except Exception as exc:
+        arbitration_reason = f"failed:{exc}"
+        warnings.append(f"final_arbitration_failed:{exc}")
+        stage_status["stage_12b_final_arbitration"] = "failed"
+
+    _write_json(
+        run_dir / "stage_11b_final_arbitration.json",
+        {
+            "kept": arbitration_kept,
+            "reason": arbitration_reason,
+            "model": model_stack["final_arbitration"],
+            "candidate_payload": arbitration_payload,
+            "candidate_qc": arbitration_qc,
+        },
+    )
+    _write_md(
+        run_dir / "stage_11b_final_arbitration.md",
+        "Stage 11b Final Arbitration",
+        {
+            "kept": arbitration_kept,
+            "reason": arbitration_reason,
+            "model": model_stack["final_arbitration"],
+            "candidate_qc": arbitration_qc,
+        },
+    )
+    (run_dir / "stage_11b_final_arbitration.raw.txt").write_text(arbitration_raw, encoding="utf-8")
+
     _write_json(run_dir / "stage_11_reconciliation.json", recon_payload)
     _write_md(run_dir / "stage_11_reconciliation.md", "Stage 11 Reconciliation", recon_payload)
     (run_dir / "stage_11_reconciliation.raw.txt").write_text(recon_raw, encoding="utf-8")
-    if compliance_payload.get("findings"):
-        recon_payload.setdefault("consolidated_weaknesses", [])
-        recon_payload.setdefault("priority_actions", [])
-        for finding in compliance_payload.get("findings", [])[:5]:
-            msg = str(finding.get("message", "")).strip()
-            if not msg:
-                continue
-            recon_payload["consolidated_weaknesses"].append(msg)
-            recon_payload["priority_actions"].append(f"Address compliance issue: {msg}")
-    _write_json(run_dir / "stage_11_reconciliation.json", recon_payload)
-    _write_md(run_dir / "stage_11_reconciliation.md", "Stage 11 Reconciliation", recon_payload)
-    recon_qc = build_deep_reconciliation_summary(recon_payload)
     _write_json(run_dir / "stage_11_reconciliation_qc.json", recon_qc)
     _write_md(run_dir / "stage_11_reconciliation_qc.md", "Stage 11 Reconciliation QC", recon_qc)
     if orchestrator is not None and orchestrator.enabled and cfg.orchestrator.enable_final_synthesis_review:

@@ -23,6 +23,22 @@ class ModelCapability:
     recommended_role: str
 
 
+DEEP_RUN_STAGE_KEYS = [
+    "structural_triage",
+    "supporting_digest",
+    "manuscript_digest",
+    "evidence_linking",
+    "context_synthesis",
+    "high_level_review",
+    "adversarial_review",
+    "methods_verification",
+    "line_edits",
+    "style_alignment",
+    "reconciliation",
+    "final_arbitration",
+]
+
+
 def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSelection:
     platform_info = detect_platform()
     wanted_balanced = config.defaults.balanced_review_model
@@ -105,10 +121,180 @@ def is_multimodal_model(model_name: str) -> bool:
     return "vl" in lowered or "vision" in lowered
 
 
+def is_chat_model(model_name: str) -> bool:
+    return not is_embedding_model(model_name) and not is_multimodal_model(model_name)
+
+
 def split_chat_and_embedding_models(installed: list[str]) -> tuple[list[str], list[str]]:
     embedding = [m for m in installed if is_embedding_model(m)]
     chat = [m for m in installed if m not in embedding]
     return sorted(chat), sorted(embedding)
+
+
+def normalize_deep_run_routing_mode(mode: str | None) -> str:
+    normalized = (mode or "default").strip().lower().replace("-", "_")
+    if normalized not in {"default", "max_quality"}:
+        return "default"
+    return normalized
+
+
+def _pick_text_chat_model(
+    installed_chat: list[str],
+    *candidate_lists: list[str] | tuple[str, ...],
+    fallback: str | None = None,
+) -> str:
+    pool = [m for m in installed_chat if is_chat_model(m)]
+    for candidates in candidate_lists:
+        for model in candidates:
+            if model and model in pool:
+                return model
+    if fallback and fallback in pool:
+        return fallback
+    if pool:
+        return pool[0]
+    raise ValueError("No chat models available for deep-run routing.")
+
+
+def select_deep_run_stage_models(
+    installed_chat: list[str],
+    config: ReviewerConfig,
+    mode: str | None = None,
+) -> dict[str, str]:
+    routing_mode = normalize_deep_run_routing_mode(mode or config.deep_run_routing.mode)
+    chat_pool = [m for m in installed_chat if is_chat_model(m)]
+    roles = infer_model_roles(chat_pool, config)
+    platform_info = detect_platform()
+
+    structural_candidates = [
+        "phi4-mini:latest",
+        "qwen3:4b",
+        "qwen3:8b",
+        roles.balanced_model,
+        roles.deep_model,
+    ]
+    repair_candidates = [
+        *roles.repair_candidates,
+        config.defaults.balanced_review_model,
+        roles.balanced_model,
+        roles.deep_model,
+    ]
+    default_synth_candidates = [
+        "mistral-small3.2:latest",
+        config.defaults.balanced_review_model,
+        roles.balanced_model,
+        "gemma3:27b",
+        "mistral-small3.1:24b",
+        "phi4-reasoning:latest",
+        roles.deep_model,
+    ]
+    critique_candidates = [
+        "llama3.3:70b-instruct-q4_K_M",
+        config.defaults.deep_review_model,
+        roles.deep_model,
+        "phi4-reasoning:latest",
+        "gemma3:27b",
+        "mistral-small3.1:24b",
+        roles.balanced_model,
+    ]
+    max_quality_reasoning_candidates = [
+        config.defaults.deep_review_model,
+        roles.deep_model,
+        "llama3.3:70b-instruct-q4_K_M",
+        "qwen3:32b",
+        "gemma3:27b",
+        "mistral-small3.1:24b",
+        "phi4-reasoning:latest",
+        roles.balanced_model,
+    ]
+    max_quality_digest_candidates = [
+        "gemma3:27b",
+        "mistral-small3.1:24b",
+        config.defaults.balanced_review_model,
+        roles.balanced_model,
+        "mistral-small3.2:latest",
+        "phi4-reasoning:latest",
+        roles.deep_model,
+    ]
+    max_quality_editor_candidates = [
+        "gemma3:27b",
+        "mistral-small3.1:24b",
+        config.defaults.balanced_review_model,
+        roles.balanced_model,
+        "mistral-small3.2:latest",
+        "phi4-reasoning:latest",
+        roles.deep_model,
+    ]
+    if platform_info.is_mac_arm:
+        max_quality_reasoning_candidates = [
+            config.defaults.deep_review_model,
+            roles.deep_model,
+            "llama3.3:70b-instruct-q4_K_M",
+            "qwen3:14b",
+            "gemma3:27b",
+            "mistral-small3.1:24b",
+            "phi4-reasoning:latest",
+            roles.balanced_model,
+        ]
+        max_quality_digest_candidates = [
+            "gemma3:27b",
+            "qwen3:14b",
+            "mistral-small3.1:24b",
+            config.defaults.balanced_review_model,
+            roles.balanced_model,
+            "mistral-small3.2:latest",
+            "phi4-reasoning:latest",
+        ]
+        max_quality_editor_candidates = [
+            "gemma3:27b",
+            "qwen3:14b",
+            "mistral-small3.1:24b",
+            config.defaults.balanced_review_model,
+            roles.balanced_model,
+            "mistral-small3.2:latest",
+            "phi4-reasoning:latest",
+        ]
+
+    structural = _pick_text_chat_model(chat_pool, structural_candidates)
+    critique = _pick_text_chat_model(chat_pool, critique_candidates, default_synth_candidates)
+    default_synth = _pick_text_chat_model(chat_pool, default_synth_candidates, critique_candidates)
+    repair = _pick_text_chat_model(chat_pool, repair_candidates, default_synth_candidates)
+
+    if routing_mode == "max_quality":
+        reasoning = _pick_text_chat_model(chat_pool, max_quality_reasoning_candidates, critique_candidates)
+        digest = _pick_text_chat_model(chat_pool, max_quality_digest_candidates, default_synth_candidates)
+        editor = _pick_text_chat_model(chat_pool, max_quality_editor_candidates, default_synth_candidates)
+        reconciliation = _pick_text_chat_model(chat_pool, max_quality_editor_candidates, max_quality_digest_candidates, [reasoning])
+        final_arbitration = _pick_text_chat_model(chat_pool, max_quality_reasoning_candidates, critique_candidates)
+        return {
+            "structural_triage": structural,
+            "supporting_digest": digest,
+            "manuscript_digest": digest,
+            "evidence_linking": digest,
+            "context_synthesis": digest,
+            "high_level_review": reasoning,
+            "adversarial_review": reasoning,
+            "methods_verification": reasoning,
+            "line_edits": editor,
+            "style_alignment": editor,
+            "reconciliation": reconciliation,
+            "final_arbitration": final_arbitration,
+        }
+
+    arbitration = _pick_text_chat_model(chat_pool, critique_candidates, [critique])
+    return {
+        "structural_triage": structural,
+        "supporting_digest": default_synth,
+        "manuscript_digest": default_synth,
+        "evidence_linking": default_synth,
+        "context_synthesis": default_synth,
+        "high_level_review": critique,
+        "adversarial_review": critique,
+        "methods_verification": critique,
+        "line_edits": default_synth,
+        "style_alignment": default_synth,
+        "reconciliation": repair,
+        "final_arbitration": arbitration,
+    }
 
 
 def model_capability(model_name: str) -> ModelCapability:

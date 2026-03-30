@@ -1,70 +1,63 @@
-# Projects, Evaluation Sweeps, and Slack Readiness
+# Projects, Evaluations, and Slack Readiness
 
 ## Project Model
 
-AI-Reviewer uses a project-first model:
-- project metadata and defaults
-- material inventory
-- run history
-- evaluation history
-
-Project storage:
+AI-Reviewer is project-first.
 
 ```text
 projects/<project_id>/
   project.json
-  materials/<material_id>/
-    <source file>
-    metadata.json
+  materials/
+    manuscript/
+    other/
+    managed/
   runs/
   evaluations/
+  audits/
   notes/
   cache/
 ```
 
+Meaning:
+- `materials/manuscript` is the primary review lane
+- `materials/other` is supporting context only
+- `materials/managed` stores normalized managed inputs such as native DOCX sources
+
 ## Project Workflow
 
-1. Create/select a project.
-2. Add materials with categories.
-3. Run review/compare/evaluation commands.
-4. Inspect run history and baseline markers.
-5. Re-run prior settings for tuning.
+1. create/select project
+2. add manuscript and supporting materials
+3. run `review` or `deep-run`
+4. inspect run history and artifacts
+5. rerun or benchmark as needed
 
 Useful commands:
 
-```bash
+```powershell
 ai-reviewer project create "Name"
-ai-reviewer project add-material draft.tex --project <id> --category manuscript_draft
 ai-reviewer review --project <id>
+ai-reviewer deep-run --project <id>
 ai-reviewer project runs --project <id>
 ai-reviewer project rerun <run_id> --project <id>
 ```
 
-## Published Paper Evaluation Sweep
+## Evaluation Sweep
 
-`ai-reviewer evaluate-paper` runs a multi-profile bundle for meta-analysis and later prompt/model tuning.
+`evaluate-paper` runs multiple review profiles for comparison and tuning.
 
-Output packet includes:
+Outputs include:
 - per-profile workflow bundles
 - aggregate summary
 - disagreement analysis
 - action-item aggregation
-- model/profile metadata
 
 ## Slack Readiness
 
-Current Slack support is an adapter boundary and local simulation path:
-- schemas: `ai_reviewer/slack/models.py`
-- mapping + serialization: `ai_reviewer/slack/adapter.py`
-- CLI simulation: `ai-reviewer slack-dev simulate`
+Slack support remains an adapter/simulation boundary, not a production requirement.
 
-Simulated route:
-1. Parse Slack-like command text.
-2. Map to internal workflow request.
-3. Create/select project.
-4. Ingest submitted file as project material.
-5. Execute workflow.
-6. Persist result summary payload for return.
+Current path:
+- schemas in `ai_reviewer/slack/models.py`
+- adapter logic in `ai_reviewer/slack/adapter.py`
+- local simulation via `ai-reviewer slack-dev simulate`
 
-This is intentionally isolated and optional, so Slack is not required for core local usage.
-
+This path is isolated from the core local manuscript workflow.

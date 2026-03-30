@@ -206,6 +206,63 @@ def _sanitize_query_text(text: str, max_chars: int = 220) -> str:
     return cleaned[:max_chars]
 
 
+def _title_overlap_score(reference: str, title: str | None) -> float:
+    ref_tokens = _normalized_title_tokens(reference)
+    title_tokens = _normalized_title_tokens(title or "")
+    if not ref_tokens or not title_tokens:
+        return 0.0
+    return len(ref_tokens & title_tokens) / float(len(ref_tokens | title_tokens))
+
+
+def _query_types_from_attempts(attempts: list[dict]) -> list[str]:
+    query_types: list[str] = []
+    for attempt in attempts:
+        for audit in attempt.get("query_audit", []) or []:
+            qtype = str(audit.get("type", "")).strip()
+            if qtype and qtype not in query_types:
+                query_types.append(qtype)
+    return query_types
+
+
+def _verification_labels_for_citation_entry(entry: dict) -> list[str]:
+    labels: list[str] = []
+    status = str(entry.get("status", "")).lower()
+    doi = str(entry.get("doi", "") or "").strip()
+    title = str(entry.get("title", "") or "").strip()
+    query_types = _query_types_from_attempts(entry.get("method_attempts", []))
+    overlap = _title_overlap_score(str(entry.get("reference", "") or ""), title)
+
+    if doi or status.startswith("downloaded:") or status.startswith("already_present"):
+        labels.append("citation_exists")
+    if doi or overlap >= 0.45 or status in {"already_present_by_local_match", "already_present_by_cache"}:
+        labels.append("metadata_match_likely")
+    if query_types:
+        labels.append("external_metadata_check_only")
+    else:
+        labels.append("needs_human_verification")
+    if "citation_exists" in labels:
+        labels.append("support_relationship_not_verified")
+    if "citation_exists" not in labels and "needs_human_verification" not in labels:
+        labels.append("needs_human_verification")
+    seen: list[str] = []
+    for label in labels:
+        if label not in seen:
+            seen.append(label)
+    return seen
+
+
+def _verification_summary_for_citation_entry(entry: dict) -> dict:
+    labels = _verification_labels_for_citation_entry(entry)
+    return {
+        "labels": labels,
+        "citation_exists": "citation_exists" in labels,
+        "metadata_match_likely": "metadata_match_likely" in labels,
+        "support_relationship": "not_verified",
+        "verification_scope": "external_metadata_check_only" if "external_metadata_check_only" in labels else "needs_human_verification",
+        "needs_human_verification": "needs_human_verification" in labels or "support_relationship_not_verified" in labels,
+    }
+
+
 def _download_pdf(url: str, dest: Path, timeout: int) -> str:
     r = _requests_get(url, timeout, accept_pdf=True)
     if not r:
@@ -515,6 +572,8 @@ def fetch_citations_for_documents(
                     total_cache_hits += 1
                     break
                 entry["status"] = result.status
+            entry["reference_normalized"] = _sanitize_query_text(ref, max_chars=240)
+            entry["verification"] = _verification_summary_for_citation_entry(entry)
             entries.append(entry)
     _save_doi_cache(other_dir, doi_cache)
 
@@ -538,8 +597,18 @@ def fetch_citations_for_documents(
         "doi_cache_entries": len(doi_cache),
         "query_policy": {
             "no_manuscript_raw_text": True,
+            "no_long_manuscript_excerpts": True,
+            "no_support_paper_full_text": True,
             "allowed_query_types": ["doi_lookup", "crossref_title_lookup", "crossref_short_title_lookup", "local_pdf_title_match"],
             "query_sanitization": "whitespace normalized, symbol filtering, max length 220",
+            "query_logging": "query type and length only",
+        },
+        "verification_policy": {
+            "citation_exists": "A DOI or likely citation target was found or reused.",
+            "metadata_match_likely": "Reference string and resolved metadata are likely aligned based on DOI or title overlap.",
+            "support_relationship_not_verified": "Citation retrieval does not prove the manuscript claim is supported by the cited work.",
+            "external_metadata_check_only": "Only external metadata/retrieval checks were performed.",
+            "needs_human_verification": "Manual verification is still required before treating the claim as verified.",
         },
         "entries": report.entries,
     }

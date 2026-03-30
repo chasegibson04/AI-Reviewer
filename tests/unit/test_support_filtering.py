@@ -30,7 +30,7 @@ def test_filter_support_docs_blocks_irrelevant_markers_and_low_overlap(tmp_path:
     low_overlap = _doc(tmp_path / "irrelevant.pdf", "Protein fold recognition benchmark and image segmentation report.")
     blocked_name = _doc(tmp_path / "BioGPT_notes.pdf", "Some overlapping words phactor reaction arrays.")
 
-    selected, skipped = _filter_support_docs_for_grounding(manuscript, [good, low_overlap, blocked_name])
+    selected, skipped, _selected_audit = _filter_support_docs_for_grounding(manuscript, [good, low_overlap, blocked_name])
     selected_names = [d.source_path.name for d in selected]
     skipped_names = [s["source"] for s in skipped]
 

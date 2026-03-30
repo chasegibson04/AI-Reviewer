@@ -11,7 +11,9 @@ from ai_reviewer.tools.docx_tools import (
     create_commented_docx_copy,
     create_suggested_changes_docx,
     inspect_docx_annotation_state,
+    normalize_review_artifact_text,
     parse_docx_structured,
+    validate_commented_docx,
     validate_suggested_changes_docx,
 )
 
@@ -143,6 +145,7 @@ def test_docx_annotation_state_detects_existing_comments_and_suggested_blocks(tm
     assert state["existing_comments_count"] >= 1
     assert state["existing_suggested_change_blocks"] >= 1
     assert state["annotation_state"] in {"prior_ai_reviewer_annotated_docx", "mixed_annotated_docx"}
+    assert state["existing_non_ai_comment_count"] >= 1
 
     parsed = parse_docx_structured(source)
     assert parsed["annotation_state"]["existing_comments_count"] >= 1
@@ -188,7 +191,11 @@ def test_preannotated_docx_review_adds_new_comments_and_preserves_existing(tmp_p
     assert out["existing_comments_after"] > out["existing_comments_before"]
     assert out["validation"]["existing_comments_preserved"] is True
     assert out["validation"]["new_comments_added_count"] >= 1
+    assert out["validation"]["new_ai_reviewer_comments_added_count"] >= 1
     assert out["validation"]["silent_noop_suspected"] is False
+    assert out["validation"]["meaningful_new_review_state"] is True
+    assert out["preannotated_docx_policy"]["preserve_existing_comments"] is True
+    assert out["preannotated_docx_policy"]["layer_new_comments_on_top"] is True
 
 
 def test_followup_suggested_changes_append_marker_on_preannotated_docx(tmp_path: Path):
@@ -215,3 +222,121 @@ def test_followup_suggested_changes_append_marker_on_preannotated_docx(tmp_path:
     validation = validate_suggested_changes_docx(source, out)
     assert validation["new_suggested_change_blocks_added"] >= 1
     assert result["follow_up_changes_applied"] == 1
+    assert validation["meaningful_new_review_state"] is True
+
+
+def test_noop_regression_detected_for_preannotated_docx_with_no_new_comments(tmp_path: Path):
+    source = tmp_path / "annotated.docx"
+    d = Document()
+    d.add_heading("Introduction", level=1)
+    d.add_paragraph("This paragraph already has a reviewer note.")
+    _add_existing_comment(d, 1, "Existing editor note.")
+    d.save(str(source))
+
+    reviewed = tmp_path / "reviewed.docx"
+    reloaded = Document(str(source))
+    reloaded.save(str(reviewed))
+    validation = validate_commented_docx(source, reviewed)
+    assert validation["input_preannotated"] is True
+    assert validation["new_ai_reviewer_comments_added_count"] == 0
+    assert validation["silent_noop_suspected"] is True
+    assert validation["meaningful_new_review_state"] is False
+
+
+def test_source_mode_detects_prior_ai_reviewer_suggested_docx(tmp_path: Path):
+    source = tmp_path / "prior_ai.docx"
+    d = Document()
+    d.add_heading("Results", level=1)
+    d.add_paragraph("This result is broad.\n[Suggested change] This result is limited to the tested case.")
+    d.save(str(source))
+    detected = detect_source_mode(source)
+    assert detected["mode"] == "original_docx"
+    assert detected["annotation_state"] == "prior_ai_reviewer_annotated_docx"
+
+
+def test_normalize_review_artifact_text_removes_visible_suggested_blocks_only():
+    raw = "Sentence one.\n[Suggested change] Tighten sentence one.\n[Suggested change - follow-up] Narrow the claim.\nSentence two."
+    normalized = normalize_review_artifact_text(raw)
+    assert "[Suggested change]" not in normalized
+    assert "[Suggested change - follow-up]" not in normalized
+    assert "Sentence one." in normalized
+    assert "Sentence two." in normalized
+
+
+def test_re_review_of_prior_suggested_docx_adds_followup_block_without_breaking(tmp_path: Path):
+    source = tmp_path / "prior_suggested.docx"
+    d = Document()
+    d.add_heading("Discussion", level=1)
+    d.add_paragraph(
+        "This interpretation clearly demonstrates broad applicability across the reaction space.\n"
+        "[Suggested change] This interpretation is limited to the tested examples."
+    )
+    d.save(str(source))
+    parsed = parse_file(source)
+
+    class _Item:
+        def __init__(self, action: str, priority: str = "medium"):
+            self.action = action
+            self.priority = priority
+
+    class _Sec:
+        def __init__(self, section: str, comment: str, severity: str = "medium"):
+            self.section = section
+            self.comment = comment
+            self.severity = severity
+
+    class _R:
+        section_specific_comments = [_Sec("Discussion", "Keep the interpretation tied to the tested evidence.")]
+        extracted_action_items = [_Item("Tighten the interpretation sentence and keep the evidence boundary explicit.")]
+        detailed_reviewer_comments = []
+        methodological_concerns = []
+        novelty_concerns = []
+        citation_reference_concerns = []
+        writing_organization_concerns = []
+        figure_table_concerns = []
+        major_weaknesses = []
+
+    out = build_annotated_manuscript_output(source, parsed, _R(), tmp_path, run_id="reround")
+    assert out["source_mode"]["annotation_state"] == "prior_ai_reviewer_annotated_docx"
+    assert out["validation"]["meaningful_new_review_state"] is True
+    assert out["suggested_changes_validation"]["meaningful_new_review_state"] is True
+    reopened = Document(out["suggested_changes_docx"])
+    assert FOLLOWUP_SUGGESTED_CHANGE_MARKER in reopened.paragraphs[1].text
+
+
+def test_pre_suggested_docx_without_safe_new_rewrite_is_flagged_as_noop_risk(tmp_path: Path):
+    source = tmp_path / "prior_suggested_short.docx"
+    d = Document()
+    d.add_heading("Discussion", level=1)
+    d.add_paragraph("This interpretation is broad.\n[Suggested change] This interpretation is limited to the tested examples.")
+    d.save(str(source))
+    parsed = parse_file(source)
+
+    class _Item:
+        def __init__(self, action: str, priority: str = "medium"):
+            self.action = action
+            self.priority = priority
+
+    class _Sec:
+        def __init__(self, section: str, comment: str, severity: str = "medium"):
+            self.section = section
+            self.comment = comment
+            self.severity = severity
+
+    class _R:
+        section_specific_comments = [_Sec("Discussion", "Keep the interpretation tied to the tested evidence.")]
+        extracted_action_items = [_Item("Tighten the interpretation sentence and keep the evidence boundary explicit.")]
+        detailed_reviewer_comments = []
+        methodological_concerns = []
+        novelty_concerns = []
+        citation_reference_concerns = []
+        writing_organization_concerns = []
+        figure_table_concerns = []
+        major_weaknesses = []
+
+    out = build_annotated_manuscript_output(source, parsed, _R(), tmp_path, run_id="reround_short")
+    assert out["source_mode"]["annotation_state"] == "prior_ai_reviewer_annotated_docx"
+    assert out["validation"]["meaningful_new_review_state"] is True
+    assert out["suggested_changes_validation"]["input_preannotated"] is True
+    assert out["suggested_changes_validation"]["silent_noop_suspected"] is True
+    assert out["suggested_changes_validation"]["meaningful_new_review_state"] is False

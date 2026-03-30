@@ -108,6 +108,11 @@ class CitationFetchConfig:
 
 
 @dataclass
+class DeepRunRoutingConfig:
+    mode: str = "default"
+
+
+@dataclass
 class Defaults:
     balanced_review_model: str = "mistral-small3.2:latest"
     deep_review_model: str = "phi4-reasoning:latest"
@@ -137,6 +142,7 @@ class ReviewerConfig:
     concurrency: ConcurrencyConfig = field(default_factory=ConcurrencyConfig)
     figure_review: FigureReviewConfig = field(default_factory=FigureReviewConfig)
     citation_fetch: CitationFetchConfig = field(default_factory=CitationFetchConfig)
+    deep_run_routing: DeepRunRoutingConfig = field(default_factory=DeepRunRoutingConfig)
 
 
 DEFAULT_CONFIG = ReviewerConfig()
@@ -170,6 +176,7 @@ def _from_dict(raw: dict[str, Any]) -> ReviewerConfig:
         concurrency=ConcurrencyConfig(**merged.get("concurrency", {})),
         figure_review=FigureReviewConfig(**merged.get("figure_review", {})),
         citation_fetch=CitationFetchConfig(**merged.get("citation_fetch", {})),
+        deep_run_routing=DeepRunRoutingConfig(**merged.get("deep_run_routing", {})),
     )
 
 
@@ -238,6 +245,7 @@ def _env_overrides() -> dict[str, Any]:
         ("AI_REVIEWER_CITATION_FETCH_MAX_PAPERS", ("citation_fetch", "max_papers"), int),
         ("AI_REVIEWER_CITATION_FETCH_MAX_REFS", ("citation_fetch", "max_refs_per_doc"), int),
         ("AI_REVIEWER_CITATION_FETCH_TIMEOUT", ("citation_fetch", "request_timeout_seconds"), int),
+        ("AI_REVIEWER_DEEP_RUN_ROUTING_MODE", ("deep_run_routing", "mode"), str),
         (
             "AI_REVIEWER_CITATION_FETCH_METHODS",
             ("citation_fetch", "methods"),
@@ -347,6 +355,9 @@ def write_example_local_config(path: Path) -> None:
             "max_refs_per_doc": 500,
             "request_timeout_seconds": 20,
             "methods": ["doi_open_access_apis", "crossref_lookup_then_oa"],
+        },
+        "deep_run_routing": {
+            "mode": "default",
         },
     }
     path.parent.mkdir(parents=True, exist_ok=True)

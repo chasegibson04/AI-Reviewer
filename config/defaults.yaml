@@ -75,3 +75,6 @@ citation_fetch:
   methods:
     - doi_open_access_apis
     - crossref_lookup_then_oa
+
+deep_run_routing:
+  mode: default

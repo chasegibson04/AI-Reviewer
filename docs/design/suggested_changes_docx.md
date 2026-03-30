@@ -1,41 +1,41 @@
 # Suggested Changes DOCX Pipeline
 
 ## Goal
-Generate a second, separate DOCX containing proposed edits derived from review comments and manuscript context. The commented DOCX remains unchanged; the suggested-changes DOCX applies vetted local edits.
 
-## Pipeline
-1. Generate commented DOCX and comment manifest (existing).
-2. Group comments by paragraph index and section.
-3. Skip blocked sections (front matter, references, header/footer) and too-short paragraphs.
-4. Apply section-aware rules to decide eligibility (e.g., abstract high-threshold).
-5. For each eligible paragraph, call the local chat model to propose a revised paragraph using:
-   - original paragraph
-   - adjacent context (prev/next)
-   - comment critique + suggested revision
-   - section-specific editing rules
-6. Parse JSON response and apply only safe edits.
-7. Write suggested-changes DOCX.
-8. Emit manifest + validation artifacts.
+Generate a separate manuscript DOCX that layers proposed local edits on top of the source manuscript while keeping the commented manuscript output separate.
+
+## Current Pipeline
+
+1. Generate or load the base manuscript DOCX.
+2. Build localized comment targets from the review output.
+3. Group rewrite work by local span and section.
+4. Skip blocked sections such as front matter, references, and unsafe heading-only targets.
+5. Generate candidate span-level rewrites using local context plus the triggering comment.
+6. Verify candidate rewrites for:
+   - faithfulness
+   - unsupported additions
+   - awkward or mechanical prose
+   - truncation / malformed local spans
+7. If the model rewrite fails, try a bounded deterministic local fallback only when the span is safe.
+8. If no safe local rewrite exists, abstain and record `skip_reason`.
+9. Write the suggested-changes DOCX and validation/manifests.
 
 ## Outputs
+
 - `*_with_suggested_changes.docx`
 - `manuscript_suggested_changes_manifest.json`
 - `suggested_changes_validation.json`
 
-## Conflict/Dedup Strategy
-- Group by paragraph; merge comment signals.
-- If a paragraph has multiple comments, the prompt combines them.
-- Global/structural comments are marked `skipped` when no safe local edit exists.
-
-## Safety Rules
-- Do not edit front matter/references by default.
-- Preserve meaning and avoid new claims.
-- Skip if model output is empty or unchanged.
-
 ## Traceability
-Each manifest entry records:
-- change id
-- paragraph index
-- original/revised excerpts
-- comment ids and issue types
-- status (applied/skipped) with reason
+
+Manifest entries now record span-faithful provenance such as:
+- target section
+- target span
+- issue groups
+- rewrite strategy
+- verification outcome
+- applied vs skipped state
+
+## Current Product Limitation
+
+The output format is still visible suggestion-block markup, not native Word track changes.

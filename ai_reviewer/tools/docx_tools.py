@@ -65,6 +65,7 @@ def inspect_docx_annotation_state(path: Path) -> dict:
             continue
     ai_reviewer_comment_count = sum(1 for author in comment_authors if "ai-reviewer" in author.lower())
     ai_reviewer_comment_count += sum(1 for text in comment_texts if "issue:" in text.lower() and "suggested revision:" in text.lower())
+    non_ai_comment_count = max(0, len(comment_texts) - ai_reviewer_comment_count) if comment_texts else max(0, len(comments) - ai_reviewer_comment_count)
 
     track_changes = {"insertions": 0, "deletions": 0, "moves": 0}
     comments_xml_present = False
@@ -119,6 +120,7 @@ def inspect_docx_annotation_state(path: Path) -> dict:
         "existing_comment_authors": sorted({a for a in comment_authors if a})[:50],
         "existing_comment_excerpts": [text[:200] for text in comment_texts[:10]],
         "existing_ai_reviewer_comment_count": ai_reviewer_comment_count,
+        "existing_non_ai_comment_count": non_ai_comment_count,
         "existing_suggested_change_blocks": visible_suggested_blocks,
         "tracked_change_elements": track_changes,
         "tracked_change_total": track_change_count,
@@ -311,6 +313,11 @@ def validate_commented_docx(base_docx: Path, reviewed_docx: Path) -> dict:
             comment_ranges = len(re.findall(r"<w:commentRangeStart\b", xml))
     except Exception:
         comment_ranges = 0
+    input_preannotated = before_state.get("annotation_state") != "clean_native_docx"
+    new_ai_comments_added = max(
+        0,
+        int(after_state.get("existing_ai_reviewer_comment_count", 0)) - int(before_state.get("existing_ai_reviewer_comment_count", 0)),
+    )
     return {
         "base_docx": str(base_docx),
         "reviewed_docx": str(reviewed_docx),
@@ -324,10 +331,12 @@ def validate_commented_docx(base_docx: Path, reviewed_docx: Path) -> dict:
             0,
             int(after_state.get("existing_comments_count", 0)) - int(before_state.get("existing_comments_count", 0)),
         ),
+        "new_ai_reviewer_comments_added_count": new_ai_comments_added,
         "existing_comments_preserved": int(after_state.get("existing_comments_count", 0))
         >= int(before_state.get("existing_comments_count", 0)),
-        "silent_noop_suspected": before_state.get("existing_comments_count", 0) > 0
-        and int(after_state.get("existing_comments_count", 0)) == int(before_state.get("existing_comments_count", 0)),
+        "input_preannotated": input_preannotated,
+        "silent_noop_suspected": input_preannotated and new_ai_comments_added == 0,
+        "meaningful_new_review_state": new_ai_comments_added > 0,
     }
 
 
@@ -382,6 +391,11 @@ def validate_suggested_changes_docx(base_docx: Path, suggested_docx: Path) -> di
     suggested_paragraphs = [p.text for p in suggested.paragraphs]
     before_state = inspect_docx_annotation_state(base_docx)
     after_state = inspect_docx_annotation_state(suggested_docx)
+    input_preannotated = before_state.get("annotation_state") != "clean_native_docx"
+    new_blocks_added = max(
+        0,
+        int(after_state.get("existing_suggested_change_blocks", 0)) - int(before_state.get("existing_suggested_change_blocks", 0)),
+    )
     return {
         "base_docx": str(base_docx),
         "suggested_docx": str(suggested_docx),
@@ -391,10 +405,8 @@ def validate_suggested_changes_docx(base_docx: Path, suggested_docx: Path) -> di
         "docx_opens": True,
         "input_annotation_state": before_state,
         "output_annotation_state": after_state,
-        "new_suggested_change_blocks_added": max(
-            0,
-            int(after_state.get("existing_suggested_change_blocks", 0)) - int(before_state.get("existing_suggested_change_blocks", 0)),
-        ),
-        "silent_noop_suspected": before_state.get("existing_suggested_change_blocks", 0) > 0
-        and int(after_state.get("existing_suggested_change_blocks", 0)) == int(before_state.get("existing_suggested_change_blocks", 0)),
+        "new_suggested_change_blocks_added": new_blocks_added,
+        "input_preannotated": input_preannotated,
+        "silent_noop_suspected": input_preannotated and new_blocks_added == 0,
+        "meaningful_new_review_state": new_blocks_added > 0,
     }

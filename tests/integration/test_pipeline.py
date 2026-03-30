@@ -116,3 +116,75 @@ def test_figure_review_concerns_are_aggregated(tmp_path: Path, monkeypatch):
     concerns = result.review.figure_table_concerns
     assert any("lacked reliable caption text" in c.lower() for c in concerns)
     assert any("figure_003" in c.lower() for c in concerns)
+
+
+def test_support_filtering_and_internal_consistency_artifacts_are_written(tmp_path: Path):
+    manuscript = tmp_path / "paper.md"
+    manuscript.write_text(
+        "# Title\n\nAbstract\nThis method clearly demonstrates effectiveness for all cases.\n\nResults\nThe body discusses a tested subset only.\n\nDiscussion\nThis work suggests broader use.\n",
+        encoding="utf-8",
+    )
+    support_good = tmp_path / "support_good.md"
+    support_good.write_text("# Support\n\nThis tested subset and method are discussed in related context.", encoding="utf-8")
+    support_bad = tmp_path / "support_bad.md"
+    support_bad.write_text("# Support\n\nMarine biology dataset for unrelated crabs.", encoding="utf-8")
+
+    doc = parse_file(manuscript)
+    support_docs = [parse_file(support_good), parse_file(support_bad)]
+    cfg = load_config()
+    bundle = tmp_path / "bundle_verify"
+    bundle.mkdir()
+
+    run_review(
+        provider=StubProvider(),
+        doc=doc,
+        profile=get_profile("balanced"),
+        model="gemma3:27b",
+        repair_models=["mistral-small3.1:24b"],
+        config=cfg,
+        bundle_dir=bundle,
+        embedding_model="mxbai-embed-large:latest",
+        strict_schema_override=True,
+        logger=logging.getLogger("test"),
+        supporting_docs=support_docs,
+    )
+
+    support_payload = __import__("json").loads((bundle / "support_material_filtering.json").read_text(encoding="utf-8"))
+    assert support_payload["verification_scope"] == "internal_consistency_check_only"
+    assert any(item["verification"]["labels"][0] == "support_relationship_plausible" for item in support_payload["selected"])
+    assert any(item["reason"] == "low_overlap" for item in support_payload["skipped"])
+
+    consistency = __import__("json").loads((bundle / "internal_consistency_checks.json").read_text(encoding="utf-8"))
+    assert consistency["verification_scope"] == "internal_consistency_check_only"
+    assert consistency["finding_count"] >= 1
+
+
+def test_support_filtering_blocks_manuscript_like_duplicate(tmp_path: Path):
+    manuscript = tmp_path / "paper.md"
+    manuscript.write_text("# Title\n\nResults\nThis manuscript text is reused for comparison.", encoding="utf-8")
+    support_dup = tmp_path / "support_dup.md"
+    support_dup.write_text("# Title\n\nResults\nThis manuscript text is reused for comparison.", encoding="utf-8")
+
+    doc = parse_file(manuscript)
+    support_docs = [parse_file(support_dup)]
+    cfg = load_config()
+    bundle = tmp_path / "bundle_dup"
+    bundle.mkdir()
+
+    run_review(
+        provider=StubProvider(),
+        doc=doc,
+        profile=get_profile("balanced"),
+        model="gemma3:27b",
+        repair_models=["mistral-small3.1:24b"],
+        config=cfg,
+        bundle_dir=bundle,
+        embedding_model="mxbai-embed-large:latest",
+        strict_schema_override=True,
+        logger=logging.getLogger("test"),
+        supporting_docs=support_docs,
+    )
+
+    support_payload = __import__("json").loads((bundle / "support_material_filtering.json").read_text(encoding="utf-8"))
+    assert support_payload["selected"] == []
+    assert any(item["reason"] == "manuscript_like_duplicate" for item in support_payload["skipped"])

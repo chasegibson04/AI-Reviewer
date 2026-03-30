@@ -1,258 +1,186 @@
-# AI-Reviewer Workflow Mechanics (Exact Runtime Behavior)
+# AI-Reviewer Workflow Mechanics
 
-This is the precise runtime behavior for each major workflow in the current codebase.
-It documents model selection, context construction, rounds/passes, and fallback/repair behavior.
+This document describes the current runtime behavior that was validated during the staged rebuild.
 
-## 1) `launch` (guided interactive)
+## 1. Guided Launch
 
-`launch` is a guided wrapper that routes into existing commands:
+`launch` is a wrapper over existing commands:
 - `single-review` -> `review --project <id>`
-- `batch-review` -> `review --project <id> --material-ids <all indexed materials>`
+- `batch-review` -> `review --project <id> --material-ids <...>`
 - `deep-run` -> `deep-run --project <id>`
 - `compare-drafts` -> `compare`
 - `full-evaluation-sweep` -> `evaluate-paper`
 - `benchmark-models` -> `benchmark`
 - `diagnose` -> `diagnose`
 
-Before route:
-- syncs project manual folders (`materials/manuscript`, `materials/other`)
-- syncs global training cache (if enabled)
-- lists local Ollama models
+Before routing it:
+- syncs project folders
+- syncs training-material cache when enabled
+- detects local Ollama models
 
-## 2) `review` (single/batch review engine)
+## 2. `review`
 
-## Input targeting rules
+### Targeting
 
-- `review <input_path>`: parses input path (file/folder)
-- `review --project <id>`:
-  - default primary targets: all `manuscript_draft` materials
-- `materials/other` are parsed as **supporting context docs**
-  - low-relevance/blocked supporting docs are filtered before grounding to prevent contamination
-  - if no manuscript exists: graceful error with action message
-- `--material-ids`: explicit override of primary targets (can include non-manuscript)
+- `review <input_path>` parses the given file/folder directly
+- `review --project <id>` targets manuscript materials by default
+- `materials/other` are supporting docs only
+- support docs are filtered by overlap and blocked markers before grounding
 
-## Model selection
-
-- default balanced run model: `mistral-small3.2:latest`
-- deep reasoning default: `phi4-reasoning:latest`
-- optional final judge/arbitration: `llama3.3:70b-instruct-q4_K_M`
-- fast triage model family: `phi4-mini:latest`, `qwen3:4b`
-- embeddings default: `bge-m3:latest` (with `mxbai-embed-large:latest` supported)
-- embedding fallback model in config: `nomic-embed-text-v2-moe:latest`
-
-## Round/call counts per command
-
-Per command:
-- 1 preflight chat sanity ping (`{"ok":true}`) before processing docs
+### Main runtime steps
 
 Per primary document:
-- 1 main generation call (`/api/chat`) via `run_review`
-- plus repair attempts only if parsing/validation fails:
-  - local cleanup pass (no model call)
-  - optional model repair calls, one per candidate repair model
+1. parse source
+2. optional citation fetch stage
+3. optional retrieval build/use
+4. main review generation
+5. sparse-output enrichment when needed
+6. commented manuscript output
+7. suggested-revision output
+8. output verification
 
-Retrieval calls (if retrieval enabled for profile):
-- 1 embedding call for query
-- 1 embedding call per chunk in retrieval pool
-- adaptive downsizing on context overflow (same chunk retried with smaller text)
+### Source modes
 
-## Context used in prompt
+- PDF input -> `pdf_only_surrogate`
+- native DOCX input -> `original_docx`
 
-Primary review prompt context includes:
-- primary manuscript chunks (or retrieved top-k chunks)
-- parser warnings, headings, document metadata
-- global training guidance block (if enabled)
-- supporting docs summary blocks (from `materials/other`)
+For native DOCX input the system now records annotation state and validates whether a re-review added meaningful new review state.
 
-If retrieval is enabled:
-- retrieval pool includes chunks from:
-  - primary manuscript
-  - supporting docs (`materials/other`)
-- top-k retrieved chunks become final context block
+## 3. `deep-run`
 
-## 3) `deep-run` (multi-stage deep editorial/reviewer pipeline)
+`deep-run` is a bounded staged workflow.
 
-`deep-run` is not a single prompt; it executes staged passes with artifacts.
-Optional user context-pack materials can be supplied with:
-- `deep-run --context-material-ids <id1,id2,...>`
-- If omitted, deep-run auto-selects materials in categories:
-  - `style_guide`
-  - `journal_instructions`
-  - `reference_example`
-  - `methods_reference`
+### Stage families
 
-## Stage sequence
+1. sync, source detection, manifests
+2. manuscript/support ingest and filtering
+3. structural triage
+4. supporting digest
+5. manuscript digest
+6. evidence/context linking
+7. context synthesis
+8. high-level review
+9. hostile review
+10. methods verification
+11. line edits
+12. style alignment
+13. optional deterministic context-pack compliance check
+14. reconciliation
+15. bounded final arbitration
+16. manuscript comment + suggested-revision generation
+17. final report bundle + verification
 
-1. Stage 00 sync
-   - sync project inventory
-   - require manuscript presence
-   - sync/load training guidance
-   - write manifests (`deep_run_plan.json`, `context_manifest.json`, etc.)
+### Key artifacts
 
-2. Stage 01 ingest + normalization + source mode detection
-   - parse manuscript
-   - parse up to 10 supporting materials from `materials/other`
-   - filter low-overlap or blocked support files (for example unrelated benchmark artifacts)
-   - chunk manuscript with deep profile chunk settings
+- `deep_run_plan.json`
+- `stage_model_stack.json`
+- `context_pack_used.json`
+- `stage_10b_compliance_check.json`
+- `final_deep_review_report.{json,md,txt,docx}`
+- commented/suggested manuscript outputs and validation files
 
-3. Stage 02 context synthesis
-   - one strict JSON synthesis call:
-   - outputs: manuscript overview, section map, claims/methods/results/conclusions/risk areas
+### Routing modes
 
-4. Stage 03 high-level review
-   - `run_review` using `balanced` profile
+Configured in:
+- `config/defaults.yaml`
+- `deep_run_routing.mode`
+- `AI_REVIEWER_DEEP_RUN_ROUTING_MODE`
 
-5. Stage 04 hostile/adversarial review
-   - `run_review` using `adversarial` profile
+Supported values:
+- `default`
+- `max_quality`
 
-6. Stage 05 methods verification
-   - `run_review` using `methods` profile
+`default`:
+- keeps digest/editor stages on balanced-capable models
+- uses stronger critique models when available
+- keeps reconciliation on repair-capable models
 
-7. Stage 06 line-by-line/paragraph edits
-   - up to 12 chunk-level edit calls (one chat call per selected chunk)
+`max_quality`:
+- keeps structural triage cheap
+- moves digest/evidence/style stages onto stronger local models when available
+- keeps final arbitration on the strongest available critique model
+- is benchmarked, not assumed to be universally better
 
-8. Stage 07 style/lab-guidance alignment
-   - one strict JSON style alignment call
+### Important honesty point
 
-9. Stage 08 context-pack compliance check (deterministic)
-   - extracts constraints from context-pack materials
-   - writes:
-     - `context_pack_used.json`
-     - `context_pack_used.md`
-     - `stage_10b_compliance_check.json`
-     - `stage_10b_compliance_check.md`
-   - checks for:
-     - forbidden title words
-     - word-count limit
-     - required reporting items (if specified in context pack)
+Benchmark evidence showed:
+- max-quality routing improved style/edit surfacing
+- max-quality routing did not yet improve final reconciliation quality consistently
 
-10. Stage 09 reconciliation
-   - one strict JSON reconciliation call combining stage outputs
+## 4. Manuscript Annotation and Suggested Revisions
 
-11. Stage 10 manuscript annotation
-   - DOCX source mode: generate `reviewed_manuscript_with_comments.docx`
-   - PDF source mode: generate surrogate base DOCX + `surrogate_manuscript_from_pdf_with_comments.docx`
-   - validates real comment count + body text preservation
-   - generates a separate suggested-changes DOCX based on comments + context
-   - blocks speculative rewrite insertions (for example newly invented comparative-study claims) and falls back to safe local rewrites
-   - writes `manuscript_suggested_changes_manifest.json` + `suggested_changes_validation.json`
+Current behavior:
+- comments are localized to paragraphs/spans
+- comments are filtered for genericity/duplication
+- suggested revisions are span-faithful where possible
+- rewrites are verified for fluency, faithfulness, and unsupported additions
+- unsafe rewrites abstain instead of forcing bad local edits
 
-12. Final report synthesis
-   - writes final consolidated report JSON/MD/TXT/DOCX + run metadata
+DOCX behavior:
+- existing comments are preserved
+- visible prior suggestion blocks are preserved but removed from analysis text
+- follow-up suggested changes are appended when prior suggestion blocks already exist
 
-## Default model stack by stage
+Validation artifacts:
+- `manuscript_comment_manifest.json`
+- `commented_docx_validation.json`
+- `manuscript_suggested_changes_manifest.json`
+- `suggested_changes_validation.json`
 
-- structural triage: `phi4-mini:latest` (fallback `qwen3:4b`)
-- context/supporting/manuscript digestion: `mistral-small3.2:latest` (fallback configured balanced)
-- high-level/adversarial/methods verification: `phi4-reasoning:latest` (fallback configured deep)
-- reconciliation/repair: `qwen2.5:7b-instruct` / configured repair stack
-- optional arbitration model available: `llama3.3:70b-instruct-q4_K_M`
+## 5. Citation Fetch and Verification
 
-If preferred model missing:
-- fallback selects available configured alternatives; selection is recorded in artifacts.
+Citation fetch runs before `review` and `deep-run` when enabled and not blocked by strict offline mode.
 
-## Deep-run round/call counts (typical)
+Current configured method chain:
+- `doi_open_access_apis`
+- `crossref_lookup_then_oa`
+- `local_project_pdf_match`
+- `crossref_short_title_then_oa`
 
-Minimum chat calls:
-- stage2 (1) + stage3 (1) + stage4 (1) + stage5 (1) + stage7 (1) + stage8 (1) = 6
-- plus stage6 chunk edits: up to 12
-- typical total: 6 to 18 chat calls
+Safe-online query policy:
+- no raw manuscript text
+- no long manuscript excerpts
+- no support-paper full text
+- query logging records type and length only
 
-Plus retrieval/embedding calls inside stages 3/4/5 if retrieval active.
+Current verification labels distinguish retrieval from support:
+- `citation_exists`
+- `metadata_match_likely`
+- `support_relationship_not_verified`
+- `external_metadata_check_only`
+- `needs_human_verification`
 
-## Failure behavior
+## 6. Optional Layers
 
-- missing manuscript -> graceful `DeepRunError` message
-- stage failures -> warning + stage artifact with failure payload
-- reconciliation fallback still produces final report when possible
-- run status becomes `partial` if any stage status is not `ok`
+### Figure review
 
-## 4) `evaluate-paper` (published paper sweep)
+Current validated mode is text-only:
+- PDF image extraction
+- heuristic caption pairing
+- nearby-text critique
 
-Runs one anchor document through profile set:
-- quick
-- balanced
-- deep
-- adversarial
-- methods
-- writing
-- editor
+Validated result on the approved projects:
+- figure review added more caption-parsing noise than quality
+- keep OFF by default until a better multimodal path exists
 
-Per profile:
-- one `run_review` pipeline call (with repair as needed)
+### Context-pack / compliance
 
-Outputs:
-- per-profile workflow bundles under `workflows/`
-- `evaluation_packet.json`
-- `evaluation_summary.md`
-- disagreement summary (decision/confidence spread)
-- aggregated action items
+Current behavior:
+- optional context materials can add deterministic compliance constraints
+- findings are written to compliance artifacts and propagated into final weaknesses/actions
+- keep opt-in; do not let it replace normal manuscript review
 
-## 5) `compare`
+## 7. Failure and Fallback Behavior
 
-Behavior:
-- parse old and new drafts
-- compute heuristic section alignment and claim add/remove/change lists
-- one strict compare model call for revision summary output
-- writes compare JSON + Markdown report
+- missing manuscript -> explicit failure
+- stage errors -> warning + artifact when possible
+- reconciliation may still fall back to deterministic synthesis
+- final arbitration may be skipped if schema-incomplete
+- runs are verified after artifact generation
 
-## 6) `test-models`
+## 8. What Is Still Weak
 
-For each selected chat model:
-- one strict JSON generation call
-- records latency and whether output needed repair markers
-
-Optional embedding tests:
-- one embedding smoke call per detected embedding model
-
-## 7) `benchmark`
-
-Per model:
-- one benchmark review generation call (short + long fixtures in prompt)
-- `parse_and_repair` on generated output
-- additional `parse_and_repair` run against intentionally malformed fixture
-- emits structured pass, repair dependence, completeness score, recommendation tag
-
-## 8) Training materials context injection
-
-When enabled:
-- training cache syncs on startup (config-controlled)
-- compact guidance block is injected (max chars configurable; default 2200)
-- injection is profile-aware and logged
-
-This guidance is used by:
-- `review`
-- `deep-run`
-- `compare`
-- `evaluate-paper`
-
-## 9) Profile settings (exact configured values)
-
-From `ai_reviewer/review/profiles.py`:
-
-- `quick`: temp 0.1, retrieval off, strict on, force repair off
-- `balanced`: temp 0.2, retrieval on, strict on, force repair off
-- `deep`: temp 0.15, retrieval on, strict on, force repair on
-- `adversarial`: temp 0.2, retrieval on, strict on, force repair on
-- `methods`: temp 0.12, retrieval on, strict on, force repair on
-- `writing`: temp 0.25, retrieval off, strict on, force repair off
-- `editor`: temp 0.1, retrieval off, strict on, force repair off
-- `revision`: temp 0.15, retrieval on, strict on, force repair on
-- `citation`: temp 0.15, retrieval on, strict on, force repair on
-- `repro`: temp 0.15, retrieval on, strict on, force repair on
-
-`ensemble_count` and `reflection_count` are currently profile metadata fields for strategy intent and reporting.
-The active runtime executes one main generation pass per review invocation plus repair/fallback passes as required.
-
-## 10) Retry/timeout mechanics (exact defaults)
-
-From config/provider defaults:
-
-- chat timeout: 240s (deep-run internally bumps to at least 600s for stage calls)
-- embed timeout: 120s
-- chat attempts: 3
-- embed attempts: 2
-- backoff: linear base 1.0s * attempt
-
-Strict offline:
-- Ollama URL must be localhost/127.0.0.1 when strict offline is enabled.
+- balanced review memos can still read too generically
+- final deep synthesis still falls back too often because reconciliation/arbitration schema compliance is weak
+- suggested revisions are not native Word track changes
+- figure review is not yet a reliable quality booster
