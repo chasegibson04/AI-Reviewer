@@ -75,3 +75,72 @@ def test_project_store_backfills_missing_material_relative_path(tmp_path: Path):
 
     rewritten = json.loads(project_json.read_text(encoding="utf-8"))
     assert rewritten["materials"][0]["relative_path"] == f"materials/managed/{material.material_id}/{material.filename}"
+
+
+def test_project_store_backfills_missing_slug_and_original_path(tmp_path: Path):
+    store = ProjectStore(tmp_path / "projects")
+
+    # Create a legacy-style project.json directly
+    project_id = "legacy_proj"
+    project_dir = tmp_path / "projects" / project_id
+    project_dir.mkdir(parents=True)
+    (project_dir / "materials").mkdir()
+    (project_dir / "runs").mkdir()
+    (project_dir / "evaluations").mkdir()
+
+    legacy_data = {
+        "project_id": project_id,
+        "name": "Legacy Project Name",
+        # "slug": "legacy-project-name", # MISSING
+        "defaults": {
+            "review_model": "test-model",
+            "profile": "balanced"
+        },
+        "materials": [
+            {
+                "material_id": "mat1",
+                "filename": "test.pdf",
+                # "original_path": "/path/to/test.pdf", # MISSING
+                "category": "manuscript_draft"
+            }
+        ]
+    }
+
+    (project_dir / "project.json").write_text(json.dumps(legacy_data), encoding="utf-8")
+
+    # Should not crash and should repair
+    _, loaded = store.get_project(project_id)
+    assert loaded.slug == "legacy_project_name"
+    assert loaded.materials[0].original_path
+    assert "test.pdf" in loaded.materials[0].original_path
+
+    # Verify writeback occurred
+    rewritten = json.loads((project_dir / "project.json").read_text(encoding="utf-8"))
+    assert rewritten["slug"] == "legacy_project_name"
+    assert rewritten["materials"][0]["original_path"]
+
+
+def test_list_projects_skips_broken_metadata(tmp_path: Path):
+    store = ProjectStore(tmp_path / "projects")
+
+    # Create one valid project
+    store.create_project("Good Project", "", [], ProjectDefaults(review_model="m1"))
+
+    # Create one broken project (invalid JSON)
+    bad_dir = tmp_path / "projects" / "broken_proj"
+    bad_dir.mkdir(parents=True)
+    (bad_dir / "project.json").write_text("{broken: json", encoding="utf-8")
+
+    # Create one project with irreparable missing required fields (e.g. no defaults)
+    missing_dir = tmp_path / "projects" / "missing_proj"
+    missing_dir.mkdir(parents=True)
+    (missing_dir / "project.json").write_text(json.dumps({
+        "project_id": "missing_proj",
+        "name": "Missing Required Fields"
+        # No defaults -> Pydantic error
+    }), encoding="utf-8")
+
+    # Should not crash and should only find the good one
+    projects = store.list_projects()
+    assert len(projects) == 1
+    assert projects[0][1].name == "Good Project"

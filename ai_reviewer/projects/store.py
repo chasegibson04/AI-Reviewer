@@ -46,7 +46,28 @@ class ProjectStore:
 
     def _read_project(self, project_dir: Path) -> ProjectMetadata:
         self._ensure_material_dirs(project_dir)
-        meta = ProjectMetadata.model_validate_json((project_dir / "project.json").read_text(encoding="utf-8"))
+        raw_text = (project_dir / "project.json").read_text(encoding="utf-8")
+        data = json.loads(raw_text)
+
+        # Repair legacy fields
+        if not data.get("slug"):
+            name = data.get("name") or project_dir.name
+            data["slug"] = sanitize_name(name.lower(), fallback="project")
+
+        for material in data.get("materials", []):
+            if not material.get("original_path"):
+                mid = material.get("material_id")
+                fname = material.get("filename")
+                if mid and fname:
+                    managed = project_dir / "materials" / "managed" / mid / fname
+                    if managed.exists():
+                        material["original_path"] = str(managed.resolve())
+                    else:
+                        material["original_path"] = str(project_dir / "materials" / fname)
+                else:
+                    material["original_path"] = str(project_dir / "materials" / (fname or "unknown"))
+
+        meta = ProjectMetadata.model_validate(data)
         normalized_materials = [self._material_with_relative_path(project_dir, material) for material in meta.materials]
         changed = any(material.relative_path != normalized.relative_path for material, normalized in zip(meta.materials, normalized_materials))
         if changed:
@@ -120,10 +141,14 @@ class ProjectStore:
             meta_file = path / "project.json"
             if not meta_file.exists():
                 continue
-            meta = self._read_project(path)
-            if meta.archived and not include_archived:
+            try:
+                meta = self._read_project(path)
+                if meta.archived and not include_archived:
+                    continue
+                out.append((path, meta))
+            except Exception:
+                # Log or warn if needed, but skip broken project metadata
                 continue
-            out.append((path, meta))
         return out
 
     def get_project(self, project_id: str | None = None) -> tuple[Path, ProjectMetadata]:
