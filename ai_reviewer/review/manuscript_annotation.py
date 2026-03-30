@@ -69,19 +69,27 @@ def _normalize_section_target(section: str | None) -> str | None:
 def _calibrate_claim_sentence(sentence: str) -> str:
     revised = sentence
     replacements = [
-        (r"\bevery instance tried\b", "at least one successful condition in each case study"),
-        (r"\bon the first attempt\b", "in the initial screen"),
-        (r"\bfirst attempt\b", "initial screen"),
+        (r"\bevery instance tried\b", "the tested case studies"),
+        (r"\bon the first attempt\b", "under the initial optimization conditions"),
+        (r"\bfirst attempt\b", "initial optimization"),
         (r"\bmodest to excellent\b", "modest to high"),
-        (r"\bclearly demonstrates\b", "suggests"),
+        (r"\bclearly demonstrates\b", "is consistent with"),
         (r"\bdemonstrates\b", "suggests"),
-        (r"\bproves\b", "supports"),
-        (r"\ball\b", "the tested"),
-        (r"\balways\b", "often"),
-        (r"\bnever\b", "did not"),
+        (r"\bproves\b", "supports the finding that"),
+        (r"\ball\b", "the evaluated"),
+        (r"\balways\b", "consistently in these cases"),
+        (r"\bnever\b", "was not observed to"),
+        (r"\bperfect\b", "high-fidelity"),
+        (r"\bfully automated\b", "largely automated"),
+        (r"\bground truth\b", "reference standard"),
     ]
     for pattern, replacement in replacements:
         revised = re.sub(pattern, replacement, revised, flags=re.IGNORECASE)
+    
+    # If it's too short, don't return a broken fragment
+    if len(revised.split()) < 5:
+        return sentence
+        
     return revised
 
 
@@ -120,7 +128,7 @@ def _build_sentence_level_candidates(base_docx: Path, max_comments: int) -> list
                     "paragraph_index": pidx,
                     "issue_type": "evidence/overclaim concern",
                     "severity": "high",
-                    "critique": f'This sentence reads broader than the evidence shown here: "{sentence[:220]}". Narrow the scope or name the tested condition explicitly.',
+                    "critique": f'This claim sentence uses high-certainty language that may read broader than the specific evidence presented: "{_short_quote(sentence)}". Qualifying the scope or naming the tested condition explicitly would strengthen the rigor.',
                     "suggested_revision": f"Proposed edit: {_calibrate_claim_sentence(sentence)}",
                     "rationale": "Sentence-level claim calibration grounded in manuscript wording.",
                     "locked_paragraph": True,
@@ -135,7 +143,7 @@ def _build_sentence_level_candidates(base_docx: Path, max_comments: int) -> list
                     "paragraph_index": pidx,
                     "issue_type": "clarity",
                     "severity": "medium",
-                    "critique": f'This sentence compresses too many procedural details into one unit: "{sentence[:220]}". Split the action from the purpose or readout.',
+                    "critique": f'This procedural sentence bundles multiple setup details, which may obscure the primary action or readout: "{_short_quote(sentence)}". Consider splitting into two sentences to separate the operation from its purpose.',
                     "suggested_revision": f"Proposed edit: {rewrite}",
                     "rationale": "Sentence-level methods/results clarity issue grounded in local text.",
                     "locked_paragraph": True,
@@ -485,25 +493,34 @@ def _rewrite_candidate(sentence: str) -> str:
     s = re.sub(r"\s+", " ", s)
     s = re.sub(r"\s+([,.;:])", r"\1", s)
     s = re.sub(r"\[\s*[,;]\s*\]", "", s)
-    if len(s) > 260:
-        s = s[:260].rstrip() + "..."
-    clauses = [c.strip() for c in s.split(",") if c.strip()]
-    if s.lower().startswith("to ") and len(clauses) >= 2:
-        words = s.split()
-        short = " ".join(words[:26]).rstrip(".")
-        return short + "."
+    if len(s) > 350:
+        s = s[:350].rstrip() + "..."
+    
+    # Try to split at logical boundaries
+    clauses = [c.strip() for c in re.split(r",\s+(?:which|that|where|while|whereas)\b", s, flags=re.IGNORECASE) if c.strip()]
     if len(clauses) >= 2:
         c1 = clauses[0].rstrip(".")
-        c2 = clauses[1][0:120].rstrip(".")
-        if len(c1.split()) >= 6 and len(c2.split()) >= 6:
+        c2 = clauses[1]
+        if len(c1.split()) >= 8 and len(c2.split()) >= 8:
             if c2 and c2[0].islower():
                 c2 = c2[0].upper() + c2[1:]
             return f"{c1}. {c2}."
+
+    # Try to split at semicolon
+    if ";" in s:
+        parts = [p.strip() for p in s.split(";", 1)]
+        if len(parts[0].split()) >= 6 and len(parts[1].split()) >= 6:
+            p2 = parts[1]
+            if p2 and p2[0].islower():
+                p2 = p2[0].upper() + p2[1:]
+            return f"{parts[0].rstrip('.')}. {p2}."
+
+    # Default to a safe truncation if too long, or return original
     words = s.split()
-    if len(words) > 24:
-        short = " ".join(words[:24]).rstrip(".")
-        return short + "."
-    return s if s.endswith(".") else s + "."
+    if len(words) > 32:
+        return " ".join(words[:28]).rstrip(",.:; ") + " [sentence continues ...]"
+        
+    return s if s.endswith((".", "?", "!")) else s + "."
 
 
 _COMMENT_STOPWORDS = {
@@ -555,32 +572,32 @@ def _comment_style_for_section(section: str, issue_group: str, target: str) -> t
     quote = _short_quote(target)
     if issue_group == "evidence":
         critique = (
-            f'This sentence currently reads broader than the evidence it names: "{quote}". '
-            "State the tested case, condition, or measured outcome directly so the reader can see the boundary of the claim."
+            f'This claim uses high-certainty language that may overstate the findings: "{quote}". '
+            "To strengthen the rigor, explicitly name the specific condition, case study, or population where this result was observed."
         )
         suggestion = (
-            "Suggested wording direction: qualify the claim to the tested set or experiment, and name the concrete readout "
-            "instead of implying general success."
+            "Suggested wording direction: qualify the claim to the specific experimental evidence shown, and name the "
+            "concrete metric instead of using universal quantifiers like 'all' or 'always'."
         )
         return critique, suggestion
     if issue_group == "methods":
         critique = (
-            f'This procedural sentence bundles setup details without making the decision point clear: "{quote}". '
-            "Separate the operation from the criterion, control, or readout that tells the reader why this step matters."
+            f'This methods sentence bundles several setup steps together: "{quote}". '
+            "This can obscure the exact parameter or control that governs the result. State the primary operation first."
         )
         suggestion = (
-            "Suggested wording direction: keep the operation in one sentence, then add a second sentence naming the parameter, "
-            "control, or readout that governs interpretation."
+            "Suggested wording direction: separate the setup from the primary operation, and add a second sentence naming "
+            "the exact threshold or control used for this step."
         )
         return critique, suggestion
     if issue_group == "citation":
         critique = (
-            f'This sentence makes a factual or comparative claim without making the support relationship explicit: "{quote}". '
-            "Either point to the exact supporting citation here or qualify the statement as background rather than direct evidence."
+            f'This sentence makes a comparative or factual assertion but lacks a direct supporting reference: "{quote}". '
+            "Providing a specific citation here would help the reader verify the context or prior-art baseline."
         )
         suggestion = (
-            "Suggested wording direction: attach the precise citation at the claim site, or soften the sentence so it reads as context "
-            "instead of verified support."
+            "Suggested wording direction: insert the precise numeric citation here, or clarify whether this is a general "
+            "field observation rather than a specific result from cited work."
         )
         return critique, suggestion
     if issue_group == "redundancy":
@@ -928,10 +945,14 @@ def _final_comment_arbitration(
         "items": items,
     }
     system_prompt = (
-        "You are the final editorial arbiter for inline manuscript comments. "
-        "Judge each candidate comment in context. Return ONLY JSON with key decisions, where decisions is a list of objects with keys: "
+        "You are the final editorial arbiter for inline scientific manuscript comments. "
+        "Your mission is to ensure every comment is high-signal, specific, and actionable. "
+        "Reject comments that are generic (e.g., 'clarify this', 'add more detail', 'improve flow'). "
+        "A good comment must name a concrete entity, claim, or condition from the anchor sentence. "
+        "Return ONLY JSON with key 'decisions', where decisions is a list of objects with keys: "
         "comment_id, action, issue_type, severity, critique, suggested_revision, rationale, deletion_reason. "
-        "action must be keep, revise, or drop. Drop comments that are generic, weakly grounded, redundant, or not author-helpful."
+        "action must be 'keep', 'revise', or 'drop'. "
+        "If action is 'revise', you must provide a significantly better, more specific critique and suggested_revision."
     )
     try:
         resp = provider.chat(

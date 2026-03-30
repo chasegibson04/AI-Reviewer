@@ -23,6 +23,68 @@ from ai_reviewer.review.profiles import get_profile
 from ai_reviewer.review.repair import extract_json_candidate
 from ai_reviewer.review.docx_export import write_markdown_as_docx
 from ai_reviewer.review.rigorous_adapters import build_deep_reconciliation_summary
+from ai_reviewer.review.schema import (
+    ActionItem,
+    DeepVerificationSchema,
+    ClaimEvidenceVerification,
+    ReviewSchema,
+    SectionComment,
+)
+
+
+def _verify_claims_semantically(
+    provider: Provider,
+    model: str,
+    claims: list[dict[str, Any]],
+    supporting_cards: list[dict[str, Any]],
+    timeout_seconds: int,
+) -> list[ClaimEvidenceVerification]:
+    verifications: list[ClaimEvidenceVerification] = []
+    # Pick top 10 claims by priority/overlap score
+    for claim in claims[:10]:
+        ctext = str(claim.get("claim", ""))[:500]
+        # Find best matching cards
+        matches = sorted(
+            [
+                {
+                    "score": round(_token_overlap(ctext, f"{card.get('claim', '')} {card.get('evidence', '')}"), 4),
+                    "card": card,
+                }
+                for card in supporting_cards
+            ],
+            key=lambda x: x["score"],
+            reverse=True,
+        )[:2]
+        
+        relevant_cards = [m["card"] for m in matches if m["score"] > 0.05]
+        if not relevant_cards:
+            continue
+            
+        system_prompt = (
+            "You are a scientific fact-checker. Verify the manuscript CLAIM against the provided EVIDENCE CARDS from supporting literature. "
+            "Return ONLY JSON with keys: claim_id, verdict, evidence_summary, supporting_source, rationale, confidence. "
+            "verdict must be: supported, partially_supported, unsupported, contradicted, unresolved."
+        )
+        user_prompt = (
+            f"CLAIM: {ctext}\n\n"
+            f"EVIDENCE CARDS:\n{json.dumps(relevant_cards, indent=2)}\n\n"
+            "Evaluate whether the evidence supports the claim. Return JSON."
+        )
+        
+        try:
+            payload, _ = _chat_json(provider, model, system_prompt, user_prompt, timeout_seconds)
+            verifications.append(ClaimEvidenceVerification(
+                claim_id=claim.get("issue_id", "CLAIM-UNK"),
+                claim_text=ctext,
+                verdict=payload.get("verdict", "unresolved"),
+                evidence_summary=payload.get("evidence_summary", "No summary provided."),
+                supporting_source=payload.get("supporting_source"),
+                rationale=payload.get("rationale", "No rationale provided."),
+                confidence=float(payload.get("confidence", 0.5)),
+            ))
+        except Exception:
+            continue
+    return verifications
 from ai_reviewer.review.verification import (
     build_assertion_review_md,
     build_citation_accuracy_report_md,
@@ -94,10 +156,29 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 def _write_md(path: Path, title: str, payload: dict[str, Any]) -> None:
     lines = [f"# {title}", ""]
     for k, v in payload.items():
+        if k == "verifications" and isinstance(v, list):
+            lines.append("## Semantic Claim Verifications")
+            for item in v:
+                if isinstance(item, dict):
+                    lines.append(f"### {item.get('claim_id')}: {item.get('verdict')}")
+                    lines.append(f"- **Claim:** {item.get('claim_text')}")
+                    lines.append(f"- **Evidence:** {item.get('evidence_summary')}")
+                    lines.append(f"- **Source:** {item.get('supporting_source')}")
+                    lines.append(f"- **Rationale:** {item.get('rationale')}")
+                    lines.append(f"- **Confidence:** {item.get('confidence')}")
+                    lines.append("")
+            continue
+
         lines.append(f"## {k}")
         if isinstance(v, list):
             if v:
-                lines.extend([f"- {x}" for x in v])
+                for x in v:
+                    if isinstance(x, dict):
+                        lines.append("```json")
+                        lines.append(json.dumps(x, indent=2))
+                        lines.append("```")
+                    else:
+                        lines.append(f"- {x}")
             else:
                 lines.append("- None")
         elif isinstance(v, dict):
@@ -800,6 +881,30 @@ def run_deep_run(
     _write_md(run_dir / "stage_04_context_pack.md", "Stage 4 Context/Evidence Linking", context_pack)
     _write_json(cache_root / "latest_context_pack.json", context_pack)
     stage_status["stage_05_context_linking"] = "ok"
+
+    # Stage 5b Semantic Claim Verification
+    try:
+        verifications = _verify_claims_semantically(
+            provider=provider,
+            model=model_stack.get("methods_verification") or model_stack.get("high_level_review"),
+            claims=issue_map,
+            supporting_cards=supporting_cards,
+            timeout_seconds=cfg_deep.timeouts.chat_seconds,
+        )
+        deep_verification = DeepVerificationSchema(
+            project_id=project_id,
+            run_id=run_dir.name,
+            verifications=verifications,
+            summary=f"Semantically verified {len(verifications)} high-priority claims against supporting literature."
+        )
+        _write_json(run_dir / "stage_05b_semantic_verification.json", deep_verification.model_dump())
+        _write_md(run_dir / "stage_05b_semantic_verification.md", "Stage 5b Semantic Claim Verification", deep_verification.model_dump())
+        # Inject these findings into context_pack for later stages
+        context_pack["semantic_verifications"] = [v.model_dump() for v in verifications]
+        stage_status["stage_05b_semantic_verification"] = "ok"
+    except Exception as exc:
+        warnings.append(f"semantic_verification_failed:{exc}")
+        stage_status["stage_05b_semantic_verification"] = "failed"
 
     # Stage 6 context synthesis
     synth_payload, synth_raw = _chat_json(

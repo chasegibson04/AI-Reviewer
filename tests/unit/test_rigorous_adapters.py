@@ -34,11 +34,11 @@ def _sample_review() -> ReviewSchema:
             "Rewrite sentence in the abstract for calibration.",
         ],
         section_specific_comments=[
-            SectionComment(section="Abstract", comment="Claim language is broad.", severity="medium"),
-            SectionComment(section="Methods", comment="Specify control workflow.", severity="high"),
+            SectionComment(section="Abstract", comment="Claim language is broad.", severity="medium", evidence_source=None, manuscript_quote=None),
+            SectionComment(section="Methods", comment="Specify control workflow.", severity="high", evidence_source=None, manuscript_quote=None),
         ],
         extracted_action_items=[
-            ActionItem(action="Add explicit control condition description.", priority="high", owner="author")
+            ActionItem(action="Add explicit control condition description.", priority="high", owner="author", evidence_source=None)
         ],
         model_debug_metadata=DebugMetadata(provider="ollama", model="m", temperature=0.1),
     )

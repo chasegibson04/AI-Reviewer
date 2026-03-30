@@ -1,15 +1,14 @@
 # Project Access Guard
 
-Approved projects:
-- `20260325163524_test-existingphactorpaper`
-- `20260327051312_miniaturization_d2b`
+## Approved Validation Projects
+- 20260325163524_test-existingphactorpaper
+- 20260327051312_miniaturization_d2b
 
-Enumerated projects:
-- `20260325163524_test-existingphactorpaper`
-- `20260327051312_miniaturization_d2b`
+## Blacklisted Projects
+- Any project containing "horseshoe" or "crab"
+- 20260324221200_horseshoe_crabs1 (noted from documentation)
 
-Blacklisted projects:
-- none detected in this workspace
-
-Rule:
-- horseshoe crab remains excluded and was not used for inspection, parsing, fixtures, benchmarks, or validation in this turn.
+## Access Status
+- Verified: Approved projects exist.
+- Verified: No horseshoe crab projects detected in the current `projects/` directory.
+- Guard Active: All future validation and audits will strictly exclude any mention or processing of blacklisted content.

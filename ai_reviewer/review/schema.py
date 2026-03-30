@@ -14,12 +14,15 @@ class SectionComment(BaseModel):
     section: str
     comment: str
     severity: Literal["low", "medium", "high"] = "medium"
+    evidence_source: str | None = None
+    manuscript_quote: str | None = None
 
 
 class ActionItem(BaseModel):
     action: str
     priority: Literal["low", "medium", "high"] = "medium"
     owner: Literal["author", "reviewer"] = "author"
+    evidence_source: str | None = None
 
 
 class DebugMetadata(BaseModel):
@@ -52,6 +55,23 @@ class ReviewSchema(BaseModel):
     section_specific_comments: list[SectionComment] = Field(default_factory=list)
     extracted_action_items: list[ActionItem] = Field(default_factory=list)
     model_debug_metadata: DebugMetadata
+
+
+class ClaimEvidenceVerification(BaseModel):
+    claim_id: str
+    claim_text: str
+    verdict: Literal["supported", "partially_supported", "unsupported", "contradicted", "unresolved"]
+    evidence_summary: str
+    supporting_source: str | None = None
+    rationale: str
+    confidence: float
+
+
+class DeepVerificationSchema(BaseModel):
+    project_id: str
+    run_id: str
+    verifications: list[ClaimEvidenceVerification] = Field(default_factory=list)
+    summary: str
 
 
 class CompareSchema(BaseModel):

@@ -74,9 +74,22 @@ def test_support_ingest_and_claim_enrichment_emit_usage_rows(tmp_path: Path):
 
 def test_format_compliance_report_surfaces_missing_items(tmp_path: Path):
     manuscript = tmp_path / "paper.md"
-    manuscript.write_text("# Very Long Title With Too Many Words For A Short Journal Communication\n\nResults only.", encoding="utf-8")
+    manuscript.write_text("# Very Long Title With Too Many Words For A Short Journal Communication That Is Definitely Way Too Long For Any Reasonable Scientific Journal To Accept Without A Huge Re-Write Action By The Authors Before Going Into Review\n\nResults only.", encoding="utf-8")
     doc = parse_file(manuscript)
     payload = build_format_compliance_report(doc)
     messages = [row["message"] for row in payload["findings"]]
-    assert any("Abstract heading was not detected" in message for message in messages)
-    assert any("Discussion/conclusion heading was not detected" in message for message in messages)
+    print(f"\nDEBUG MESSAGES: {messages}\n")
+    # New wording
+    assert any("Abstract" in message and "missing or not clearly labeled" in message for message in messages)
+    assert any("Introduction" in message and "missing or not clearly labeled" in message for message in messages)
+    assert any("Discussion" in message and "missing or not clearly labeled" in message for message in messages)
+    assert any("Title is exceptionally long" in message for message in messages)
+
+
+def test_format_compliance_detects_citation_gaps(tmp_path: Path):
+    manuscript = tmp_path / "paper.md"
+    manuscript.write_text("# Title\n\nAbstract\nText [1]. More text [2]. Large gap here [20].\n", encoding="utf-8")
+    doc = parse_file(manuscript)
+    payload = build_format_compliance_report(doc)
+    messages = [row["message"] for row in payload["findings"]]
+    assert any("Large gap in citation numbering" in message for message in messages)

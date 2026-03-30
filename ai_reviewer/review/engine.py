@@ -61,8 +61,8 @@ REVIEW_SCHEMA_HINT = {
     "recommendation": {"decision": "accept|revise|reject", "rationale": "..."},
     "confidence": 0.75,
     "detailed_reviewer_comments": ["..."],
-    "section_specific_comments": [{"section": "...", "comment": "...", "severity": "low|medium|high"}],
-    "extracted_action_items": [{"action": "...", "priority": "low|medium|high", "owner": "author|reviewer"}],
+    "section_specific_comments": [{"section": "...", "comment": "...", "severity": "low|medium|high", "evidence_source": "...", "manuscript_quote": "..."}],
+    "extracted_action_items": [{"action": "...", "priority": "low|medium|high", "owner": "author|reviewer", "evidence_source": "..."}],
     "model_debug_metadata": {
         "provider": "ollama",
         "model": "...",
@@ -88,10 +88,10 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         "- Front matter/references/author info: default no comments unless metadata is incorrect.\n"
     )
     min_requirements = [
-        "- Provide at least 2 major_strengths and 2 major_weaknesses tied to specific manuscript content.",
+        "- Provide at least 2 major_strengths and 3 major_weaknesses tied to specific manuscript content.",
         "- Provide at least 2 writing_organization_concerns referencing concrete sentence/paragraph issues.",
-        "- Provide at least 3 section_specific_comments with named sections when possible.",
-        "- Provide at least 3 detailed_reviewer_comments with at least one suggested wording improvement.",
+        "- Provide at least 4 section_specific_comments with named sections and concrete local critique.",
+        "- Provide at least 4 detailed_reviewer_comments, including at least two that reference evidence/consistency findings from the context.",
     ]
     if re.search(r"\\b(fig\\.\\s*\\d|figure\\s*\\d)", doc.cleaned_text.lower()):
         min_requirements.append("- Provide at least 1 figure_table_concern grounded in a specific figure/caption.")
@@ -106,11 +106,12 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         + "\n".join(min_requirements)
         + "\n"
         "Grounding requirements:\n"
-        "- Be specific to this manuscript, not generic.\n"
-        "- Reference concrete sections/headings or experiment types from the provided context.\n"
-        "- Include at least two manuscript-specific details (section names, claim phrasing, or figure/table callouts).\n"
-        "- If support context is present, use it to check whether assertions appear backed.\n"
-        "- If you cite support context, name the specific supporting file.\n"
+        "- Be adversarial and precise. Do not use generic filler.\n"
+        "- Use the 'Verification context' below to identify specific claim or citation issues.\n"
+        "- If a claim appears unsupported or contradicts the 'Supporting references context', you must flag it as a weakness.\n"
+        "- Include at least three manuscript-specific details (section names, claim phrasing, or figure/table callouts).\n"
+        "- If you cite support context, name the specific supporting file name.\n"
+        "- Every comment must be actionable: tell the author exactly what to change or clarify.\n"
         "- Avoid repeating the same sentence across fields.\n"
         "- Primary target is the manuscript under review; do not summarize supporting papers alone.\n"
         f"{section_policy}\n"
@@ -254,11 +255,11 @@ def _ensure_minimum_detail(review: ReviewSchema) -> None:
         for w in review.major_weaknesses[:5]:
             if not isinstance(w, str) or not w.strip():
                 continue
-            generated.append(ActionItem(action=w, priority="high", owner="author"))
+            generated.append(ActionItem(action=w, priority="high", owner="author", evidence_source=None))
         if not generated:
             for c in review.detailed_reviewer_comments[:5]:
                 if isinstance(c, str) and c.strip():
-                    generated.append(ActionItem(action=f"Revise section for: {c}", priority="medium", owner="author"))
+                    generated.append(ActionItem(action=f"Revise section for: {c}", priority="medium", owner="author", evidence_source=None))
         review.extracted_action_items = generated
 
 
@@ -433,7 +434,7 @@ def _ensure_section_comments(review: ReviewSchema, doc: ParsedDocument) -> None:
     ]
     for h in headings[:4]:
         review.section_specific_comments.append(
-            SectionComment(section=h, comment="Add one concrete evidence statement and one limitation statement tied to this section.", severity="medium")
+            SectionComment(section=h, comment="Add one concrete evidence statement and one limitation statement tied to this section.", severity="medium", evidence_source=None, manuscript_quote=None)
         )
 
 
@@ -709,6 +710,8 @@ def _augment_with_text_heuristics(
                         section=str(heading)[:120],
                         comment=comment,
                         severity="medium",
+                        evidence_source=None,
+                        manuscript_quote=None,
                     )
                 )
         if not review.extracted_action_items:
@@ -718,6 +721,7 @@ def _augment_with_text_heuristics(
                         action=f"Rewrite long sentence for clarity: {s[:140]}",
                         priority="high",
                         owner="author",
+                        evidence_source=None,
                     )
                 )
             if placeholder_hits:
@@ -726,6 +730,7 @@ def _augment_with_text_heuristics(
                         action="Remove PDF extraction placeholders and restore missing figure/table callout text.",
                         priority="high",
                         owner="author",
+                        evidence_source=None,
                     )
                 )
 
@@ -791,6 +796,8 @@ def _augment_with_text_heuristics(
                         section=str(heading)[:120],
                         comment=comment,
                         severity="medium",
+                        evidence_source=None,
+                        manuscript_quote=None,
                     )
                 )
 
@@ -896,13 +903,23 @@ def run_review(
         },
         "claim_verification_summary": claim_verification_summary,
         "internal_consistency_findings": internal_consistency.get("findings", []),
-        "format_compliance_findings": format_compliance.get("findings", [])[:8],
+        "format_compliance_findings": format_compliance.get("findings", [])[:12],
         "citation_summary": {
             "reference_count": citation_ledger.get("reference_count", 0),
             "linked_reference_count": citation_ledger.get("linked_reference_count", 0),
         },
+        "top_assertions": [
+            {
+                "claim_id": c.get("claim_id"),
+                "priority": c.get("priority"),
+                "status": c.get("status"),
+                "text": c.get("claim_text")[:200],
+                "support": [s["source"] for s in c.get("support_sources", [])[:2]]
+            }
+            for c in assertion_ledger.get("claims", [])[:15]
+        ]
     }
-    context = f"{context}\n\nVerification context (be explicit about unresolved checks):\n{json.dumps(verification_context, indent=2)[:7000]}"
+    context = f"{context}\n\nVerification context (be explicit about unresolved checks):\n{json.dumps(verification_context, indent=2)[:8000]}"
 
     if use_retrieval:
         if status_hook:

@@ -213,7 +213,7 @@ def test_suggested_changes_structure_issue_can_apply_when_localized(tmp_path: Pa
 
 def test_suggested_changes_unsupported_addition_falls_back_to_safe_local_rewrite(tmp_path: Path):
     base_docx = tmp_path / "base.docx"
-    original = "The workflow integrates model output into the execution software for reaction setup, and then passes formatted instructions to the automation layer."
+    original = "The workflow integrates model output into the execution software for reaction setup, which then passes formatted instructions to the automation layer."
     _write_docx(base_docx, [original])
     comments = [
         {
@@ -229,7 +229,7 @@ def test_suggested_changes_unsupported_addition_falls_back_to_safe_local_rewrite
         json.dumps(
             {
                 "revised_text": (
-                    "The workflow integrates model output into the execution software for reaction setup, and then passes formatted instructions to the automation layer. "
+                    "The workflow integrates model output into the execution software for reaction setup, which then passes formatted instructions to the automation layer. "
                     "We conducted comparative studies and observed statistically significant gains."
                 ),
                 "rationale": "Adds contextual comparison.",
@@ -665,8 +665,7 @@ def test_revise_comment_entries_varies_by_section_style(tmp_path: Path):
     ]
     revised = _revise_comment_entries(entries, base_docx)
     assert "background and the paper-specific turn" in revised[0]["critique"]
-    assert "procedural sentence bundles setup details" in revised[1]["critique"]
-
+    assert "bundles several setup steps together" in revised[1]["critique"]
 
 def test_dedupe_comment_entries_suppresses_duplicate_anchor_issue():
     entries = [

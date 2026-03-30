@@ -670,21 +670,52 @@ def build_format_compliance_report(
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
     title = lines[0] if lines else ""
     findings: list[dict[str, Any]] = []
-    if len(title.split()) > 24:
-        findings.append({"severity": "low", "category": "title_length", "message": "Title appears long and may need tightening for journal style."})
-    if "abstract" not in low:
-        findings.append({"severity": "high", "category": "required_section", "message": "Abstract heading was not detected."})
-    if "discussion" not in low and "conclusion" not in low and "conclusions" not in low:
-        findings.append({"severity": "medium", "category": "required_section", "message": "Discussion/conclusion heading was not detected."})
-    for phrase, label in [
-        ("data availability", "data_availability"),
-        ("code availability", "code_availability"),
-        ("limitations", "limitations_statement"),
-        ("conflict of interest", "conflict_of_interest"),
-        ("competing interests", "competing_interests"),
-    ]:
-        if phrase not in low:
-            findings.append({"severity": "low", "category": "reporting_item", "message": f"Potentially missing reporting item: {label}."})
+
+    # 1. Structural Completeness
+    required_sections = ["abstract", "introduction", "methods", "results", "discussion", "references"]
+    for section in required_sections:
+        found = False
+        if section == "methods":
+            if any(k in low for k in ["methods", "experimental", "procedure", "materials and methods"]):
+                found = True
+        elif section == "abstract":
+            if "abstract" in low or (len(lines) > 2 and len(lines[1].split()) > 40):
+                 found = True
+        elif section == "references":
+            if "references" in low or "bibliography" in low or re.search(r"\[1\]|1\.\s+[A-Z]", text[-5000:]):
+                found = True
+        else:
+            if section in low:
+                found = True
+        if not found:
+            findings.append({
+                "severity": "medium",
+                "category": "required_section",
+                "message": f"Required section likely missing or not clearly labeled: {section.capitalize()}"
+            })
+
+    # 2. Title and Abstract Heuristics
+    title_words = len(title.split())
+    if title_words > 25:
+        findings.append({
+            "severity": "low",
+            "category": "title_length",
+            "message": f"Title is exceptionally long ({title_words} words). Standard limit is usually <20."
+        })
+    if "abstract" in low:
+        # Simple heuristic for abstract length: look for text between Abstract and Intro
+        abs_match = re.search(r"abstract\b(.*?)(introduction|background|methods|results|#|\n\n\n)", low, re.S)
+        if abs_match:
+            abs_text = abs_match.group(1).strip()
+            abs_words = len(abs_text.split())
+            if abs_words > 450:
+                 findings.append({
+                    "severity": "medium",
+                    "category": "formatting",
+                    "message": f"Abstract appears too long ({abs_words} words). Standard limit is usually 250-300."
+                })
+
+    # 3. Context Pack Constraints
     for word in constraints.get("forbidden_title_words", []) or []:
         if word and word.lower() in title.lower():
             findings.append({"severity": "high", "category": "title_rule", "message": f"Title contains forbidden word from context pack: '{word}'."})
@@ -697,6 +728,38 @@ def build_format_compliance_report(
         key = req.replace("_statement", "").replace("_", " ")
         if key not in low:
             findings.append({"severity": "medium", "category": "required_reporting", "message": f"Context-pack required item may be missing: {req}."})
+
+    # 4. Standard Reporting Items
+    for phrase, label in [
+        ("data availability", "data_availability"),
+        ("code availability", "code_availability"),
+        ("limitations", "limitations_statement"),
+        ("conflict of interest", "conflict_of_interest"),
+        ("competing interests", "competing_interests"),
+    ]:
+        if phrase not in low:
+            findings.append({"severity": "low", "category": "reporting_item", "message": f"Potentially missing reporting item: {label}."})
+
+    # 5. Citation Numbering Heuristics
+    if "[" in text and "1" in text:
+        citations = re.findall(r"\[(\d{1,3})\]", text)
+        if citations:
+            nums = sorted(list(set(int(n) for n in citations)))
+            if nums and nums[0] > 1 and nums[0] < 10: # Only flag if it's a small offset
+                findings.append({
+                    "severity": "low",
+                    "category": "citation",
+                    "message": f"First citation index is [{nums[0]}], expected [1]."
+                })
+            # Check for large gaps in numbering
+            for i in range(len(nums) - 1):
+                if nums[i+1] - nums[i] > 15:
+                    findings.append({
+                        "severity": "low",
+                        "category": "citation",
+                        "message": f"Large gap in citation numbering detected between [{nums[i]}] and [{nums[i+1]}]. Verify completeness."
+                    })
+
     return {
         "enabled": True,
         "context_pack_enabled": bool(constraints.get("enabled")),
