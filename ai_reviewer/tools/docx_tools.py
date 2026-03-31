@@ -225,14 +225,22 @@ def create_commented_docx_copy(
                 first_run, last_run = anchored_first, anchored_last
             elif paragraph.runs:
                 first_run, last_run = paragraph.runs[0], paragraph.runs[-1]
-            body = (
-                f"{f'Review round: {comment_tag}\\n' if comment_tag else ''}"
-                f"Issue: {item.get('issue_type', 'general')}\n"
-                f"Severity: {item.get('severity', 'medium')}\n"
-                f"Critique: {item.get('critique', '')}\n"
-                f"Suggested revision: {item.get('suggested_revision', '')}\n"
-                f"Rationale: {item.get('rationale', '')}"
-            ).strip()
+            body_parts = [
+                f"Review round: {comment_tag}" if comment_tag else "",
+                f"Issue: {item.get('issue_type', 'general')}",
+                f"Severity: {item.get('severity', 'medium')}",
+                f"Critique: {item.get('critique', '')}",
+                f"Suggested revision: {item.get('suggested_revision', '')}",
+                f"Rationale: {item.get('rationale', '')}",
+            ]
+            evidence = item.get("evidence_source")
+            if evidence:
+                body_parts.append(f"Evidence: {evidence}")
+            quote = item.get("manuscript_quote")
+            if quote:
+                body_parts.append(f"Quote: {quote}")
+            
+            body = "\n".join([p for p in body_parts if p]).strip()
             comment = doc.comments.add_comment(text=body, author=author, initials=initials)
             first_run.mark_comment_range(last_run, comment.comment_id)
             added += 1

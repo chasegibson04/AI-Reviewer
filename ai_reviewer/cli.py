@@ -881,6 +881,13 @@ def deep_run_cmd(
 
     docs, _, _, _ = _resolve_docs(None, project, manuscript_id)
     fetch_citations_for_documents(docs, pdir, cfg, logger, run_dir=run_dir)
+    
+    # Sync support docs again to include newly downloaded citations
+    refreshed_support, refresh_failures = _refresh_supporting_docs(project)
+    # We don't overwrite supporting_docs here as it's not defined, 
+    # but run_deep_run will look them up again or we can pass them.
+    # Actually run_deep_run calls store.list_materials which will see them.
+    
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)

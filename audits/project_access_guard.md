@@ -6,9 +6,9 @@
 
 ## Blacklisted Projects
 - Any project containing "horseshoe" or "crab"
-- 20260324221200_horseshoe_crabs1 (noted from documentation)
+- 20260324221200_horseshoe_crabs1
 
 ## Access Status
 - Verified: Approved projects exist.
-- Verified: No horseshoe crab projects detected in the current `projects/` directory.
+- Verified: Horseshoe crab project is strictly blacklisted and will not be touched.
 - Guard Active: All future validation and audits will strictly exclude any mention or processing of blacklisted content.

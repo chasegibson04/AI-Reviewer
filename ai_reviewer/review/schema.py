@@ -36,6 +36,13 @@ class DebugMetadata(BaseModel):
     eval_count: int | None = None
 
 
+class GroundedComment(BaseModel):
+    comment: str
+    evidence_source: str | None = None
+    manuscript_quote: str | None = None
+    severity: Literal["low", "medium", "high"] = "medium"
+
+
 class ReviewSchema(BaseModel):
     document_metadata: dict[str, str] = Field(default_factory=dict)
     summary: str
@@ -52,6 +59,7 @@ class ReviewSchema(BaseModel):
     recommendation: Recommendation
     confidence: float = Field(ge=0, le=1)
     detailed_reviewer_comments: list[str] = Field(default_factory=list)
+    grounded_detailed_comments: list[GroundedComment] = Field(default_factory=list)
     section_specific_comments: list[SectionComment] = Field(default_factory=list)
     extracted_action_items: list[ActionItem] = Field(default_factory=list)
     model_debug_metadata: DebugMetadata

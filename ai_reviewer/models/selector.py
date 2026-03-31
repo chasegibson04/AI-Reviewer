@@ -266,7 +266,7 @@ def select_deep_run_stage_models(
         editor = _pick_text_chat_model(chat_pool, max_quality_editor_candidates, default_synth_candidates)
         reconciliation = _pick_text_chat_model(chat_pool, max_quality_editor_candidates, max_quality_digest_candidates, [reasoning])
         final_arbitration = _pick_text_chat_model(chat_pool, max_quality_reasoning_candidates, critique_candidates)
-        return {
+        stack = {
             "structural_triage": structural,
             "supporting_digest": digest,
             "manuscript_digest": digest,
@@ -280,9 +280,14 @@ def select_deep_run_stage_models(
             "reconciliation": reconciliation,
             "final_arbitration": final_arbitration,
         }
+        # Final override from config
+        for k, v in config.deep_run_routing.overrides.items():
+            if k in DEEP_RUN_STAGE_KEYS and v:
+                stack[k] = v
+        return stack
 
     arbitration = _pick_text_chat_model(chat_pool, critique_candidates, [critique])
-    return {
+    stack = {
         "structural_triage": structural,
         "supporting_digest": default_synth,
         "manuscript_digest": default_synth,
@@ -296,6 +301,11 @@ def select_deep_run_stage_models(
         "reconciliation": repair,
         "final_arbitration": arbitration,
     }
+    # Final override from config
+    for k, v in config.deep_run_routing.overrides.items():
+        if k in DEEP_RUN_STAGE_KEYS and v:
+            stack[k] = v
+    return stack
 
 
 def model_capability(model_name: str) -> ModelCapability:

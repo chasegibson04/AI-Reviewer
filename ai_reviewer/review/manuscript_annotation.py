@@ -206,8 +206,10 @@ def review_to_comment_entries(
     entries: list[dict[str, Any]] = []
     if base_docx is not None:
         entries.extend(_build_sentence_level_candidates(base_docx, max_comments=max_comments))
+    print(f"DEBUG: section_specific_comments={review.section_specific_comments}")
     for idx, sec in enumerate(review.section_specific_comments, start=1):
         critique = str(sec.comment).strip()
+        print(f"DEBUG: critique={critique}")
         if not critique:
             continue
         if "add one concrete evidence statement" in critique.lower():
@@ -222,6 +224,8 @@ def review_to_comment_entries(
                 "rationale": "Section-specific issue from review output with local revision guidance.",
                 "section_target": _normalize_section_target(getattr(sec, "section", "")),
                 "priority_score": 2,
+                "evidence_source": getattr(sec, "evidence_source", None),
+                "manuscript_quote": getattr(sec, "manuscript_quote", None),
             }
         )
     for idx, item in enumerate(review.extracted_action_items, start=len(entries) + 1):
@@ -241,6 +245,7 @@ def review_to_comment_entries(
                 ),
                 "rationale": "Derived from extracted action item requiring manuscript-local clarification.",
                 "priority_score": 1,
+                "evidence_source": getattr(item, "evidence_source", None),
             }
         )
         if len(entries) >= max_comments:
@@ -291,6 +296,27 @@ def review_to_comment_entries(
                 break
         if len(entries) >= max_comments:
             break
+    grounded_candidates = getattr(review, "grounded_detailed_comments", [])
+    for gc in grounded_candidates:
+        if len(entries) >= max_comments:
+            break
+        text = str(gc.comment).strip()
+        if not text:
+            continue
+        entries.append(
+            {
+                "paragraph_index": len(entries) + 1,
+                "issue_type": "grounded review",
+                "severity": gc.severity,
+                "critique": text,
+                "suggested_revision": "Suggested rewrite: address evidence mismatch or clarify claim grounding.",
+                "rationale": "Grounded detailed reviewer comment promoted into local guidance.",
+                "priority_score": 3,
+                "evidence_source": gc.evidence_source,
+                "manuscript_quote": gc.manuscript_quote,
+            }
+        )
+
     detail_candidates = [str(t).strip() for t in getattr(review, "detailed_reviewer_comments", []) if str(t).strip()]
     for text in detail_candidates:
         if len(entries) >= max_comments:
@@ -706,15 +732,20 @@ def _looks_generic_comment(critique: str, suggestion: str) -> bool:
     s = suggestion.lower().strip()
     if len(c) < 28:
         return True
+    
+    # If it's long and descriptive, it's likely not generic even if it starts with a common verb
+    if len(c) > 65 and any(word in c for word in ["because", "specifically", "for instance", "example", "however", "missing"]):
+        return False
+
     generic_starts = ("clarify", "improve", "discuss", "elaborate", "add detail", "address this", "revise this", "rewrite this")
-    if c.startswith(generic_starts):
+    if c.startswith(generic_starts) and len(c) < 60:
         return True
     if s in {"", "suggested rewrite:", "proposed edit:", "suggested wording direction:"}:
         return True
     if "improve clarity" in s and len(s.split()) < 8:
         return True
     filler_phrases = [
-        "section could benefit",
+        "section could benefit from",
         "needs significant expansion",
         "provide more detail",
         "add more detail",
@@ -722,7 +753,8 @@ def _looks_generic_comment(critique: str, suggestion: str) -> bool:
         "more information",
         "helpful to include",
     ]
-    if any(p in c for p in filler_phrases):
+    # Only block filler phrases if the overall critique is short
+    if any(p in c for p in filler_phrases) and len(c) < 70:
         return True
     return False
 
@@ -771,6 +803,14 @@ def _revise_comment_entries(entries: list[dict[str, Any]], base_docx: Path) -> l
             entry["anchor_text"] = target
             entry["span_sentence"] = target
         issue_group = _infer_issue_type_group(str(entry.get("issue_type", "")))
+        current_critique = str(entry.get("critique", "")).strip()
+        current_suggestion = str(entry.get("suggested_revision", "")).strip()
+        
+        # If it's already a grounded review or looks non-generic, keep it!
+        if entry.get("issue_type") == "grounded review" or not _looks_generic_comment(current_critique, current_suggestion):
+            revised.append(entry)
+            continue
+
         critique, suggestion = _comment_style_for_section(section, issue_group, target)
         entry["critique"] = critique
         entry["suggested_revision"] = suggestion

@@ -110,6 +110,7 @@ class CitationFetchConfig:
 @dataclass
 class DeepRunRoutingConfig:
     mode: str = "default"
+    overrides: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass

@@ -33,7 +33,10 @@ def test_deep_run_cmd_direct_call_tolerates_optioninfo_defaults(tmp_path: Path, 
 
     monkeypatch.setattr(cli, "_provider_for_workflow", lambda **kwargs: (provider, cfg, run_dir, logging.getLogger("test")))
     monkeypatch.setattr(cli, "_model_table", lambda installed, cfg: ([], ["embed-model"], SimpleNamespace(embedding_model="embed-model")))
-    monkeypatch.setattr(cli, "_store", lambda: SimpleNamespace(get_project=lambda project: (tmp_path, SimpleNamespace(project_id=project))))
+    monkeypatch.setattr(cli, "_store", lambda: SimpleNamespace(
+        get_project=lambda project: (tmp_path, SimpleNamespace(project_id=project, materials=[])),
+        sync_project_material_inventory=lambda project: (0, 0, 0)
+    ))
     monkeypatch.setattr(cli, "_resolve_docs", lambda *args, **kwargs: ([SimpleNamespace(source_path=Path("doc.docx"))], [], [], None))
     monkeypatch.setattr(cli, "fetch_citations_for_documents", lambda *args, **kwargs: None)
     monkeypatch.setattr(

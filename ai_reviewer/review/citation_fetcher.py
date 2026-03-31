@@ -144,10 +144,7 @@ def _normalized_title_tokens(text: str) -> set[str]:
 
 def _requests_get(url: str, timeout: int, accept_pdf: bool = False) -> requests.Response | None:
     headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-        ),
+        "User-Agent": "AI-Reviewer-Bot/1.0 (Research Validation; +https://github.com/example/ai-reviewer)",
         "Accept": "application/pdf,application/xhtml+xml,text/html;q=0.9,*/*;q=0.8" if accept_pdf else "application/json,*/*",
     }
     try:
@@ -214,24 +211,6 @@ def _find_pdf_urls_for_doi(doi: str, cfg: ReviewerConfig, timeout: int) -> list[
         data = r.json()
         if data.get("fullTextLink"):
             urls.append(("core_ac_uk", data["fullTextLink"]))
-
-    # Sci-Hub Fallbacks
-    domains = ["https://sci-hub.se/", "https://sci-hub.st/", "https://sci-hub.ru/"]
-    for domain in domains:
-        try:
-            r = requests.get(f"{domain}{doi}", timeout=timeout, verify=False)
-            if r and r.status_code == 200:
-                if 'id="pdf"' in r.text or "iframe" in r.text:
-                    # Simple regex extraction since bs4 isn't guaranteed
-                    src_match = re.search(r"<iframe[^>]+src=['\"](.*?)['\"]", r.text, re.IGNORECASE)
-                    if src_match:
-                        src = src_match.group(1)
-                        if src.startswith("//"):
-                            src = "https:" + src
-                        urls.append(("scihub", src))
-                        break
-        except Exception:
-            continue
 
     return urls
 
@@ -300,17 +279,14 @@ def _verification_summary_for_citation_entry(entry: dict) -> dict:
 
 
 def _download_pdf(url: str, dest: Path, timeout: int, is_retry: bool = False) -> str:
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/pdf,application/xhtml+xml,text/html;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': random.choice(['https://scholar.google.com/', 'https://pubmed.ncbi.nlm.nih.gov/', 'https://www.webofscience.com/'])
-    }
+    # Use standard library requests without extreme spoofing to stay compliant
     content_bytes = None
     status_code = None
 
     try:
-        r = requests.get(url, headers=headers, timeout=timeout, allow_redirects=True, verify=False)
+        r = _requests_get(url, timeout, accept_pdf=True)
+        if not r:
+            return "request_failed"
         content_bytes = r.content
         status_code = r.status_code
     except Exception:
@@ -330,21 +306,14 @@ def _download_pdf(url: str, dest: Path, timeout: int, is_retry: bool = False) ->
             dest.write_bytes(content_bytes)
             return "ok"
         
-        # HTML Wall - Deep Dive Scrape
+        # HTML Wall - Deep Dive Scrape (Standard META tags only)
         if not is_retry and b"<html" in content_bytes[:500].lower():
-            # Minimal scrape without bs4
             text_content = content_bytes.decode("utf-8", errors="ignore")
             hidden_url = None
             
-            # Look for meta tags
             meta_match = re.search(r'<meta\s+name=["\'](citation_pdf_url|wkhealth_pdf_url|eprints\.pdf_url|bepress_citation_pdf_url)["\']\s+content=["\']([^"\']+)["\']', text_content, re.IGNORECASE)
             if meta_match:
                 hidden_url = meta_match.group(2)
-            else:
-                # Look for direct PDF links
-                link_match = re.search(r'<a[^>]+href=["\']([^"\']+\.pdf)["\']', text_content, re.IGNORECASE)
-                if link_match:
-                    hidden_url = link_match.group(1)
                     
             if hidden_url:
                 if hidden_url.startswith("/"):

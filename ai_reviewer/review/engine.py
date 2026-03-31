@@ -61,6 +61,7 @@ REVIEW_SCHEMA_HINT = {
     "recommendation": {"decision": "accept|revise|reject", "rationale": "..."},
     "confidence": 0.75,
     "detailed_reviewer_comments": ["..."],
+    "grounded_detailed_comments": [{"comment": "...", "evidence_source": "...", "manuscript_quote": "...", "severity": "low|medium|high"}],
     "section_specific_comments": [{"section": "...", "comment": "...", "severity": "low|medium|high", "evidence_source": "...", "manuscript_quote": "..."}],
     "extracted_action_items": [{"action": "...", "priority": "low|medium|high", "owner": "author|reviewer", "evidence_source": "..."}],
     "model_debug_metadata": {
@@ -82,8 +83,8 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         "Section-aware policy:\n"
         "- Abstract: only comment on claim calibration, scope, ambiguity, and alignment with body; avoid deep methods demands unless abstract overclaims.\n"
         "- Introduction: framing, novelty positioning, literature context, problem clarity.\n"
-        "- Methods/Experimental: reproducibility, controls, human intervention vs automation, procedural completeness.\n"
-        "- Results: claim support, yield definitions (assay vs isolated), failure/negative case reporting.\n"
+        "- Methods/Experimental: rigorously check reproducibility, missing controls, hidden human intervention vs 'fully automated' claims, physical/engineering constraints (e.g., miniaturization, mass transfer, micro-droplet physics), and procedural completeness.\n"
+        "- Results: claim support, yield definitions (assay vs isolated), failure/negative case reporting, and whether results justify the abstract's certainty.\n"
         "- Discussion/Conclusions: interpretation discipline, overclaiming, scope boundaries.\n"
         "- Front matter/references/author info: default no comments unless metadata is incorrect.\n"
     )
@@ -91,7 +92,8 @@ def _build_prompt(doc: ParsedDocument, profile: ReviewProfile, context_chunks: s
         "- Provide at least 2 major_strengths and 3 major_weaknesses tied to specific manuscript content.",
         "- Provide at least 2 writing_organization_concerns referencing concrete sentence/paragraph issues.",
         "- Provide at least 4 section_specific_comments with named sections and concrete local critique.",
-        "- Provide at least 4 detailed_reviewer_comments, including at least two that reference evidence/consistency findings from the context.",
+        "- Provide at least 3 grounded_detailed_comments, each MUST include a manuscript_quote.",
+        "- For evidence_source, NEVER use null. If evidence is from a specific file, name it. Otherwise, use one of: 'manuscript_internal', 'support_material_local', 'citation_retrieved_oa', or 'insufficient_external_support'.",
     ]
     if re.search(r"\\b(fig\\.\\s*\\d|figure\\s*\\d)", doc.cleaned_text.lower()):
         min_requirements.append("- Provide at least 1 figure_table_concern grounded in a specific figure/caption.")
@@ -228,6 +230,7 @@ def _is_sparse_review(review: ReviewSchema) -> bool:
         review.reproducibility_concerns,
         review.suggested_experiments_analyses,
         review.detailed_reviewer_comments,
+        [c.comment for c in review.grounded_detailed_comments],
         [c.comment for c in review.section_specific_comments],
         [a.action for a in review.extracted_action_items],
     ]
@@ -246,7 +249,7 @@ def _is_sparse_review(review: ReviewSchema) -> bool:
 
 
 def _ensure_minimum_detail(review: ReviewSchema) -> None:
-    if not review.detailed_reviewer_comments:
+    if not review.detailed_reviewer_comments and not review.grounded_detailed_comments:
         review.detailed_reviewer_comments = [
             w for w in review.major_weaknesses[:4] if isinstance(w, str) and w.strip()
         ]
@@ -377,6 +380,10 @@ def _filter_hallucinated_review_content(review: ReviewSchema, doc: ParsedDocumen
     if review.detailed_reviewer_comments:
         review.detailed_reviewer_comments = [
             c for c in review.detailed_reviewer_comments if not _contains_offtopic_terms(str(c), doc)
+        ]
+    if review.grounded_detailed_comments:
+        review.grounded_detailed_comments = [
+            c for c in review.grounded_detailed_comments if not _contains_offtopic_terms(str(c.comment), doc)
         ]
     if review.extracted_action_items:
         filtered_actions = []
@@ -514,11 +521,15 @@ def _review_quality_signals(review: ReviewSchema, profile_key: str, doc: ParsedD
         t = str(c).lower()
         if "apply action:" in t or "revise wording to address this issue" in t:
             placeholder_count += 1
+    for gc in review.grounded_detailed_comments:
+        t = str(gc.comment).lower()
+        if "apply action:" in t or "revise wording to address this issue" in t:
+            placeholder_count += 1
     return {
         "summary_len": len((review.summary or "").strip()),
         "strengths_count": len(review.major_strengths),
         "weaknesses_count": len(review.major_weaknesses),
-        "details_count": len(review.detailed_reviewer_comments),
+        "details_count": len(review.detailed_reviewer_comments) + len(review.grounded_detailed_comments),
         "actions_count": len(review.extracted_action_items),
         "section_comments_count": len(review.section_specific_comments),
         "methods_count": len(review.methodological_concerns),
@@ -542,6 +553,7 @@ def _review_artifact_text(review: ReviewSchema) -> str:
     parts.extend(review.methodological_concerns[:4])
     parts.extend(review.writing_organization_concerns[:4])
     parts.extend(review.detailed_reviewer_comments[:8])
+    parts.extend([c.comment for c in review.grounded_detailed_comments[:8]])
     parts.extend([a.action for a in review.extracted_action_items[:8]])
     return "\n".join([p for p in parts if isinstance(p, str) and p.strip()])
 
@@ -1054,7 +1066,7 @@ def run_review(
             "- summary: at least 140 characters\n"
             "- major_strengths: at least 2 items\n"
             "- major_weaknesses: at least 3 items\n"
-            "- detailed_reviewer_comments: at least 3 items\n"
+            "- grounded_detailed_comments: at least 3 items with evidence citations\n"
             "- extracted_action_items: at least 3 items\n"
             "- include at least 2 section_specific_comments with section names when possible\n\n"
             f"PROFILE: {profile.display_name}\n"

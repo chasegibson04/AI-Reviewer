@@ -40,8 +40,8 @@ def _verify_claims_semantically(
     timeout_seconds: int,
 ) -> list[ClaimEvidenceVerification]:
     verifications: list[ClaimEvidenceVerification] = []
-    # Pick top 10 claims by priority/overlap score
-    for claim in claims[:10]:
+    # Pick top 15 claims by priority/overlap score
+    for claim in claims[:15]:
         ctext = str(claim.get("claim", ""))[:500]
         # Find best matching cards
         matches = sorted(
@@ -54,9 +54,9 @@ def _verify_claims_semantically(
             ],
             key=lambda x: x["score"],
             reverse=True,
-        )[:2]
+        )[:3]
         
-        relevant_cards = [m["card"] for m in matches if m["score"] > 0.05]
+        relevant_cards = [m["card"] for m in matches if m["score"] > 0.03]
         if not relevant_cards:
             continue
             
@@ -201,7 +201,7 @@ def _fingerprint(path: Path) -> str:
     return hashlib.sha1(key.encode("utf-8")).hexdigest()
 
 
-def _simple_keywords(text: str, top_n: int = 16) -> list[str]:
+def _simple_keywords(text: str, top_n: int = 24) -> list[str]:
     words = re.findall(r"[A-Za-z][A-Za-z0-9_-]{3,}", text.lower())
     stop = {"with", "that", "this", "from", "have", "were", "their", "which", "using", "into", "between", "results", "methods", "introduction", "table", "figure", "analysis", "paper", "study"}
     freq: dict[str, int] = {}
@@ -212,38 +212,42 @@ def _simple_keywords(text: str, top_n: int = 16) -> list[str]:
     return [k for k, _ in sorted(freq.items(), key=lambda kv: kv[1], reverse=True)[:top_n]]
 
 
-def _fallback_evidence_cards(sdoc: ParsedDocument, top_n: int = 3) -> list[dict[str, Any]]:
+def _fallback_evidence_cards(sdoc: ParsedDocument, top_n: int = 10) -> list[dict[str, Any]]:
     text = sdoc.cleaned_text or ""
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-    seeds: list[str] = []
-    for s in sentences:
-        low = s.lower()
-        if any(k in low for k in ["we ", "our ", "results", "method", "conclusion", "demonstrate", "show"]):
-            seeds.append(s)
-        if len(seeds) >= top_n:
-            break
-    if not seeds:
-        seeds = sentences[:top_n]
+    if len(sentences) <= top_n:
+        seeds = sentences
+    else:
+        # Take a spread of sentences across the document
+        seeds = []
+        step = max(1, len(sentences) // top_n)
+        for i in range(0, len(sentences), step):
+            if len(seeds) < top_n:
+                seeds.append(sentences[i])
+    
     cards: list[dict[str, Any]] = []
-    for s in seeds[:top_n]:
-        cards.append(
-            {
-                "claim": s[:220],
-                "evidence": s[:320],
-                "confidence": "low",
-                "source_file": sdoc.source_path.name,
-                "fallback_generated": True,
-            }
-        )
+    for s in seeds:
+        cards.append({
+            "claim": s[:300],
+            "evidence": s[:600],
+            "confidence": "low",
+            "source_file": str(sdoc.source_path.name),
+            "fallback_generated": True
+        })
     return cards
 
 
 def _token_overlap(a: str, b: str) -> float:
-    sa = set(_simple_keywords(a, top_n=32))
-    sb = set(_simple_keywords(b, top_n=32))
+    def _get_tokens(text: str) -> set[str]:
+        words = re.findall(r"\b[A-Za-z]{3,}\b", text.lower())
+        stop = {"with", "that", "this", "from", "have", "were", "their", "which", "using", "into", "between", "results", "methods", "introduction", "table", "figure", "analysis", "paper", "study", "also", "been", "these"}
+        return {w for w in words if w not in stop}
+    
+    sa = _get_tokens(a)
+    sb = _get_tokens(b)
     if not sa or not sb:
         return 0.0
-    return len(sa & sb) / float(len(sa | sb))
+    return len(sa & sb) / float(min(len(sa), len(sb)))
 
 
 def _support_relevance_score(manuscript_text: str, support_text: str) -> float:
@@ -576,7 +580,7 @@ def run_deep_run(
     selected_supporting_docs: list[dict[str, Any]] = []
     support_parse_failures: list[dict[str, str]] = []
     manuscript_text = manuscript_doc.cleaned_text or ""
-    for m in support_materials[:20]:
+    for m in support_materials[:50]:
         path = store.material_path(pdir, m)
         try:
             sdoc = parse_file(path)
@@ -1376,6 +1380,7 @@ def run_deep_run(
                 "writing_organization_concerns",
                 "figure_table_concerns",
                 "major_weaknesses",
+                "grounded_detailed_comments",
             ]:
                 vals = src.get(key, [])
                 if isinstance(vals, list):
@@ -1404,6 +1409,27 @@ def run_deep_run(
                 vals = style_payload.get(k, [])
                 if isinstance(vals, list):
                     review_for_comments.setdefault("writing_organization_concerns", []).extend([str(v) for v in vals])
+                    
+        # Explicitly convert semantic verifications into heavily grounded comments.
+        try:
+            verifs = json.loads((run_dir / "stage_05b_semantic_verification.json").read_text(encoding="utf-8")).get("verifications", [])
+            for v in verifs:
+                verdict = v.get("verdict", "")
+                if verdict in {"partially_supported", "contradicted", "unsupported"}:
+                    source = v.get("supporting_source") or "unspecified support doc"
+                    comment_text = f"Claim verification ({verdict}): {v.get('rationale', '')} [Evidence: {v.get('evidence_summary', '')}]"
+                    review_for_comments.setdefault("section_specific_comments", []).append(
+                        {
+                            "section": "Inferred from claim",
+                            "comment": comment_text,
+                            "severity": "high" if verdict == "contradicted" else "medium",
+                            "evidence_source": source,
+                            "manuscript_quote": v.get("claim_text", "")
+                        }
+                    )
+        except Exception as exc:
+            logger.warning(f"Failed to inject semantic verifications into comments: {exc}")
+
         # Reuse schema-like fields from high-level stage payload for consistent comments.
         class _Obj:
             def __init__(self, payload: dict[str, Any]):
@@ -1412,7 +1438,13 @@ def run_deep_run(
             @property
             def section_specific_comments(self):
                 return [
-                    type("C", (), {"section": x.get("section", "section"), "comment": x.get("comment", ""), "severity": x.get("severity", "medium")})
+                    type("C", (), {
+                        "section": x.get("section", "section"), 
+                        "comment": x.get("comment", ""), 
+                        "severity": x.get("severity", "medium"),
+                        "evidence_source": x.get("evidence_source", None),
+                        "manuscript_quote": x.get("manuscript_quote", None)
+                    })
                     for x in self.payload.get("section_specific_comments", [])
                     if isinstance(x, dict)
                 ]
@@ -1428,6 +1460,19 @@ def run_deep_run(
             @property
             def detailed_reviewer_comments(self):
                 return [str(x) for x in self.payload.get("detailed_reviewer_comments", []) if str(x).strip()]
+
+            @property
+            def grounded_detailed_comments(self):
+                return [
+                    type("G", (), {
+                        "comment": x.get("comment", ""),
+                        "severity": x.get("severity", "medium"),
+                        "evidence_source": x.get("evidence_source", None),
+                        "manuscript_quote": x.get("manuscript_quote", None)
+                    })
+                    for x in self.payload.get("grounded_detailed_comments", [])
+                    if isinstance(x, dict)
+                ]
 
             @property
             def methodological_concerns(self):

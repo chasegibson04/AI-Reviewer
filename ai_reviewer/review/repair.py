@@ -188,11 +188,27 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
                         "section": item.get("section") or item.get("title") or "unknown",
                         "comment": item.get("comment") or item.get("text") or "",
                         "severity": item.get("severity") or "medium",
+                        "evidence_source": item.get("evidence_source") or "manuscript_internal",
+                        "manuscript_quote": item.get("manuscript_quote"),
                     }
                 )
             elif isinstance(item, str):
-                norm_sections.append({"section": "unknown", "comment": item, "severity": "medium"})
+                norm_sections.append({"section": "unknown", "comment": item, "severity": "medium", "evidence_source": "manuscript_internal", "manuscript_quote": None})
         payload["section_specific_comments"] = norm_sections
+
+    if isinstance(payload.get("grounded_detailed_comments"), list):
+        norm_grounded = []
+        for item in payload["grounded_detailed_comments"]:
+            if isinstance(item, dict):
+                norm_grounded.append({
+                    "comment": item.get("comment") or item.get("text") or "",
+                    "evidence_source": item.get("evidence_source") or "manuscript_internal",
+                    "manuscript_quote": item.get("manuscript_quote"),
+                    "severity": item.get("severity") or "medium",
+                })
+            elif isinstance(item, str):
+                norm_grounded.append({"comment": item, "evidence_source": "manuscript_internal", "manuscript_quote": None, "severity": "medium"})
+        payload["grounded_detailed_comments"] = norm_grounded
 
     # Minimal defaults so strict validation can still succeed when content is mostly present.
     payload.setdefault("document_metadata", {})
@@ -210,6 +226,7 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
     payload.setdefault("recommendation", {"decision": "revise", "rationale": ""})
     payload.setdefault("confidence", 0.5)
     payload.setdefault("detailed_reviewer_comments", [])
+    payload.setdefault("grounded_detailed_comments", [])
     payload.setdefault("section_specific_comments", [])
     payload.setdefault("extracted_action_items", [])
     payload.setdefault(
