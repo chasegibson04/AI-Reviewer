@@ -12,14 +12,22 @@ def test_synthetic_docs():
     provider = OllamaProvider(cfg.defaults.ollama_base_url)
     out_dir = Path("audits/docx_native_fixtures")
     
-    from ai_reviewer.review.schema import ReviewSchema, Recommendation
+    from ai_reviewer.review.schema import ReviewSchema, Recommendation, GroundedComment
     
     # Mock review
     review = ReviewSchema(
         summary="Test summary",
         recommendation=Recommendation(decision="revise", rationale="Test"),
         confidence=0.8,
-        detailed_reviewer_comments=["This is a test comment from the LLM."],
+        detailed_reviewer_comments=["Generic comment"],
+        grounded_detailed_comments=[
+            GroundedComment(
+                comment="Grounded detailed comment.",
+                evidence_source="evidence.pdf",
+                manuscript_quote="Quote from paper.",
+                severity="medium"
+            )
+        ],
         section_specific_comments=[
             {"section": "Introduction", "comment": "Test intro comment.", "severity": "medium", "evidence_source": "none", "manuscript_quote": "This is an introduction paragraph."}
         ],

@@ -10,6 +10,7 @@ from ai_reviewer.platform import detect_platform
 class ModelSelection:
     balanced_model: str
     deep_model: str
+    heavyweight_model: str
     embedding_model: str | None
     embedding_fallback: str | None
     repair_candidates: list[str]
@@ -36,6 +37,9 @@ DEEP_RUN_STAGE_KEYS = [
     "style_alignment",
     "reconciliation",
     "final_arbitration",
+    "reflection",
+    "final_adjudication",
+    "whole_run_audit",
 ]
 
 
@@ -43,6 +47,7 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
     platform_info = detect_platform()
     wanted_balanced = config.defaults.balanced_review_model
     wanted_deep = config.defaults.deep_review_model
+    wanted_heavy = getattr(config.defaults, "heavyweight_model", "qwen3:235b")
     wanted_embed = config.defaults.embedding_model
     wanted_fallback = config.defaults.embedding_fallback_model
 
@@ -64,6 +69,13 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
         "gemma3:27b",
         "qwen3:14b",
     ]
+    heavy_priority = [
+        wanted_heavy,
+        "qwen3:235b",
+        "llama3.3:70b-instruct-q4_K_M",
+        "qwen3:72b",
+        "qwen3:32b",
+    ]
     if platform_info.is_mac_arm:
         balanced_priority = [
             wanted_balanced,
@@ -82,6 +94,11 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
             "mistral-small3.2:latest",
             "gemma3:27b",
         ]
+        heavy_priority = [
+            wanted_heavy,
+            "llama3.3:70b-instruct-q4_K_M",
+            "qwen3:32b",
+        ]
 
     def pick(candidates: list[str], fallback: str) -> str:
         for c in candidates:
@@ -91,6 +108,7 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
 
     balanced = pick(balanced_priority, installed[0] if installed else wanted_balanced)
     deep = pick(deep_priority, balanced)
+    heavy = pick(heavy_priority, deep)
 
     embedding_model = wanted_embed if wanted_embed in installed else None
     embedding_fallback = wanted_fallback if wanted_fallback in installed else None
@@ -104,6 +122,7 @@ def infer_model_roles(installed: list[str], config: ReviewerConfig) -> ModelSele
     return ModelSelection(
         balanced_model=balanced,
         deep_model=deep,
+        heavyweight_model=heavy,
         embedding_model=embedding_model,
         embedding_fallback=embedding_fallback,
         repair_candidates=repairs,
@@ -260,6 +279,8 @@ def select_deep_run_stage_models(
     default_synth = _pick_text_chat_model(chat_pool, default_synth_candidates, critique_candidates)
     repair = _pick_text_chat_model(chat_pool, repair_candidates, default_synth_candidates)
 
+    hw_model = roles.heavyweight_model if config.heavyweight.enabled else None
+
     if routing_mode == "max_quality":
         reasoning = _pick_text_chat_model(chat_pool, max_quality_reasoning_candidates, critique_candidates)
         digest = _pick_text_chat_model(chat_pool, max_quality_digest_candidates, default_synth_candidates)
@@ -279,6 +300,9 @@ def select_deep_run_stage_models(
             "style_alignment": editor,
             "reconciliation": reconciliation,
             "final_arbitration": final_arbitration,
+            "reflection": hw_model if config.heavyweight.enable_reflection else None,
+            "final_adjudication": hw_model if config.heavyweight.enable_adjudication else None,
+            "whole_run_audit": hw_model if config.heavyweight.enable_audit else None,
         }
         # Final override from config
         for k, v in config.deep_run_routing.overrides.items():
@@ -300,6 +324,9 @@ def select_deep_run_stage_models(
         "style_alignment": default_synth,
         "reconciliation": repair,
         "final_arbitration": arbitration,
+        "reflection": hw_model if config.heavyweight.enable_reflection else None,
+        "final_adjudication": hw_model if config.heavyweight.enable_adjudication else None,
+        "whole_run_audit": hw_model if config.heavyweight.enable_audit else None,
     }
     # Final override from config
     for k, v in config.deep_run_routing.overrides.items():

@@ -13,9 +13,9 @@ from ai_reviewer.paths import REPO_ROOT
 @dataclass
 class Timeouts:
     connect_seconds: int = 10
-    chat_seconds: int = 240
-    embed_seconds: int = 120
-    health_seconds: int = 5
+    chat_seconds: int = 600
+    embed_seconds: int = 300
+    health_seconds: int = 10
 
 
 @dataclass
@@ -114,9 +114,19 @@ class DeepRunRoutingConfig:
 
 
 @dataclass
+class HeavyweightConfig:
+    enabled: bool = True
+    model: str = "qwen3:235b"
+    enable_reflection: bool = True
+    enable_adjudication: bool = True
+    enable_audit: bool = True
+
+
+@dataclass
 class Defaults:
     balanced_review_model: str = "mistral-small3.2:latest"
     deep_review_model: str = "phi4-reasoning:latest"
+    heavyweight_model: str = "qwen3:235b"
     embedding_model: str = "bge-m3:latest"
     embedding_fallback_model: str = "nomic-embed-text-v2-moe:latest"
     repair_models: list[str] = field(default_factory=lambda: ["qwen2.5:7b-instruct", "mistral-small3.2:latest"])
@@ -144,6 +154,7 @@ class ReviewerConfig:
     figure_review: FigureReviewConfig = field(default_factory=FigureReviewConfig)
     citation_fetch: CitationFetchConfig = field(default_factory=CitationFetchConfig)
     deep_run_routing: DeepRunRoutingConfig = field(default_factory=DeepRunRoutingConfig)
+    heavyweight: HeavyweightConfig = field(default_factory=HeavyweightConfig)
 
 
 DEFAULT_CONFIG = ReviewerConfig()

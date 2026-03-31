@@ -1,0 +1,17 @@
+defaults:
+  strict_offline: false
+deep_run_routing:
+  mode: max_quality
+  overrides:
+    structural_triage: phi4-mini:latest
+    supporting_digest: phi4-reasoning:latest
+    manuscript_digest: phi4-reasoning:latest
+    evidence_linking: phi4-reasoning:latest
+    context_synthesis: phi4-reasoning:latest
+    high_level_review: phi4-reasoning:latest
+    adversarial_review: phi4-reasoning:latest
+    methods_verification: phi4-reasoning:latest
+    line_edits: phi4-reasoning:latest
+    style_alignment: phi4-mini:latest
+    reconciliation: phi4-reasoning:latest
+    final_arbitration: phi4-reasoning:latest

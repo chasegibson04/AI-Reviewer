@@ -1,0 +1,9 @@
+defaults:
+  strict_offline: false
+deep_run_routing:
+  mode: max_quality
+  overrides:
+    high_level_review: qwen3:32b
+    adversarial_review: qwen3:32b
+    methods_verification: qwen3:32b
+    final_arbitration: qwen3:32b

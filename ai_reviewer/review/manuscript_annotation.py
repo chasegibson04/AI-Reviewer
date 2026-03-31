@@ -2598,6 +2598,133 @@ def _final_suggested_change_arbitration(
     return revised_changes
 
 
+def _reflection_pass(
+    comments: list[dict[str, Any]],
+    doc: ParsedDocument,
+    provider: Provider,
+    model: str,
+    supporting_cards: list[dict[str, Any]],
+    timeout: int
+) -> list[dict[str, Any]]:
+    if not comments:
+        return comments
+    
+    # Filter for relevant supporting cards to keep context manageable
+    # In a real scenario, we might want to only pass cards relevant to the batch
+    
+    refined_comments = []
+    batch_size = 8
+    for i in range(0, len(comments), batch_size):
+        batch = comments[i:i+batch_size]
+        batch_payload = []
+        for c in batch:
+            batch_payload.append({
+                "id": c.get("comment_id", ""),
+                "critique": c.get("critique", ""),
+                "evidence_source": c.get("evidence_source", "none"),
+                "manuscript_quote": c.get("manuscript_quote", "none"),
+                "section": c.get("section_hint", "unknown"),
+            })
+            
+        prompt = (
+            "You are an expert scientific manuscript auditor. Your task is to fact-check and refine drafted reviewer comments.\n\n"
+            "INPUTS:\n"
+            f"1. MANUSCRIPT EXCERPT (first 16k chars):\n{doc.cleaned_text[:16000]}\n\n"
+            f"2. SUPPORTING EVIDENCE CARDS (sample):\n{json.dumps(supporting_cards[:20], indent=2)}\n\n"
+            f"3. DRAFT COMMENTS TO REVIEW:\n{json.dumps(batch_payload, indent=2)}\n\n"
+            "INSTRUCTIONS:\n"
+            "- 'score' each comment: 'directly_supported', 'partially_supported' (needs softer wording), 'unsupported' (hallucinated or contradicts evidence), 'too_generic' (fluff).\n"
+            "- 'action': 'keep' (if good), 'rewrite' (to sharpen/soften), 'reject' (if bad).\n"
+            "- If evidence suggests a SHARPER technical criticism, rewrite it to be more specific.\n"
+            "- If a comment is overreaching, soften it.\n"
+            "- If evidence_source is 'manuscript_internal' but a supporting card confirms it, update evidence_source.\n\n"
+            "Return STRICT JSON as a list of objects: [{\"id\": \"...\", \"score\": \"...\", \"action\": \"...\", \"rewritten_critique\": \"...\", \"new_evidence_source\": \"...\"}]\n"
+        )
+        
+        try:
+            resp = provider.chat(
+                ChatRequest(
+                    model=model,
+                    system_prompt="You are a strict scientific evidence auditor. Return only a JSON list.",
+                    user_prompt=prompt,
+                    temperature=0.1,
+                    max_tokens=3000,
+                    timeout_seconds=timeout,
+                    metadata={"json_mode": True, "reflection_pass": True}
+                )
+            )
+            from ai_reviewer.review.repair import extract_json_candidate
+            cand_str = extract_json_candidate(resp.content) or resp.content
+            refined_list = json.loads(cand_str)
+            
+            if isinstance(refined_list, list):
+                ref_map = {str(item.get("id")): item for item in refined_list if isinstance(item, dict)}
+                for c in batch:
+                    cid = str(c.get("comment_id"))
+                    ref = ref_map.get(cid)
+                    if ref:
+                        action = ref.get("action")
+                        if action == "reject":
+                            continue
+                        if action == "rewrite" and ref.get("rewritten_critique"):
+                            c["critique"] = ref.get("rewritten_critique")
+                        if ref.get("new_evidence_source"):
+                            c["evidence_source"] = ref.get("new_evidence_source")
+                    refined_comments.append(c)
+            else:
+                refined_comments.extend(batch)
+        except Exception:
+            refined_comments.extend(batch)
+            
+    return refined_comments
+
+
+def _adjudication_pass(comments: list[dict[str, Any]], doc: ParsedDocument, provider: Provider, model: str, timeout: int) -> list[dict[str, Any]]:
+    if len(comments) < 2:
+        return comments
+        
+    payload = []
+    for c in comments:
+        payload.append({
+            "id": c.get("comment_id", ""),
+            "critique": c.get("critique", ""),
+            "section": c.get("section_target", "unknown"),
+        })
+        
+    prompt = (
+        "You are the Final Adjudicator for a set of manuscript review comments. Review the following list of comments.\n\n"
+        "Your task:\n"
+        "1. Remove duplicates.\n"
+        "2. Remove low-value fluff.\n"
+        "3. Preserve the strongest technically grounded comments.\n"
+        "4. Return STRICT JSON containing ONLY the list of IDs that should be kept in the final review.\n"
+        "Format: {\"kept_ids\": [\"id1\", \"id2\"]}\n\n"
+        f"COMMENTS TO ADJUDICATE:\n{json.dumps(payload, indent=2)}\n"
+    )    
+    try:
+        resp = provider.chat(
+            ChatRequest(
+                model=model,
+                system_prompt="You are a strict adjudicator. Return strict JSON with kept_ids.",
+                user_prompt=prompt,
+                temperature=0.1,
+                max_tokens=1500,
+                timeout_seconds=timeout,
+                metadata={"json_mode": True, "adjudication_pass": True}
+            )
+        )
+        from ai_reviewer.review.repair import extract_json_candidate
+        cand_str = extract_json_candidate(resp.content) or resp.content
+        data = json.loads(cand_str)
+        kept_ids = set(data.get("kept_ids", []))
+        if kept_ids:
+            return [c for c in comments if str(c.get("comment_id")) in kept_ids]
+    except Exception:
+        pass
+        
+    return comments
+
+
 def build_annotated_manuscript_output(
     source_path: Path,
     doc: ParsedDocument,
@@ -2610,6 +2737,9 @@ def build_annotated_manuscript_output(
     rewrite_model: str | None = None,
     comment_audit_model: str | None = None,
     suggestion_audit_model: str | None = None,
+    reflection_model: str | None = None,
+    adjudication_model: str | None = None,
+    supporting_cards: list[dict[str, Any]] | None = None,
     timeout_seconds: int = 120,
 ) -> dict[str, Any]:
     source_mode = detect_source_mode(source_path)
@@ -2624,9 +2754,17 @@ def build_annotated_manuscript_output(
         suggested_name = "surrogate_manuscript_from_pdf_with_suggested_changes.docx"
     comments = review_to_comment_entries(review, doc=doc, base_docx=base_docx)
     comments = _assign_paragraph_indices(comments, base_docx)
+
+    if reflection_model and provider:
+        comments = _reflection_pass(comments, doc, provider, reflection_model, supporting_cards or [], timeout_seconds)
+
     comments = _localize_comment_entries(comments, base_docx)
     comments = _revise_comment_entries(comments, base_docx)
     comments = _enrich_comment_suggestions(comments, base_docx)
+
+    if adjudication_model and provider:
+        comments = _adjudication_pass(comments, doc, provider, adjudication_model, timeout_seconds)
+
     comments = _dedupe_comment_entries(comments)
     comments = _filter_comment_entries_by_paragraph_quality(comments, base_docx)
     comments = _balance_comment_entries(comments, base_docx, max_comments=36)

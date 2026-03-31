@@ -1514,6 +1514,9 @@ def run_deep_run(
             rewrite_model=model_stack.get("line_edits") or model_stack.get("context_synthesis"),
             comment_audit_model=model_stack.get("final_arbitration") or model_stack.get("high_level_review") or model_stack.get("line_edits"),
             suggestion_audit_model=model_stack.get("final_arbitration") or model_stack.get("line_edits"),
+            reflection_model=model_stack.get("reflection"),
+            adjudication_model=model_stack.get("final_adjudication"),
+            supporting_cards=supporting_cards,
             timeout_seconds=cfg.timeouts.chat_seconds,
         )
         _write_json(run_dir / "manuscript_comment_manifest.json", annotation)
@@ -1531,6 +1534,41 @@ def run_deep_run(
         _write_json(run_dir / "docx_comment_manifest.json", {"error": str(exc)})
         _write_json(run_dir / "manuscript_comment_manifest.json", {"error": str(exc)})
         stage_status["stage_13_docx_comments"] = "failed"
+
+    # ROLE C — WHOLE-RUN FINAL QUALITY AUDITOR
+    whole_run_audit_payload: dict[str, Any] = {}
+    try:
+        audit_model = model_stack.get("whole_run_audit")
+        if audit_model:
+            logger.info("stage_14_whole_run_audit start")
+            audit_prompt = (
+                "You are an expert manuscript quality auditor. Review the final deep-run output and provide a brutally honest evaluation.\\n"
+                "Return strict JSON with the following keys:\\n"
+                "- strongest_comments: list of the most technically grounded and specific comments (extract max 3).\\n"
+                "- surfaced_issues: list of major issues caught.\\n"
+                "- missed_issues: what important weaknesses likely still exist that were under-reviewed.\\n"
+                "- generic_fluff_flag: boolean, whether the review feels padded with low-value fluff.\\n"
+                "- grounding_quality: string evaluating whether evidence_source and manuscript_quote fields are meaningful.\\n"
+                "- overall_verdict: string summary of whether this constitutes a serious expert review.\\n\\n"
+                f"RECONCILIATION PAYLOAD:\\n{json.dumps(recon_payload)[:8000]}\\n\\n"
+            )
+            if 'annotation' in locals() and annotation.get("comments"):
+                audit_prompt += f"FINAL DOCX COMMENTS (sample):\\n{json.dumps(annotation['comments'][:10])}\\n"
+            
+            resp, _ = _chat_json(
+                provider=provider,
+                model=audit_model,
+                system_prompt="You are the whole-run quality auditor. Return strict JSON only.",
+                user_prompt=audit_prompt,
+                timeout_seconds=cfg_deep.timeouts.chat_seconds,
+            )
+            whole_run_audit_payload = resp
+            _write_json(run_dir / "stage_14_whole_run_audit.json", whole_run_audit_payload)
+            _write_md(run_dir / "stage_14_whole_run_audit.md", "Whole Run Final Quality Audit", whole_run_audit_payload)
+            stage_status["stage_14_whole_run_audit"] = "ok"
+    except Exception as exc:
+        warnings.append(f"whole_run_audit_failed:{exc}")
+        stage_status["stage_14_whole_run_audit"] = "failed"
 
     final_payload = {
         "project_id": project_id,
