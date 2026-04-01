@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+dist/
+.env
+projects/*/runs/
+projects/*/cache/
+reports/
+logs/
+*.log
+bun.lock

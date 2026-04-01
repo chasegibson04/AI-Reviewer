@@ -1,0 +1,27 @@
+Title: The Role of Quantum Capacitance in Nanoscale Devices
+Author: John Doe
+Affiliation: Institute of Advanced Studies, Cityville
+Funding: This work was supported by the NSF under grant #123456.
+
+Abstract
+We investigate the impact of quantum capacitance in carbon nanotube (CNT) structures. We find that the density of states plays a crucial role in the overall performance of nanoscale field-effect transistors.
+
+Introduction
+Nanoscale devices such as CNTs have shown immense promise [1, 2]. However, the classical capacitance limit is often challenged by the quantum capacitance (CQ) effect. As discussed by Smith et al., 2020, the low density of states in graphene-like materials leads to a non-negligible CQ contribution.
+
+Methods
+We fabricated single-walled CNTs using chemical vapor deposition. Measurements were taken using a custom probe station at room temperature. We did not use a negative control for the temperature variation.
+
+Results
+Our results are summarized in Figure 1 and Fig 2. The measured CQ values strongly correlate with theoretical predictions (see Table 1). We also observed a secondary effect, but Figure 3 is missing from this draft.
+
+Discussion
+The unexpected variation in CQ suggests an additional scattering mechanism. We believe this is due to substrate impurities. This directly contradicts [5].
+
+Conclusion
+We have demonstrated that CQ must be accounted for in CNT device models. Future work will explore low-temperature regimes.
+
+References
+[1] A. Anderson, "Nanotubes", 2018.
+[2] B. Brown, "Device physics", 2019.
+[3] C. Clark, "Quantum effects", 2021.
