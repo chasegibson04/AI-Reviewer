@@ -420,11 +420,15 @@ def _build_artifacts(review_data: dict[str, Any], output_dir: Path) -> dict[str,
         "profile": review_data.get("profile", "balanced_local"),
         "transport": "local_mcp_bridge",
         "stages": review_data.get("stages", []),
+        "model_target": review_data.get("model_target", "unknown"),
     }
 
     run_summary = {
         "timestamp": _now_iso(),
         "status": "completed",
+        "profile": review_data.get("profile", "balanced_local"),
+        "mode": review_data.get("mode", "unspecified"),
+        "model_target": review_data.get("model_target", routing_trace.get("model_target", "unknown")),
         "comment_count": len(comments),
         "suggested_change_count": len(suggested_changes),
         "artifact_version": "v2-review-bridge",

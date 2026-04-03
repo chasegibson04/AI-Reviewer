@@ -1,60 +1,92 @@
 import type { LocalJSXCommandCall } from '../../types/command.js'
 import {
   getMainLoopModel,
-  parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
 import { getMainLoopModelOverride, setMainLoopModelOverride } from '../../bootstrap/state.js'
-
-const SUPPORTED_PROFILES = [
-  'quick_local',
-  'balanced_local',
-  'deep_local',
-  'local_moe',
-  'one_big_model',
-  'full_manuscript_final_pass',
-  'offline_strict',
-  'llama_cpp_standard',
-  'llama_cpp_turboquant',
-  'gemma4_26b',
-  'gemma4_31b',
-] as const
+import {
+  DEFAULT_REVIEW_PROFILE,
+  fetchOllamaInventory,
+  getReviewProfileOptions,
+  profileAvailabilitySummary,
+  resolveProfileModel,
+  resolveReviewProfileSelection,
+} from '../../utils/model/reviewProfiles.js'
 
 export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
   const trimmed = args.trim()
+  const inventory = await fetchOllamaInventory()
+  const options = getReviewProfileOptions()
 
   if (trimmed.length > 0) {
-    try {
-      const resolved = parseUserSpecifiedModel(trimmed)
-      setMainLoopModelOverride(trimmed)
+    if (trimmed === 'reset' || trimmed === 'clear') {
+      setMainLoopModelOverride(undefined)
       onDone(
-        `Profile override set to \`${trimmed}\` (resolved model: \`${resolved}\`).`,
+        `Profile override cleared. Default review profile is \`${DEFAULT_REVIEW_PROFILE}\`.`,
         { display: 'system' },
       )
       return null
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error)
-      onDone(`Failed to set profile: ${msg}`, { display: 'system' })
+    }
+
+    const selected = resolveReviewProfileSelection(trimmed)
+    if (!selected) {
+      onDone(
+        `Unknown profile selection \`${trimmed}\`. Run \`/profile\` to view numbered options.`,
+        { display: 'system' },
+      )
       return null
     }
+
+    const resolution = resolveProfileModel(selected, inventory)
+    setMainLoopModelOverride(selected)
+
+    const lines: string[] = []
+    lines.push(`Profile override set to \`${selected}\`.`)
+    lines.push(`- Mode: ${resolution.mode}`)
+    lines.push(`- Resolved model target: \`${resolution.resolvedModel}\``)
+    lines.push(`- Fallback used: ${resolution.fallbackUsed ? 'yes' : 'no'}`)
+    for (const note of resolution.notes) {
+      lines.push(`- Note: ${note}`)
+    }
+    onDone(lines.join('\n'), { display: 'system' })
+    return null
   }
 
   const override = getMainLoopModelOverride()
   const current = getMainLoopModel()
+  const activeSelection =
+    typeof override === 'string'
+      ? resolveReviewProfileSelection(override) ?? DEFAULT_REVIEW_PROFILE
+      : DEFAULT_REVIEW_PROFILE
 
   const lines: string[] = []
-  lines.push('## Profile')
+  lines.push('## Review Profile Selection')
   lines.push(`- Current runtime model: \`${current}\``)
   lines.push(`- Active override: ${override ? `\`${String(override)}\`` : 'none'}`)
+  lines.push(`- Effective review profile default: \`${activeSelection}\``)
+  lines.push(`- Inventory: ${profileAvailabilitySummary(inventory)}`)
   lines.push('')
-  lines.push('Supported profile aliases:')
-  for (const profile of SUPPORTED_PROFILES) {
-    lines.push(`- \`${profile}\``)
+  lines.push('Selectable run styles:')
+  for (const [index, option] of options.entries()) {
+    const resolution = resolveProfileModel(option.alias, inventory)
+    const activeMarker = option.alias === activeSelection ? ' (active)' : ''
+    lines.push(
+      `${index + 1}. \`${option.alias}\`${activeMarker} - ${option.label}: ${option.description}`,
+    )
+    lines.push(
+      `   target=\`${resolution.resolvedModel}\`, fallback=${resolution.fallbackUsed ? 'yes' : 'no'}`,
+    )
   }
   lines.push('')
-  lines.push('Usage:')
-  lines.push('- `/profile balanced_local`')
-  lines.push('- `/profile deep_local`')
-  lines.push('- `/profile local_moe`')
+  lines.push('Usage examples:')
+  lines.push('- `/profile 3` (select by number)')
+  lines.push('- `/profile moe`')
+  lines.push('- `/profile big`')
+  lines.push('- `/profile full_manuscript_final_pass`')
+  lines.push('- `/profile reset`')
+  lines.push('')
+  lines.push(
+    'Big-model mode guidance: use `one_big_model` or `full_manuscript_final_pass`; Gemma 4 is preferred when detected.',
+  )
 
   onDone(lines.join('\n'), { display: 'system' })
   return null

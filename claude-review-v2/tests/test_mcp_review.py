@@ -141,7 +141,9 @@ async def _run_bridge_test():
             "render_outputs",
             {
                 "review_data": {
-                    "profile": "deep_local",
+                    "profile": "one_big_model",
+                    "mode": "single big-model review",
+                    "model_target": "gemma4:31b",
                     "comments": [
                         "Add explicit baseline description in Methods.",
                     ],
@@ -150,6 +152,14 @@ async def _run_bridge_test():
                 "output_dir": str(output_dir_b),
             },
         )
+
+        replay_b_payload = await client.call_tool(
+            "replay_run", {"run_id": str(output_dir_b)}
+        )
+        run_summary_b = replay_b_payload.get("run_summary", {})
+        assert run_summary_b.get("profile") == "one_big_model"
+        assert run_summary_b.get("mode") == "single big-model review"
+        assert run_summary_b.get("model_target") == "gemma4:31b"
 
         diff_payload = await client.call_tool(
             "diff_run",

@@ -1,5 +1,6 @@
 {
-  "profile": "deep_local",
+  "profile": "one_big_model",
   "transport": "local_mcp_bridge",
-  "stages": []
+  "stages": [],
+  "model_target": "gemma4:31b"
 }

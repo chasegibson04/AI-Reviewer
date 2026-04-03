@@ -12,6 +12,7 @@ import { setCwd } from 'src/utils/Shell.js'
 import { initSinks } from 'src/utils/sinks.js'
 import {
   getIsNonInteractiveSession,
+  getMainLoopModelOverride,
   getProjectRoot,
   getSessionId,
   setOriginalCwd,
@@ -47,9 +48,16 @@ import { getPlanSlug } from './utils/plans.js'
 import { saveWorktreeState } from './utils/sessionStorage.js'
 import { profileCheckpoint } from './utils/startupProfiler.js'
 import {
+  DEFAULT_REVIEW_PROFILE,
+  fetchOllamaInventory,
+  getReviewProfileOptions,
+  profileAvailabilitySummary,
+  resolveProfileModel,
+  resolveReviewProfileSelection,
+} from './utils/model/reviewProfiles.js'
+import {
   detectProjectSnapshots,
   detectManuscripts,
-  isOllamaRunning,
 } from './utils/manuscriptDetection.js'
 import {
   createTmuxSessionForWorktree,
@@ -116,11 +124,12 @@ export async function setup(
 
   // Manuscript and Ollama detection
   if (!getIsNonInteractiveSession()) {
-    const [manuscripts, ollamaOk, projects] = await Promise.all([
+    const [manuscripts, inventory, projects] = await Promise.all([
       detectManuscripts(cwd),
-      isOllamaRunning(),
+      fetchOllamaInventory(),
       detectProjectSnapshots(cwd),
     ])
+    const ollamaOk = inventory.reachable
 
     if (!ollamaOk) {
       console.log(
@@ -134,6 +143,20 @@ export async function setup(
         ),
       )
     }
+
+    console.log(chalk.dim(`ℹ️  ${profileAvailabilitySummary(inventory)}`))
+
+    const override = getMainLoopModelOverride()
+    const selectedProfile =
+      typeof override === 'string'
+        ? resolveReviewProfileSelection(override) ?? DEFAULT_REVIEW_PROFILE
+        : DEFAULT_REVIEW_PROFILE
+    const selectedResolution = resolveProfileModel(selectedProfile, inventory)
+    console.log(
+      chalk.dim(
+        `ℹ️  Active review profile: ${selectedProfile} (${selectedResolution.mode}, target=${selectedResolution.resolvedModel})`,
+      ),
+    )
 
     if (manuscripts.length === 0) {
       console.log(
@@ -176,9 +199,20 @@ export async function setup(
       )
     }
 
+    const options = getReviewProfileOptions()
+    console.log(chalk.green('✅ Select run style with `/profile` (number or alias):'))
+    for (const [index, option] of options.slice(0, 5).entries()) {
+      const resolution = resolveProfileModel(option.alias, inventory)
+      console.log(
+        chalk.dim(
+          `  ${index + 1}. ${option.alias} -> ${resolution.resolvedModel}${resolution.fallbackUsed ? ' (fallback)' : ''}`,
+        ),
+      )
+    }
+
     console.log(
       chalk.dim(
-        'Suggested next commands: /diagnose, /project, /review, /deep-run, /artifacts, /profile',
+        'Suggested next commands: /profile, /diagnose, /project, /review, /deep-run, /artifacts',
       ),
     )
   }

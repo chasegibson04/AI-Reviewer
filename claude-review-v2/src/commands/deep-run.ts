@@ -1,5 +1,8 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.js'
 import type { Command } from '../commands.js'
+import { getMainLoopModelOverride } from '../bootstrap/state.js'
+import { fetchOllamaInventory, resolveProfileModel } from '../utils/model/reviewProfiles.js'
+import { parseReviewRunParameters } from './review/runParameters.js'
 
 const deepReview: Command = {
   type: 'prompt',
@@ -9,10 +12,20 @@ const deepReview: Command = {
   contentLength: 0,
   source: 'builtin',
   async getPromptForCommand(args): Promise<ContentBlockParam[]> {
+    const override = getMainLoopModelOverride()
+    const params = parseReviewRunParameters(args, typeof override === 'string' ? override : undefined)
+    const inventory = await fetchOllamaInventory()
+    const resolution = resolveProfileModel(params.profile, inventory)
+
     return [
       {
         type: 'text',
         text: `Run a full staged manuscript review.
+
+Active run profile: ${params.profile}
+Active run mode: ${resolution.mode}
+Primary model target: ${resolution.resolvedModel}
+Profile notes: ${resolution.notes.join(' | ') || 'none'}
 
 Required flow:
 1. Call inspect_project.
@@ -29,8 +42,9 @@ Rules:
 - Use local-first behavior and avoid remote network calls.
 - Never operate on blocked projects containing pampa or horseshoe.
 - Keep all outputs inside the current workspace.
+- Include selected profile and model target in routing_trace and run_summary fields.
 
-Args: ${args}`,
+Args: ${params.manuscriptHint || args}`,
       },
     ]
   },

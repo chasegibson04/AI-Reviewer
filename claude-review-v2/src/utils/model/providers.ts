@@ -3,10 +3,23 @@ import { isEnvTruthy } from '../envUtils.js'
 
 export type APIProvider = 'firstParty' | 'bedrock' | 'vertex' | 'foundry' | 'openai' | 'gemini' | 'ollama'
 
+function isLocalOpenAICompatBaseUrl(baseUrl: string | undefined): boolean {
+  if (!baseUrl) return false
+  try {
+    const parsed = new URL(baseUrl)
+    return ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)
+  } catch {
+    return false
+  }
+}
+
 export function getAPIProvider(): APIProvider {
   // Priority: explicit env vars, then default to ollama if not specified and not firstParty
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_GEMINI)) return 'gemini'
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI)) return 'openai'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI)) {
+    if (isLocalOpenAICompatBaseUrl(process.env.OPENAI_BASE_URL)) return 'ollama'
+    return 'openai'
+  }
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) return 'bedrock'
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) return 'vertex'
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) return 'foundry'

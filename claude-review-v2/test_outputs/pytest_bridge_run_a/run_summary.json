@@ -1,6 +1,9 @@
 {
-  "timestamp": "2026-04-03T23:39:18.900338+00:00",
+  "timestamp": "2026-04-03T23:53:05.648393+00:00",
   "status": "completed",
+  "profile": "balanced_local",
+  "mode": "unspecified",
+  "model_target": "unknown",
   "comment_count": 2,
   "suggested_change_count": 2,
   "artifact_version": "v2-review-bridge"

@@ -1,13 +1,22 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.js'
 import type { Command } from '../commands.js'
-import { isUltrareviewEnabled } from './review/ultrareviewEnabled.js'
+import { getMainLoopModelOverride } from '../bootstrap/state.js'
+import { fetchOllamaInventory, resolveProfileModel } from '../utils/model/reviewProfiles.js'
+import { parseReviewRunParameters } from './review/runParameters.js'
 
-// Legal wants the explicit surface name plus a docs link visible before the
-// user triggers, so the description carries "Claude Code on the web" + URL.
-const CCR_TERMS_URL = 'https://code.claude.com/docs/en/claude-code-on-the-web'
-
-const MANUSCRIPT_REVIEW_PROMPT = (args: string) => `
+const MANUSCRIPT_REVIEW_PROMPT = (
+  args: string,
+  selectedProfile: string,
+  resolvedModel: string,
+  mode: string,
+  notes: string[],
+) => `
       You are an expert manuscript reviewer and scientific editor. Your goal is to provide a comprehensive, high-quality review of a scientific manuscript.
+
+      Active run profile: ${selectedProfile}
+      Active run mode: ${mode}
+      Primary model target: ${resolvedModel}
+      Profile notes: ${notes.join(' | ') || 'none'}
 
       Follow these steps to conduct the review:
 
@@ -31,6 +40,7 @@ const MANUSCRIPT_REVIEW_PROMPT = (args: string) => `
       - Actionable feedback for the authors.
       - Local-first execution (avoid remote network usage unless explicitly requested).
       - Never operate on blocked project IDs containing PAMPA/pampa or horseshoe.
+      - Reflect the chosen profile in routing_trace and run_summary outputs.
 
       Args (e.g., file path): ${args}
     `
@@ -43,7 +53,22 @@ const review: Command = {
   contentLength: 0,
   source: 'builtin',
   async getPromptForCommand(args): Promise<ContentBlockParam[]> {
-    return [{ type: 'text', text: MANUSCRIPT_REVIEW_PROMPT(args) }]
+    const override = getMainLoopModelOverride()
+    const params = parseReviewRunParameters(args, typeof override === 'string' ? override : undefined)
+    const inventory = await fetchOllamaInventory()
+    const resolution = resolveProfileModel(params.profile, inventory)
+    return [
+      {
+        type: 'text',
+        text: MANUSCRIPT_REVIEW_PROMPT(
+          params.manuscriptHint || args,
+          params.profile,
+          resolution.resolvedModel,
+          resolution.mode,
+          resolution.notes,
+        ),
+      },
+    ]
   },
 }
 

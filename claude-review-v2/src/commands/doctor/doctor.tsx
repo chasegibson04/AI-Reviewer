@@ -1,7 +1,72 @@
-import React from 'react';
-import { Doctor } from '../../screens/Doctor.js';
-import type { LocalJSXCommandCall } from '../../types/command.js';
-export const call: LocalJSXCommandCall = (onDone, _context, _args) => {
-  return Promise.resolve(<Doctor onDone={onDone} />);
-};
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIkRvY3RvciIsIkxvY2FsSlNYQ29tbWFuZENhbGwiLCJjYWxsIiwib25Eb25lIiwiX2NvbnRleHQiLCJfYXJncyIsIlByb21pc2UiLCJyZXNvbHZlIl0sInNvdXJjZXMiOlsiZG9jdG9yLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnXG5pbXBvcnQgeyBEb2N0b3IgfSBmcm9tICcuLi8uLi9zY3JlZW5zL0RvY3Rvci5qcydcbmltcG9ydCB0eXBlIHsgTG9jYWxKU1hDb21tYW5kQ2FsbCB9IGZyb20gJy4uLy4uL3R5cGVzL2NvbW1hbmQuanMnXG5cbmV4cG9ydCBjb25zdCBjYWxsOiBMb2NhbEpTWENvbW1hbmRDYWxsID0gKG9uRG9uZSwgX2NvbnRleHQsIF9hcmdzKSA9PiB7XG4gIHJldHVybiBQcm9taXNlLnJlc29sdmUoPERvY3RvciBvbkRvbmU9e29uRG9uZX0gLz4pXG59XG4iXSwibWFwcGluZ3MiOiJBQUFBLE9BQU9BLEtBQUssTUFBTSxPQUFPO0FBQ3pCLFNBQVNDLE1BQU0sUUFBUSx5QkFBeUI7QUFDaEQsY0FBY0MsbUJBQW1CLFFBQVEsd0JBQXdCO0FBRWpFLE9BQU8sTUFBTUMsSUFBSSxFQUFFRCxtQkFBbUIsR0FBR0MsQ0FBQ0MsTUFBTSxFQUFFQyxRQUFRLEVBQUVDLEtBQUssS0FBSztFQUNwRSxPQUFPQyxPQUFPLENBQUNDLE9BQU8sQ0FBQyxDQUFDLE1BQU0sQ0FBQyxNQUFNLENBQUMsQ0FBQ0osTUFBTSxDQUFDLEdBQUcsQ0FBQztBQUNwRCxDQUFDIiwiaWdub3JlTGlzdCI6W119
+import type { LocalJSXCommandCall } from '../../types/command.js'
+import { getCwd } from '../../utils/cwd.js'
+import { detectManuscripts, detectProjectSnapshots } from '../../utils/manuscriptDetection.js'
+import {
+  DEFAULT_REVIEW_PROFILE,
+  fetchOllamaInventory,
+  profileAvailabilitySummary,
+  resolveProfileModel,
+  resolveReviewProfileSelection,
+} from '../../utils/model/reviewProfiles.js'
+import { getMainLoopModel, getUserSpecifiedModelSetting } from '../../utils/model/model.js'
+import { getMainLoopModelOverride } from '../../bootstrap/state.js'
+
+export const call: LocalJSXCommandCall = async (onDone, context, _args) => {
+  const cwd = getCwd()
+  const [inventory, manuscripts, projects] = await Promise.all([
+    fetchOllamaInventory(),
+    detectManuscripts(cwd),
+    detectProjectSnapshots(cwd),
+  ])
+
+  const bridgeConnected = Object.keys(context.getAppState().mcp.servers).includes(
+    'review-bridge',
+  )
+
+  const override = getMainLoopModelOverride()
+  const selectedProfile =
+    typeof override === 'string'
+      ? resolveReviewProfileSelection(override) ?? DEFAULT_REVIEW_PROFILE
+      : DEFAULT_REVIEW_PROFILE
+  const selectedResolution = resolveProfileModel(selectedProfile, inventory)
+
+  const lines: string[] = []
+  lines.push('## Doctor (Manuscript Review)')
+  lines.push(`- Workspace: \`${cwd}\``)
+  lines.push(`- Bridge server: ${bridgeConnected ? 'connected' : 'disconnected'}`)
+  lines.push(`- Ollama status: ${inventory.reachable ? 'reachable' : 'unreachable'}`)
+  lines.push(`- Ollama inventory: ${profileAvailabilitySummary(inventory)}`)
+  lines.push(`- Current runtime model: \`${getMainLoopModel()}\``)
+  lines.push(`- User-specified model setting: \`${String(getUserSpecifiedModelSetting() ?? 'none')}\``)
+  lines.push(`- Review profile: \`${selectedProfile}\``)
+  lines.push(`- Review mode: ${selectedResolution.mode}`)
+  lines.push(`- Resolved model target: \`${selectedResolution.resolvedModel}\``)
+  lines.push(`- Manuscripts detected: ${manuscripts.length}`)
+  lines.push(`- Projects detected: ${projects.length}`)
+  lines.push('')
+  lines.push('### Checks')
+  lines.push(`- Local backend check: ${inventory.reachable ? 'pass' : 'fail'}`)
+  lines.push(`- Bridge connectivity check: ${bridgeConnected ? 'pass' : 'fail'}`)
+  lines.push(`- Gemma4 26B availability: ${inventory.hasGemma4_26b ? 'pass' : 'not found'}`)
+  lines.push(`- Gemma4 31B availability: ${inventory.hasGemma4_31b ? 'pass' : 'not found'}`)
+
+  if (
+    (selectedProfile === 'one_big_model' ||
+      selectedProfile === 'full_manuscript_final_pass') &&
+    !inventory.hasGemma4_26b &&
+    !inventory.hasGemma4_31b
+  ) {
+    lines.push(
+      '- Big-model profile selected without Gemma 4 detected; fallback model path will be used.',
+    )
+  }
+
+  lines.push('')
+  lines.push('### Suggested actions')
+  lines.push('1. Run `/profile` to choose balanced/deep/MOE/big-model run style.')
+  lines.push('2. Run `/review <file>` for focused review or `/deep-run <file>` for staged deep review.')
+  lines.push('3. Run `/artifacts` after a run to inspect output bundles and validation reports.')
+
+  onDone(lines.join('\n'), { display: 'system' })
+  return null
+}
