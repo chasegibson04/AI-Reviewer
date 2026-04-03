@@ -9,6 +9,8 @@ import { shouldAllowManagedHooksOnly } from './hooks/hooksConfigSnapshot.js'
 import { executeSessionStartHooks, executeSetupHooks } from './hooks.js'
 import { logError } from './log.js'
 import { loadPluginHooks } from './plugins/loadPluginHooks.js'
+import { getEnvironmentSummary } from './manuscriptDetection.js'
+import { getCwd } from './cwd.js'
 
 type SessionStartHooksOptions = {
   sessionId?: string
@@ -124,6 +126,12 @@ export async function processSessionStartHooks(
       // Continue execution - plugin hooks won't be available, but project-level hooks
       // from .claude/settings.json (loaded via captureHooksConfigSnapshot) will still work
     }
+  }
+
+  // Add manuscript review environment summary
+  if (source === 'startup') {
+    const summary = await getEnvironmentSummary(getCwd());
+    additionalContexts.push(summary);
   }
 
   // Execute SessionStart hooks, ignoring blocking errors

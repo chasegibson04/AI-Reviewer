@@ -8,6 +8,17 @@ export const MODEL_ALIASES = [
   'opusplan',
   'codexplan',
   'codexspark',
+  'quick_local',
+  'balanced_local',
+  'deep_local',
+  'local_moe',
+  'one_big_model',
+  'full_manuscript_final_pass',
+  'offline_strict',
+  'llama_cpp_standard',
+  'llama_cpp_turboquant',
+  'gemma4_26b',
+  'gemma4_31b',
 ] as const
 export type ModelAlias = (typeof MODEL_ALIASES)[number]
 

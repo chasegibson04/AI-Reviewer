@@ -98,6 +98,74 @@ export async function handleBgFlag() { throw new Error("Background sessions are 
           ],
         ] as const)
 
+        // Aggressive stubbing for missing modules
+        build.onResolve({ filter: /.*/ }, (args) => {
+          if (args.path.includes('proactive') ||
+              args.path.includes('assistant') ||
+              args.path.includes('ssh') ||
+              args.path.includes('compact') ||
+              args.path.includes('skillSearch') ||
+              args.path.includes('classifier') ||
+              args.path.includes('taskSummary') ||
+              args.path.includes('SleepTool') ||
+              args.path.includes('MonitorTool') ||
+              args.path.includes('SendUserFileTool') ||
+              args.path.includes('PushNotificationTool') ||
+              args.path.includes('SubscribePRTool') ||
+              args.path.includes('OverflowTestTool') ||
+              args.path.includes('CtxInspectTool') ||
+              args.path.includes('TerminalCaptureTool') ||
+              args.path.includes('WebBrowserTool') ||
+              args.path.includes('SnipTool') ||
+              args.path.includes('ListPeersTool') ||
+              args.path.includes('WorkflowTool') ||
+              args.path.includes('VerifyPlanExecutionTool') ||
+              args.path.includes('mcpSkills') ||
+              args.path.includes('attribution') ||
+              args.path.includes('systemThemeWatcher') ||
+              args.path.includes('workerAgent') ||
+              args.path.includes('udsMessaging') ||
+              args.path.includes('udsClient') ||
+              args.path.includes('peerSessions') ||
+              args.path.includes('memoryShapeTelemetry') ||
+              args.path.includes('dream.js') ||
+              args.path.includes('hunter.js') ||
+              args.path.includes('runSkillGenerator.js') ||
+              args.path.includes('SnipBoundaryMessage') ||
+              args.path.includes('UserGitHubWebhookMessage') ||
+              args.path.includes('UserForkBoilerplateMessage') ||
+              args.path.includes('UserCrossSessionMessage') ||
+              args.path.includes('ReviewArtifact') ||
+              args.path.includes('MonitorPermissionRequest') ||
+              args.path.includes('MonitorMcp') ||
+              args.path.includes('WorkflowDetailDialog') ||
+              args.path.includes('LocalWorkflowTask') ||
+              args.path.includes('computer-use') ||
+              args.path.includes('dream.js') ||
+              args.path.includes('hunter.js') ||
+              args.path.includes('runSkillGenerator.js') ||
+              args.path.includes('sessionTranscript') ||
+              args.path.includes('DiscoverSkillsTool') ||
+              args.path.includes('parseConnectUrl') ||
+              args.path.includes('contextCollapse') ||
+              args.path.includes('cachedMCConfig')) {
+
+            // Allow real files if they exist
+            try {
+              if (args.path.includes('WorkflowTool/constants.js')) return null;
+              const fullPath = args.resolveDir ? `${args.resolveDir}/${args.path}` : args.path;
+              // Very basic check, might need better logic
+              if (fullPath.endsWith('.ts') || fullPath.endsWith('.tsx')) return null;
+            } catch {}
+
+            return {
+              path: args.path,
+              namespace: 'native-stub',
+            }
+          }
+          return null;
+        });
+
         // Resolve `import { feature } from 'bun:bundle'` to a shim
         build.onResolve({ filter: /^bun:bundle$/ }, () => ({
           path: 'bun:bundle',
@@ -201,6 +269,64 @@ export const ColorFile = null;
 export const getSyntaxTheme = noop;
 export const plot = noop;
 export const createClaudeForChromeMcpServer = noop;
+export const WORKFLOW_TOOL_NAME = 'WorkflowTool';
+export const BRIEF_TOOL_NAME = 'BriefTool';
+export const LEGACY_BRIEF_TOOL_NAME = 'BriefTool';
+export const SNIP_NUDGE_TEXT = '';
+export const BRIEF_PROACTIVE_SECTION = '';
+export const DISCOVER_SKILLS_TOOL_NAME = 'DiscoverSkillsTool';
+export const COMPUTER_USE_MCP_SERVER_NAME = 'computer-use';
+export const isBriefEnabled = () => false;
+export const isBriefEntitled = () => false;
+export const isSnipRuntimeEnabled = () => false;
+export const isReplBridgeActive = () => false;
+export const useIsClassifierChecking = () => false;
+export const clearClassifierApprovals = noop;
+export const deleteClassifierApproval = noop;
+export const getClassifierApproval = noop;
+export const getYoloClassifierApproval = noop;
+export const setClassifierApproval = noop;
+export const setClassifierChecking = noop;
+export const clearClassifierChecking = noop;
+export const setYoloClassifierApproval = noop;
+export const extractToolUseBlock = noop;
+export const parseClassifierResponse = noop;
+export const getAutoCompactThreshold = noop;
+export const buildPostCompactMessages = noop;
+export const compactConversation = noop;
+export const ERROR_MESSAGE_USER_ABORT = '';
+export const resetMicrocompactState = noop;
+export const consumePendingCacheEdits = () => [];
+export const getPinnedCacheEdits = () => [];
+export const markToolsSentToAPIState = noop;
+export const pinCacheEdits = noop;
+export const getEffectiveContextWindowSize = noop;
+export const isAutoCompactEnabled = () => false;
+export const runPostCompactCleanup = noop;
+export const microcompactMessages = [];
+export const partialCompactConversation = noop;
+export const trySessionMemoryCompaction = noop;
+export const shouldUseSessionMemoryCompaction = () => false;
+export const autoCompactIfNeeded = noop;
+export const getAPIContextManagement = () => ({});
+export const calculateTokenWarningState = () => ({});
+export const useCompactWarningSuppression = noop;
+export const suppressCompactWarning = noop;
+export const compactWarningStore = { subscribe: noop, getSnapshot: noop };
+export const getAttributionTexts = () => [];
+export const getSentinelCategory = noop;
+export const DEFAULT_GRANT_FLAGS = {};
+export const buildComputerUseTools = () => [];
+export const API_RESIZE_PARAMS = {};
+export const targetImageSize = 0;
+export const bindSessionContext = noop;
+export const createHistoryAuthCtx = noop;
+export const fetchLatestEvents = () => [];
+export const fetchOlderEvents = () => [];
+export const createComputerUseMcpServer = noop;
+export const SLEEP_TOOL_NAME = 'SleepTool';
+export const AUTOCOMPACT_BUFFER_TOKENS = 0;
+export const MANUAL_COMPACT_BUFFER_TOKENS = 0;
 // OpenTelemetry exports
 export const ExportResultCode = { SUCCESS: 0, FAILED: 1 };
 export const resourceFromAttributes = noop;

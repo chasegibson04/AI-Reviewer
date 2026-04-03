@@ -6,52 +6,42 @@ import { isUltrareviewEnabled } from './review/ultrareviewEnabled.js'
 // user triggers, so the description carries "Claude Code on the web" + URL.
 const CCR_TERMS_URL = 'https://code.claude.com/docs/en/claude-code-on-the-web'
 
-const LOCAL_REVIEW_PROMPT = (args: string) => `
-      You are an expert code reviewer. Follow these steps:
+const MANUSCRIPT_REVIEW_PROMPT = (args: string) => `
+      You are an expert manuscript reviewer and scientific editor. Your goal is to provide a comprehensive, high-quality review of a scientific manuscript.
 
-      1. If no PR number is provided in the args, run \`gh pr list\` to show open PRs
-      2. If a PR number is provided, run \`gh pr view <number>\` to get PR details
-      3. Run \`gh pr diff <number>\` to get the diff
-      4. Analyze the changes and provide a thorough code review that includes:
-         - Overview of what the PR does
-         - Analysis of code quality and style
-         - Specific suggestions for improvements
-         - Any potential issues or risks
+      Follow these steps to conduct the review:
 
-      Keep your review concise but thorough. Focus on:
-      - Code correctness
-      - Following project conventions
-      - Performance implications
-      - Test coverage
-      - Security considerations
+      1. **Discover Manuscripts**: If no file path is provided in the args, use \`discover_manuscript\` to find available manuscript files.
+      2. **Inspect Environment**: Use \`inspect_project\` to ensure the environment is ready and relevant tools are available.
+      3. **Parse & Map**: Use \`parse_docx\` or \`parse_pdf\` on the selected manuscript, followed by \`map_sections\` to understand the document structure.
+      4. **In-Depth Analysis**: Use the specialized analysis tools as needed based on the manuscript content and user focus:
+         - \`analyze_methods\` for methodological skepticism and rigor.
+         - \`analyze_coherence\` for logical flow and transitions.
+         - \`analyze_terminology\` for consistent and precise language.
+         - \`analyze_figures_tables\` for clarity and correctness of data presentation.
+         - \`analyze_citations\` for citation accuracy and relevance.
+      5. **Arbitration**: Use \`arbitrate_review\` to synthesize findings from different analysis steps into a coherent set of recommendations.
+      6. **Output Generation**: Use \`render_outputs\` to generate the final review artifacts and \`validate_outputs\` to ensure everything is correct.
 
-      Format your review with clear sections and bullet points.
+      Focus on:
+      - Scientific rigor and methodological soundness.
+      - Clarity and coherence of the narrative.
+      - Adherence to academic standards and journal formatting.
+      - Actionable feedback for the authors.
 
-      PR number: ${args}
+      Args (e.g., file path): ${args}
     `
 
 const review: Command = {
   type: 'prompt',
   name: 'review',
-  description: 'Review a pull request',
-  progressMessage: 'reviewing pull request',
+  description: 'Review a scientific manuscript',
+  progressMessage: 'reviewing manuscript',
   contentLength: 0,
   source: 'builtin',
   async getPromptForCommand(args): Promise<ContentBlockParam[]> {
-    return [{ type: 'text', text: LOCAL_REVIEW_PROMPT(args) }]
+    return [{ type: 'text', text: MANUSCRIPT_REVIEW_PROMPT(args) }]
   },
 }
 
-// /ultrareview is the ONLY entry point to the remote bughunter path —
-// /review stays purely local. local-jsx type renders the overage permission
-// dialog when free reviews are exhausted.
-const ultrareview: Command = {
-  type: 'local-jsx',
-  name: 'ultrareview',
-  description: `~10–20 min · Finds and verifies bugs in your branch. Runs in Claude Code on the web. See ${CCR_TERMS_URL}`,
-  isEnabled: () => isUltrareviewEnabled(),
-  load: () => import('./review/ultrareviewCommand.js'),
-}
-
 export default review
-export { ultrareview }

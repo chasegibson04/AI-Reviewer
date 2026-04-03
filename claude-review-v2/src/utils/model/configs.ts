@@ -125,6 +125,37 @@ export const CLAUDE_SONNET_4_6_CONFIG = {
   foundry: 'claude-sonnet-4-6',
   openai: 'gpt-4o',
   gemini: 'gemini-2.0-flash',
+  ollama: 'llama3.1:8b',
+} as const satisfies ModelConfig
+
+export const OLLAMA_LLAMA_3_2_3B_CONFIG = {
+  firstParty: 'llama3.2:3b',
+  bedrock: 'llama3.2:3b',
+  vertex: 'llama3.2:3b',
+  foundry: 'llama3.2:3b',
+  openai: 'llama3.2:3b',
+  gemini: 'llama3.2:3b',
+  ollama: 'llama3.2:3b',
+} as const satisfies ModelConfig
+
+export const OLLAMA_QWEN_2_5_32B_CONFIG = {
+  firstParty: 'qwen2.5-coder:32b',
+  bedrock: 'qwen2.5-coder:32b',
+  vertex: 'qwen2.5-coder:32b',
+  foundry: 'qwen2.5-coder:32b',
+  openai: 'qwen2.5-coder:32b',
+  gemini: 'qwen2.5-coder:32b',
+  ollama: 'qwen2.5-coder:32b',
+} as const satisfies ModelConfig
+
+export const OLLAMA_DEEPSEEK_V3_CONFIG = {
+  firstParty: 'deepseek-v3',
+  bedrock: 'deepseek-v3',
+  vertex: 'deepseek-v3',
+  foundry: 'deepseek-v3',
+  openai: 'deepseek-v3',
+  gemini: 'deepseek-v3',
+  ollama: 'deepseek-v3',
 } as const satisfies ModelConfig
 
 // @[MODEL LAUNCH]: Register the new config here.
@@ -140,6 +171,9 @@ export const ALL_MODEL_CONFIGS = {
   opus41: CLAUDE_OPUS_4_1_CONFIG,
   opus45: CLAUDE_OPUS_4_5_CONFIG,
   opus46: CLAUDE_OPUS_4_6_CONFIG,
+  'llama3.2:3b': OLLAMA_LLAMA_3_2_3B_CONFIG,
+  'qwen2.5-coder:32b': OLLAMA_QWEN_2_5_32B_CONFIG,
+  'deepseek-v3': OLLAMA_DEEPSEEK_V3_CONFIG,
 } as const satisfies Record<string, ModelConfig>
 
 export type ModelKey = keyof typeof ALL_MODEL_CONFIGS

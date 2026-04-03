@@ -43,6 +43,9 @@ export function getSmallFastModel(): ModelName {
   if (getAPIProvider() === 'openai') {
     return process.env.OPENAI_MODEL || 'gpt-4o-mini'
   }
+  if (getAPIProvider() === 'ollama') {
+    return process.env.OLLAMA_SMALL_MODEL || 'llama3.2:3b'
+  }
   return getDefaultHaikuModel()
 }
 
@@ -122,6 +125,10 @@ export function getDefaultOpusModel(): ModelName {
   // OpenAI provider: use user-specified model or default
   if (getAPIProvider() === 'openai') {
     return process.env.OPENAI_MODEL || 'gpt-4o'
+  }
+  // Ollama provider
+  if (getAPIProvider() === 'ollama') {
+    return process.env.OLLAMA_BIG_MODEL || 'deepseek-v3'
   }
   // 3P providers (Bedrock, Vertex, Foundry) — kept as a separate branch
   // even when values match, since 3P availability lags firstParty and
@@ -349,6 +356,10 @@ export function renderDefaultModelSetting(
   if (setting === 'codexspark') {
     return 'Codex Spark (GPT-5.3 Codex Spark)'
   }
+  if (setting === 'quick_local') return 'Quick Local (Ollama fast)'
+  if (setting === 'balanced_local') return 'Balanced Local (Ollama medium)'
+  if (setting === 'deep_local') return 'Deep Local (Ollama large)'
+  if (setting === 'local_moe') return 'Local MOE (Staged review)'
   return renderModelName(parseUserSpecifiedModel(setting))
 }
 
@@ -389,6 +400,10 @@ export function renderModelSetting(setting: ModelName | ModelAlias): string {
   if (setting === 'codexspark') {
     return 'Codex Spark'
   }
+  if (setting === 'quick_local') return 'Quick Local'
+  if (setting === 'balanced_local') return 'Balanced Local'
+  if (setting === 'deep_local') return 'Deep Local'
+  if (setting === 'local_moe') return 'Local MOE'
   if (isModelAlias(setting)) {
     return capitalize(setting)
   }
@@ -521,6 +536,28 @@ export function parseUserSpecifiedModel(
         return modelInputTrimmed
       case 'codexspark':
         return modelInputTrimmed
+      case 'quick_local':
+        return process.env.OLLAMA_SMALL_MODEL || 'llama3.2:3b'
+      case 'balanced_local':
+        return process.env.OLLAMA_MEDIUM_MODEL || 'llama3.1:8b'
+      case 'deep_local':
+        return process.env.OLLAMA_BIG_MODEL || 'qwen2.5-coder:32b'
+      case 'local_moe':
+        return 'local_moe' // Handled by router
+      case 'one_big_model':
+        return process.env.OLLAMA_BIG_MODEL || 'qwen2.5-coder:32b'
+      case 'full_manuscript_final_pass':
+        return process.env.OLLAMA_BIG_MODEL || 'qwen2.5-coder:32b'
+      case 'offline_strict':
+        return process.env.OLLAMA_BIG_MODEL || 'qwen2.5-coder:32b'
+      case 'llama_cpp_standard':
+        return 'llama_cpp_standard'
+      case 'llama_cpp_turboquant':
+        return 'llama_cpp_turboquant'
+      case 'gemma4_26b':
+        return 'gemma4:26b'
+      case 'gemma4_31b':
+        return 'gemma4:31b'
       case 'opusplan':
         return getDefaultSonnetModel() + (has1mTag ? '[1m]' : '') // Sonnet is default, Opus in plan mode
       case 'sonnet':
