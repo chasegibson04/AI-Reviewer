@@ -1,20 +1,21 @@
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../../services/analytics/index.js'
 import { isEnvTruthy } from '../envUtils.js'
 
-export type APIProvider = 'firstParty' | 'bedrock' | 'vertex' | 'foundry' | 'openai' | 'gemini'
+export type APIProvider = 'firstParty' | 'bedrock' | 'vertex' | 'foundry' | 'openai' | 'gemini' | 'ollama'
 
 export function getAPIProvider(): APIProvider {
-  return isEnvTruthy(process.env.CLAUDE_CODE_USE_GEMINI)
-    ? 'gemini'
-    : isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI)
-      ? 'openai'
-      : isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)
-        ? 'bedrock'
-        : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
-          ? 'vertex'
-          : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
-            ? 'foundry'
-            : 'firstParty'
+  // Priority: explicit env vars, then default to ollama if not specified and not firstParty
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_GEMINI)) return 'gemini'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI)) return 'openai'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) return 'bedrock'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) return 'vertex'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) return 'foundry'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_OLLAMA)) return 'ollama'
+  
+  // Default to Ollama for AI-Reviewer v2 local-first strategy
+  if (!process.env.ANTHROPIC_API_KEY) return 'ollama'
+
+  return 'firstParty'
 }
 
 export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS {

@@ -47,6 +47,11 @@ import { getPlanSlug } from './utils/plans.js'
 import { saveWorktreeState } from './utils/sessionStorage.js'
 import { profileCheckpoint } from './utils/startupProfiler.js'
 import {
+  detectProjectSnapshots,
+  detectManuscripts,
+  isOllamaRunning,
+} from './utils/manuscriptDetection.js'
+import {
   createTmuxSessionForWorktree,
   createWorktreeForSession,
   generateTmuxSessionName,
@@ -107,6 +112,75 @@ export async function setup(
       './utils/swarm/backends/teammateModeSnapshot.js'
     )
     captureTeammateModeSnapshot()
+  }
+
+  // Manuscript and Ollama detection
+  if (!getIsNonInteractiveSession()) {
+    const [manuscripts, ollamaOk, projects] = await Promise.all([
+      detectManuscripts(cwd),
+      isOllamaRunning(),
+      detectProjectSnapshots(cwd),
+    ])
+
+    if (!ollamaOk) {
+      console.log(
+        chalk.yellow(
+          '⚠️  Ollama does not appear to be running on http://localhost:11434.',
+        ),
+      )
+      console.log(
+        chalk.dim(
+          'Local-first review requires Ollama. Please start it to use local models.',
+        ),
+      )
+    }
+
+    if (manuscripts.length === 0) {
+      console.log(
+        chalk.blue(
+          'ℹ️  No manuscript files (.docx, .pdf) detected in this directory or projects/ folder.',
+        ),
+      )
+      console.log(
+        chalk.dim(
+          'You can still use the shell, but manuscript review tools will need a file path.',
+        ),
+      )
+    } else {
+      console.log(
+        chalk.green(
+          `✅ Found ${manuscripts.length} manuscript(s). Ready for review.`,
+        ),
+      )
+      for (const m of manuscripts) {
+        console.log(chalk.dim(`  - ${m.path}`));
+      }
+    }
+
+    if (projects.length > 0) {
+      console.log(
+        chalk.green(
+          `✅ Found ${projects.length} project(s) under ./projects.`,
+        ),
+      )
+      for (const project of projects.slice(0, 8)) {
+        console.log(
+          chalk.dim(
+            `  - ${project.projectId}: manuscripts=${project.manuscriptCount}, runs=${project.artifactCount}`,
+          ),
+        )
+      }
+    } else {
+      console.log(
+        chalk.blue('ℹ️  No projects detected under ./projects.'),
+      )
+    }
+
+    console.log(
+      chalk.dim(
+        'Suggested next commands: /diagnose, /project, /review, /deep-run, /artifacts, /profile',
+      ),
+    )
   }
 
   // Terminal backup restoration — interactive only. Print mode doesn't

@@ -1079,6 +1079,20 @@ export async function getClaudeCodeMcpConfigs(
 }> {
   const { servers: enterpriseServers } = getMcpConfigsByScope('enterprise')
 
+  // Inject AI-Reviewer internal bridge server
+  const reviewBridgeServer: Record<string, ScopedMcpServerConfig> = {
+    'review-bridge': {
+      type: 'stdio',
+      command: 'python3',
+      args: [join(getCwd(), 'src', 'bridge', 'python', 'review_mcp_server.py')],
+      scope: 'project',
+      env: {
+        PYTHONPATH: join(getCwd(), '..'),
+      },
+    },
+  }
+  Object.assign(dynamicServers, reviewBridgeServer)
+
   // If an enterprise mcp config exists, do not use any others; this has exclusive control over all MCP servers
   // (enterprise customers often do not want their users to be able to add their own MCP servers).
   if (doesEnterpriseMcpConfigExist()) {

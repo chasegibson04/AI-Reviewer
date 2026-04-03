@@ -1,0 +1,14 @@
+[
+  {
+    "id": "edit-1",
+    "target": "body",
+    "original": "Methods section should clarify sampling strategy.",
+    "suggested": "Methods section should clarify sampling strategy."
+  },
+  {
+    "id": "edit-2",
+    "target": "body",
+    "original": "Discussion overstates causality for observed correlation.",
+    "suggested": "Discussion overstates causality for observed correlation."
+  }
+]

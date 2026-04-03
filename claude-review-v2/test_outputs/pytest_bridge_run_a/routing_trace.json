@@ -1,0 +1,5 @@
+{
+  "profile": "balanced_local",
+  "transport": "local_mcp_bridge",
+  "stages": []
+}
