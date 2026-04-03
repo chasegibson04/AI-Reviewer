@@ -76,9 +76,26 @@ import { ListMcpResourcesTool } from './tools/ListMcpResourcesTool/ListMcpResour
 import { ReadMcpResourceTool } from './tools/ReadMcpResourceTool/ReadMcpResourceTool.js'
 import { ToolSearchTool } from './tools/ToolSearchTool/ToolSearchTool.js'
 import { EnterPlanModeTool } from './tools/EnterPlanModeTool/EnterPlanModeTool.js'
-import { EnterWorktreeTool } from './tools/EnterWorktreeTool/EnterWorktreeTool.js'
-import { ExitWorktreeTool } from './tools/ExitWorktreeTool/ExitWorktreeTool.js'
 import { ConfigTool } from './tools/ConfigTool/ConfigTool.js'
+import { InspectProjectTool } from './tools/InspectProjectTool/InspectProjectTool.js'
+import { DiscoverManuscriptTool } from './tools/DiscoverManuscriptTool/DiscoverManuscriptTool.js'
+import { ParseDocxTool } from './tools/ParseDocxTool/ParseDocxTool.js'
+import { ParsePdfTool } from './tools/ParsePdfTool/ParsePdfTool.js'
+import { MapSectionsTool } from './tools/MapSectionsTool/MapSectionsTool.js'
+import { DigestManuscriptTool } from './tools/DigestManuscriptTool/DigestManuscriptTool.js'
+import { AnalyzeTerminologyTool } from './tools/AnalyzeTerminologyTool/AnalyzeTerminologyTool.js'
+import { AnalyzeCoherenceTool } from './tools/AnalyzeCoherenceTool/AnalyzeCoherenceTool.js'
+import { AnalyzeMethodsTool } from './tools/AnalyzeMethodsTool/AnalyzeMethodsTool.js'
+import { AnalyzeFiguresTablesTool } from './tools/AnalyzeFiguresTablesTool/AnalyzeFiguresTablesTool.js'
+import { AnalyzeCitationsTool } from './tools/AnalyzeCitationsTool/AnalyzeCitationsTool.js'
+import { AnalyzeJournalFormatTool } from './tools/AnalyzeJournalFormatTool/AnalyzeJournalFormatTool.js'
+import { GenerateLineEditsTool } from './tools/GenerateLineEditsTool/GenerateLineEditsTool.js'
+import { ArbitrateReviewTool } from './tools/ArbitrateReviewTool/ArbitrateReviewTool.js'
+import { RenderOutputsTool } from './tools/RenderOutputsTool/RenderOutputsTool.js'
+import { ValidateOutputsTool } from './tools/ValidateOutputsTool/ValidateOutputsTool.js'
+import { ReplayRunTool } from './tools/ReplayRunTool/ReplayRunTool.js'
+import { DiffRunTool } from './tools/DiffRunTool/DiffRunTool.js'
+import { BenchmarkProjectTool } from './tools/BenchmarkProjectTool/BenchmarkProjectTool.js'
 import { TaskCreateTool } from './tools/TaskCreateTool/TaskCreateTool.js'
 import { TaskGetTool } from './tools/TaskGetTool/TaskGetTool.js'
 import { TaskUpdateTool } from './tools/TaskUpdateTool/TaskUpdateTool.js'
@@ -211,18 +228,33 @@ export function getAllBaseTools(): Tools {
     AskUserQuestionTool,
     SkillTool,
     EnterPlanModeTool,
+    InspectProjectTool,
+    DiscoverManuscriptTool,
+    ParseDocxTool,
+    ParsePdfTool,
+    MapSectionsTool,
+    DigestManuscriptTool,
+    AnalyzeTerminologyTool,
+    AnalyzeCoherenceTool,
+    AnalyzeMethodsTool,
+    AnalyzeFiguresTablesTool,
+    AnalyzeCitationsTool,
+    AnalyzeJournalFormatTool,
+    GenerateLineEditsTool,
+    ArbitrateReviewTool,
+    RenderOutputsTool,
+    ValidateOutputsTool,
+    ReplayRunTool,
+    DiffRunTool,
+    BenchmarkProjectTool,
     ...(process.env.USER_TYPE === 'ant' ? [ConfigTool] : []),
     ...(process.env.USER_TYPE === 'ant' ? [TungstenTool] : []),
-    ...(SuggestBackgroundPRTool ? [SuggestBackgroundPRTool] : []),
     ...(WebBrowserTool ? [WebBrowserTool] : []),
     ...(isTodoV2Enabled()
       ? [TaskCreateTool, TaskGetTool, TaskUpdateTool, TaskListTool]
       : []),
     ...(OverflowTestTool ? [OverflowTestTool] : []),
     ...(CtxInspectTool ? [CtxInspectTool] : []),
-    ...(TerminalCaptureTool ? [TerminalCaptureTool] : []),
-    ...(isEnvTruthy(process.env.ENABLE_LSP_TOOL) ? [LSPTool] : []),
-    ...(isWorktreeModeEnabled() ? [EnterWorktreeTool, ExitWorktreeTool] : []),
     getSendMessageTool(),
     ...(ListPeersTool ? [ListPeersTool] : []),
     ...(isAgentSwarmsEnabled()
@@ -234,11 +266,9 @@ export function getAllBaseTools(): Tools {
     ...(SleepTool ? [SleepTool] : []),
     ...cronTools,
     ...(RemoteTriggerTool ? [RemoteTriggerTool] : []),
-    ...(MonitorTool ? [MonitorTool] : []),
     BriefTool,
     ...(SendUserFileTool ? [SendUserFileTool] : []),
     ...(PushNotificationTool ? [PushNotificationTool] : []),
-    ...(SubscribePRTool ? [SubscribePRTool] : []),
     ...(getPowerShellTool() ? [getPowerShellTool()] : []),
     ...(SnipTool ? [SnipTool] : []),
     ...(process.env.NODE_ENV === 'test' ? [TestingPermissionTool] : []),

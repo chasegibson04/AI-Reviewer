@@ -47,6 +47,10 @@ import { getPlanSlug } from './utils/plans.js'
 import { saveWorktreeState } from './utils/sessionStorage.js'
 import { profileCheckpoint } from './utils/startupProfiler.js'
 import {
+  detectManuscripts,
+  isOllamaRunning,
+} from './utils/manuscriptDetection.js'
+import {
   createTmuxSessionForWorktree,
   createWorktreeForSession,
   generateTmuxSessionName,
@@ -107,6 +111,49 @@ export async function setup(
       './utils/swarm/backends/teammateModeSnapshot.js'
     )
     captureTeammateModeSnapshot()
+  }
+
+  // Manuscript and Ollama detection
+  if (!getIsNonInteractiveSession()) {
+    const [manuscripts, ollamaOk] = await Promise.all([
+      detectManuscripts(cwd),
+      isOllamaRunning(),
+    ])
+
+    if (!ollamaOk) {
+      console.log(
+        chalk.yellow(
+          '⚠️  Ollama does not appear to be running on http://localhost:11434.',
+        ),
+      )
+      console.log(
+        chalk.dim(
+          'Local-first review requires Ollama. Please start it to use local models.',
+        ),
+      )
+    }
+
+    if (manuscripts.length === 0) {
+      console.log(
+        chalk.blue(
+          'ℹ️  No manuscript files (.docx, .pdf) detected in this directory or projects/ folder.',
+        ),
+      )
+      console.log(
+        chalk.dim(
+          'You can still use the shell, but manuscript review tools will need a file path.',
+        ),
+      )
+    } else {
+      console.log(
+        chalk.green(
+          `✅ Found ${manuscripts.length} manuscript(s). Ready for review.`,
+        ),
+      )
+      for (const m of manuscripts) {
+        console.log(chalk.dim(`  - ${m.path}`));
+      }
+    }
   }
 
   // Terminal backup restoration — interactive only. Print mode doesn't
