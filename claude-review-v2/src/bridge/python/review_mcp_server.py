@@ -29,6 +29,8 @@ MANUSCRIPT_SUFFIXES = {".docx", ".pdf"}
 
 TOOL_EVENT_LOG: list[dict[str, Any]] = []
 NETWORK_EVENT_LOG: list[dict[str, Any]] = []
+LAST_RENDER_TOOL_OFFSET = 0
+LAST_RENDER_NETWORK_OFFSET = 0
 
 
 @dataclass
@@ -182,31 +184,54 @@ def _split_sentences(text: str) -> list[str]:
     return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
 
 
+def _clean_for_analysis(text: str) -> str:
+    normalized = text.replace("\u00a0", " ").replace("\x00", " ")
+    normalized = re.sub(r"[^\S\r\n]+", " ", normalized)
+    normalized = re.sub(r"[\t\r]+", " ", normalized)
+    normalized = re.sub(r"\n{3,}", "\n\n", normalized)
+    return normalized.strip()
+
+
 def _simple_section_map(content: str, headings: list[str] | None = None) -> dict[str, str]:
+    content = _clean_for_analysis(content)
     section_map: dict[str, str] = {}
     lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
-    _ = headings or []
 
-    heading_patterns = [
-        ("abstract", "Abstract"),
-        ("introduction", "Introduction"),
-        ("background", "Background"),
-        ("method", "Methods"),
-        ("experimental", "Methods"),
-        ("result", "Results"),
-        ("discussion", "Discussion"),
-        ("conclusion", "Conclusions"),
-        ("reference", "References"),
+    heading_patterns: list[tuple[str, str]] = [
+        (r"\babstract\b", "Abstract"),
+        (r"\bintroduction\b", "Introduction"),
+        (r"\bbackground\b", "Background"),
+        (r"\b(materials?\s+and\s+)?methods?\b", "Methods"),
+        (r"\bexperimental\s+setup\b", "Methods"),
+        (r"\bresults?\b", "Results"),
+        (r"\bdiscussion\b", "Discussion"),
+        (r"\bconclusions?\b", "Conclusions"),
+        (r"\breferences?\b", "References"),
     ]
 
     for idx, line in enumerate(lines, start=1):
         low = line.lower()
-        is_heading = bool(re.match(r"^(\d+(\.\d+)*)\s+[A-Z]", line)) or (len(line) < 90 and line == line.upper())
-        if not is_heading and not any(token in low for token, _label in heading_patterns):
+        heading_like = bool(re.match(r"^(\d+(\.\d+)*)\s+[a-zA-Z]", low)) or (len(line) < 80 and line == line.upper())
+        if not heading_like:
             continue
-        for token, label in heading_patterns:
-            if token in low and label not in section_map:
+        for pattern, label in heading_patterns:
+            if re.search(pattern, low) and label not in section_map:
                 section_map[label] = f"line:{idx}"
+
+    for supplied in headings or []:
+        low = str(supplied).strip().lower()
+        for pattern, label in heading_patterns:
+            if re.search(pattern, low) and label not in section_map:
+                section_map[label] = "heading:metadata"
+
+    if not section_map:
+        low_content = content.lower()
+        for pattern, label in heading_patterns:
+            match = re.search(pattern, low_content)
+            if match and label not in section_map:
+                prefix = content[: match.start()]
+                line_no = prefix.count("\n") + 1
+                section_map[label] = f"line:{line_no}"
 
     if not section_map:
         section_map["Body"] = "line:1"
@@ -228,6 +253,7 @@ def _word_freq(text: str, top_n: int = 20) -> list[tuple[str, int]]:
 
 
 def _analyze_terminology(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     acronyms = re.findall(r"\b[A-Z]{2,6}\b", content)
     freq = _word_freq(content)
     repeated = [w for w, c in freq if c >= 8]
@@ -246,25 +272,34 @@ def _analyze_terminology(content: str) -> dict[str, Any]:
 
 
 def _analyze_coherence(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     sections = _simple_section_map(content)
     transitions = ["however", "therefore", "in contrast", "moreover", "consequently", "in summary", "overall"]
     transition_hits = {t: len(re.findall(rf"\b{re.escape(t)}\b", content.lower())) for t in transitions}
     weak = [k for k, v in transition_hits.items() if v == 0]
+    sentences = _split_sentences(content)
+    avg_len = 0.0
+    if sentences:
+        avg_len = sum(len(s.split()) for s in sentences) / len(sentences)
     findings = []
     if weak:
         findings.append(f"Missing explicit transition markers for: {', '.join(weak[:4])}")
     if "Introduction" in sections and "Methods" not in sections:
         findings.append("Introduction detected without a clear Methods heading.")
+    if avg_len > 32:
+        findings.append("Average sentence length is high; prose may be hard to follow in dense sections.")
     if not findings:
         findings.append("Coherence heuristic found expected section flow and transition markers.")
     return {
         "findings": findings,
         "section_map": sections,
         "transition_markers": transition_hits,
+        "avg_sentence_length": round(avg_len, 2),
     }
 
 
 def _analyze_methods(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     low = content.lower()
     required_signals = {
         "sample_size": bool(re.search(r"\b(n\s*=\s*\d+|sample size|participants?)\b", low)),
@@ -275,6 +310,8 @@ def _analyze_methods(content: str) -> dict[str, Any]:
     missing = [k for k, ok in required_signals.items() if not ok]
     skepticism = max(0.0, min(1.0, 1.0 - (len(missing) / max(len(required_signals), 1))))
     findings = [f"Missing explicit methods evidence: {', '.join(missing)}"] if missing else ["Methods coverage appears complete in heuristic checks."]
+    if required_signals["statistics"] and not required_signals["controls"]:
+        findings.append("Statistical language exists, but control/baseline evidence is weak.")
     return {
         "findings": findings,
         "signal_checks": required_signals,
@@ -283,6 +320,7 @@ def _analyze_methods(content: str) -> dict[str, Any]:
 
 
 def _analyze_figures_tables(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     figure_refs = re.findall(r"\b(fig(?:ure)?\.?\s*\d+[a-z]?)\b", content, flags=re.IGNORECASE)
     table_refs = re.findall(r"\b(table\s*\d+[a-z]?)\b", content, flags=re.IGNORECASE)
     findings = []
@@ -302,8 +340,9 @@ def _analyze_figures_tables(content: str) -> dict[str, Any]:
 
 
 def _analyze_citations(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     bracketed = re.findall(r"\[[0-9]{1,3}(?:\s*,\s*[0-9]{1,3})*\]", content)
-    paren_year = re.findall(r"\([A-Z][A-Za-z]+\s+et\s+al\.,?\s+[12][0-9]{3}\)", content)
+    paren_year = re.findall(r"\(([A-Z][A-Za-z]+(?:\s+et\s+al\.)?,?\s+[12][0-9]{3}[a-z]?)\)", content)
     doi_hits = re.findall(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", content)
     findings = []
     if not bracketed and not paren_year:
@@ -320,6 +359,7 @@ def _analyze_citations(content: str) -> dict[str, Any]:
 
 
 def _analyze_journal_format(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     low = content.lower()
     checks = {
         "has_abstract": bool(re.search(r"\babstract\b", low)),
@@ -336,11 +376,12 @@ def _analyze_journal_format(content: str) -> dict[str, Any]:
 
 
 def _generate_line_edits(content: str) -> dict[str, Any]:
+    content = _clean_for_analysis(content)
     edits = []
     for idx, sentence in enumerate(_split_sentences(content)[:200], start=1):
         if len(sentence.split()) < 35:
             continue
-        shorter = re.sub(r"\s+", " ", sentence)
+        shorter = re.sub(r"\s+", " ", sentence).strip()
         shorter = shorter.replace(" however ", " but ").replace(" therefore ", " so ")
         edits.append({"line_id": idx, "issue": "Long sentence", "original": sentence, "suggested": shorter})
         if len(edits) >= 12:
@@ -350,15 +391,38 @@ def _generate_line_edits(content: str) -> dict[str, Any]:
     return {"line_edits": edits}
 
 
-def _arbitrate(findings: list[str]) -> dict[str, Any]:
+def _arbitrate(findings: list[str], profile: str = "balanced_local") -> dict[str, Any]:
     severity = "minor_revision"
     high_risk_tokens = ["missing", "unsupported", "contradicted", "no conventional", "no figure", "no table"]
     score = sum(1 for item in findings for token in high_risk_tokens if token in item.lower())
+    if profile in {"one_big_model", "full_manuscript_final_pass"}:
+        score += 1
     if score >= 4:
         severity = "major_revision"
     if score >= 7:
         severity = "reject"
-    return {"recommendation": severity, "summary": "\n".join(f"- {f}" for f in findings[:20])}
+    return {
+        "recommendation": severity,
+        "summary": "\n".join(f"- {f}" for f in findings[:20]),
+        "score": score,
+        "profile": profile,
+    }
+
+
+def _consume_render_logs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    global LAST_RENDER_TOOL_OFFSET, LAST_RENDER_NETWORK_OFFSET
+    window = TOOL_EVENT_LOG[LAST_RENDER_TOOL_OFFSET:]
+    start_idx = 0
+    for idx in range(len(window) - 1, -1, -1):
+        row = window[idx]
+        if row.get("status") == "start" and row.get("tool") in {"parse_pdf", "parse_docx"}:
+            start_idx = idx
+            break
+    tool_rows = window[start_idx:]
+    network_rows = NETWORK_EVENT_LOG[LAST_RENDER_NETWORK_OFFSET:]
+    LAST_RENDER_TOOL_OFFSET = len(TOOL_EVENT_LOG)
+    LAST_RENDER_NETWORK_OFFSET = len(NETWORK_EVENT_LOG)
+    return tool_rows, network_rows
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -458,8 +522,15 @@ def _build_artifacts(review_data: dict[str, Any], output_dir: Path) -> dict[str,
 
     for name, payload in payloads.items():
         _write_json(output_dir / name, payload)
-    _write_jsonl(output_dir / "tool_event_log.jsonl", TOOL_EVENT_LOG)
-    _write_jsonl(output_dir / "network_event_log.jsonl", NETWORK_EVENT_LOG)
+    run_tool_rows = review_data.get("tool_events")
+    run_network_rows = review_data.get("network_events")
+    if isinstance(run_tool_rows, list) and isinstance(run_network_rows, list):
+        _write_jsonl(output_dir / "tool_event_log.jsonl", run_tool_rows)
+        _write_jsonl(output_dir / "network_event_log.jsonl", run_network_rows)
+    else:
+        tool_rows, network_rows = _consume_render_logs()
+        _write_jsonl(output_dir / "tool_event_log.jsonl", tool_rows)
+        _write_jsonl(output_dir / "network_event_log.jsonl", network_rows)
     (output_dir / "session_transcript.md").write_text("\n".join(transcript_lines) + "\n", encoding="utf-8")
 
     return {"status": "success", "artifacts": sorted([p.name for p in output_dir.iterdir() if p.is_file()])}
@@ -601,7 +672,7 @@ def _tool_specs() -> list[dict[str, Any]]:
         {"name": "analyze_citations", "description": "Analyze citations.", "inputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"]}},
         {"name": "analyze_journal_format", "description": "Analyze journal formatting.", "inputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"]}},
         {"name": "generate_line_edits", "description": "Generate line-level edits.", "inputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"]}},
-        {"name": "arbitrate_review", "description": "Synthesize findings.", "inputSchema": {"type": "object", "properties": {"findings": {"type": "array", "items": {"type": "string"}}}, "required": ["findings"]}},
+        {"name": "arbitrate_review", "description": "Synthesize findings.", "inputSchema": {"type": "object", "properties": {"findings": {"type": "array", "items": {"type": "string"}}, "profile": {"type": "string"}}, "required": ["findings"]}},
         {"name": "render_outputs", "description": "Render artifacts.", "inputSchema": {"type": "object", "properties": {"review_data": {"type": "object"}, "output_dir": {"type": "string"}}, "required": ["review_data", "output_dir"]}},
         {"name": "validate_outputs", "description": "Validate artifacts.", "inputSchema": {"type": "object", "properties": {"output_dir": {"type": "string"}}, "required": ["output_dir"]}},
         {"name": "replay_run", "description": "Replay prior run.", "inputSchema": {"type": "object", "properties": {"run_id": {"type": "string"}, "cwd": {"type": "string"}}, "required": ["run_id"]}},
@@ -649,7 +720,7 @@ def _dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
             if not file_path.exists():
                 raise FileNotFoundError(f"File not found: {file_path}")
             doc = _parse_manuscript(file_path)
-            extracted_text = doc.cleaned_text[:4000]
+            extracted_text = doc.cleaned_text[:20000]
             payload = {
                 "content": extracted_text,
                 "content_preview": extracted_text[:2000] + ("..." if len(extracted_text) > 2000 else ""),
@@ -721,7 +792,8 @@ def _dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if name == "arbitrate_review":
             findings = arguments.get("findings")
             findings_list = [str(x) for x in findings] if isinstance(findings, list) else [str(findings or "")]
-            payload = _arbitrate(findings_list)
+            profile = str(arguments.get("profile", "balanced_local"))
+            payload = _arbitrate(findings_list, profile=profile)
             _log_tool_event(name, "ok", {"recommendation": payload.get("recommendation")})
             return payload
 
