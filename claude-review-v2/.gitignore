@@ -4,3 +4,7 @@ build/
 .env
 reports/
 benchmarks/
+.DS_Store
+__pycache__/
+*.pyc
+.venv/

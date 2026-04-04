@@ -11,10 +11,6 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[4]
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))
-
 try:
     from ai_reviewer.ingest.loaders import collect_paths as ai_collect_paths
     from ai_reviewer.ingest.loaders import parse_file as ai_parse_file

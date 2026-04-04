@@ -17,8 +17,8 @@ PROFILES = [
 ]
 
 TARGETS = [
-    Path("example_papers/gan_diffusion.pdf"),
-    Path("projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf"),
+    Path("fixtures/manuscripts/gan_diffusion.pdf"),
+    Path("fixtures/manuscripts/s44160-023-00351-1.pdf"),
 ]
 
 
@@ -266,9 +266,9 @@ def build_suggested_changes(line_edits: list[dict]) -> list[dict]:
     return changes
 
 
-async def run_profile(client: BridgeClient, repo_root: Path, manuscript: Path, profile: str, out_dir: Path):
+async def run_profile(client: BridgeClient, project_root: Path, manuscript: Path, profile: str, out_dir: Path):
     mode, model_target = resolve_profile_target(profile, fetch_local_models())
-    await client.call_tool("inspect_project", {"cwd": str((repo_root / "claude-review-v2").resolve())})
+    await client.call_tool("inspect_project", {"cwd": str(project_root.resolve())})
 
     parse_tool = "parse_docx" if manuscript.suffix.lower() == ".docx" else "parse_pdf"
     parsed = await client.call_tool(parse_tool, {"file_path": str(manuscript.resolve())})
@@ -394,11 +394,11 @@ async def run_profile(client: BridgeClient, repo_root: Path, manuscript: Path, p
 
 
 async def main():
-    repo_root = Path(__file__).resolve().parents[2]
+    project_root = Path(__file__).resolve().parents[1]
 
     selected_targets: list[Path] = []
     for target in TARGETS:
-        absolute = (repo_root / target).resolve()
+        absolute = (project_root / target).resolve()
         assert_allowed_target(absolute)
         if not absolute.exists():
             raise FileNotFoundError(f"Target manuscript not found: {absolute}")
@@ -407,21 +407,21 @@ async def main():
     process = await asyncio.create_subprocess_exec(
         "python3",
         "src/bridge/python/review_mcp_server.py",
-        cwd=str(repo_root / "claude-review-v2"),
+        cwd=str(project_root),
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        env={**os.environ, **{"PYTHONPATH": str(repo_root)}},
+        env={**os.environ},
     )
 
     stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-    overnight_root = repo_root / "claude-review-v2" / "test_outputs" / "overnight" / stamp
+    overnight_root = project_root / "test_outputs" / "overnight" / stamp
     overnight_root.mkdir(parents=True, exist_ok=True)
 
     try:
         client = BridgeClient(process)
         await client.initialize()
-        await client.call_tool("inspect_project", {"cwd": str((repo_root / 'claude-review-v2').resolve())})
+        await client.call_tool("inspect_project", {"cwd": str(project_root.resolve())})
 
         run_records: list[dict] = []
 
@@ -432,7 +432,7 @@ async def main():
 
             for profile in PROFILES:
                 out_dir = manuscript_root / profile
-                record = await run_profile(client, repo_root, manuscript, profile, out_dir)
+                record = await run_profile(client, project_root, manuscript, profile, out_dir)
                 run_records.append(record)
 
             balanced_dir = manuscript_root / "balanced_local"

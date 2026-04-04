@@ -64,7 +64,7 @@ async def _run_bridge_test():
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        env={**os.environ, **{"PYTHONPATH": str(project_root.parent)}},
+        env={**os.environ},
     )
 
     try:
@@ -81,7 +81,7 @@ async def _run_bridge_test():
             "parse_pdf",
             {
                 "file_path": str(
-                    (project_root.parent / "example_papers" / "gan_diffusion.pdf").resolve()
+                    (project_root / "fixtures" / "manuscripts" / "gan_diffusion.pdf").resolve()
                 )
             },
         )
@@ -171,7 +171,7 @@ async def _run_bridge_test():
         assert "comment_delta" in diff_payload
 
         blocked_payload = await client.call_tool(
-            "benchmark_project", {"project_id": "pampa-j-chemed", "cwd": str(project_root.parent)}
+            "benchmark_project", {"project_id": "pampa-j-chemed", "cwd": str(project_root)}
         )
         assert "error" in blocked_payload
 

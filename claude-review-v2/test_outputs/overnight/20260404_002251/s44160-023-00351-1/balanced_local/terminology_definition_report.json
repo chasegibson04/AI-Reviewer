@@ -1,0 +1,15 @@
+{
+  "defined_terms": [
+    "graphik",
+    "nature",
+    "regular",
+    "harding",
+    "text",
+    "qgp",
+    "dad",
+    "yyv"
+  ],
+  "findings": [
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ]
+}

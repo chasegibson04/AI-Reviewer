@@ -1,0 +1,15 @@
+{
+  "defined_terms": [
+    "ll8",
+    "yuv",
+    "wtq",
+    "jsyv",
+    "ypt2",
+    "xfrdo",
+    "frm",
+    "x_j8rtz"
+  ],
+  "findings": [
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ]
+}

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * OpenClaude — Claude Code with any LLM
+ * claude-review-v2 launcher.
  *
- * If dist/cli.mjs exists (built), run that.
- * Otherwise, tell the user to build first or use `bun run dev`.
+ * Delegates to scripts/launch.js for cross-platform startup behavior.
  */
 
 import { existsSync } from 'fs'
@@ -12,19 +11,16 @@ import { join, dirname } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const distPath = join(__dirname, '..', 'dist', 'cli.mjs')
+const launchPath = join(__dirname, '..', 'scripts', 'launch.js')
 
-if (existsSync(distPath)) {
-  await import(pathToFileURL(distPath).href)
+if (existsSync(launchPath)) {
+  await import(pathToFileURL(launchPath).href)
 } else {
   console.error(`
-  openclaude: dist/cli.mjs not found.
+  claude-review-v2: scripts/launch.js not found.
 
-  Build first:
-    bun run build
-
-  Or run directly with Bun:
-    bun run dev
+  This installation is incomplete.
+  Reinstall and verify that scripts/launch.js exists.
 
   See README.md for setup instructions.
 `)

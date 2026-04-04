@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-04-04T00:22:58.431797+00:00",
+  "status": "completed",
+  "profile": "balanced_local",
+  "mode": "balanced local",
+  "model_target": "llama3.1:8b",
+  "comment_count": 11,
+  "suggested_change_count": 10,
+  "artifact_version": "v2-review-bridge"
+}

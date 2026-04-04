@@ -1,39 +1,52 @@
 # AI-Reviewer TS-Python Bridge
 
-This directory contains the local bridge server used by the TypeScript OpenClaude shell to execute manuscript-review tools in Python.
+This bridge is the review-domain backend for `claude-review-v2`.
+
+## Purpose
+
+- Provide manuscript review tools to the TypeScript shell through local stdio JSON-RPC.
+- Keep Layer A (shell/session) and Layer B (domain analysis/render/validation) cleanly separated.
 
 ## Layer ownership
 
-### TypeScript shell (Layer A)
-- Command UX and session behavior.
-- Startup/project-awareness messaging.
-- Tool registration and orchestration through MCP tool calls.
-- Provider/profile routing with local-first defaults.
+TypeScript shell (Layer A):
+- command UX and session behavior
+- profile/routing selection and run-mode narration
+- tool orchestration through bridge calls
 
-### Python bridge (Layer B)
-- Manuscript discovery and parsing (`.docx`, `.pdf`).
-- Domain analyses (terminology, coherence, methods, citations, format).
-- Artifact rendering (`run_summary`, manifests, ledgers, reports, transcript, event logs).
-- Artifact validation and replay/diff/benchmark helpers.
+Python bridge (Layer B):
+- manuscript discovery and parsing
+- review analyses and arbitration helpers
+- artifact generation, validation, replay, diff, benchmark
 
-## Transport and contract
-- Local stdio JSON-RPC methods: `initialize`, `tools/list`, `tools/call`.
-- Tool responses are returned as MCP-style `content[type=text]` JSON payloads.
-- Event logs are written per run:
-  - `tool_event_log.jsonl`
-  - `network_event_log.jsonl`
+## Transport
+
+- `initialize`
+- `tools/list`
+- `tools/call`
+
+Tool result payloads are returned as text JSON content.
+
+## Outputs
+
+Bridge writes run artifacts, including:
+- `run_summary.json`
+- `routing_trace.json`
+- `manuscript_comment_manifest.json`
+- `manuscript_suggested_changes_manifest.json`
+- `tool_event_log.jsonl`
+- `network_event_log.jsonl`
+- `validation_report.json`
+- `session_transcript.md`
 
 ## Dependency behavior
-- The bridge optionally uses `ai_reviewer.ingest.loaders` when available.
-- If `ai_reviewer` parser dependencies are unavailable, fallback local parsers are used:
-  - DOCX: zipped XML (`word/document.xml`) extraction.
-  - PDF: heuristic byte-text extraction.
-- This keeps the bridge runnable in constrained local environments.
 
-## Policy
-- Blocked project snippets enforced in bridge: `pampa`, `horseshoe`.
+- Runs without requiring external repo layout.
+- Optional `ai_reviewer` package is used when installed in Python environment.
+- Fallback parsers are used when optional parser package is unavailable.
 
-## Environment requirements
-- Python 3.10+
-- No mandatory Python MCP package required for bridge runtime.
-- Optional parser quality upgrades come from installed `ai_reviewer` parser dependencies.
+## Policy guardrails
+
+Bridge blocks projects containing:
+- `pampa`
+- `horseshoe`
