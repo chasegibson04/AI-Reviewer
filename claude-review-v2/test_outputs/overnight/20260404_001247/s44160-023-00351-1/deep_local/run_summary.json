@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-04-04T00:12:55.281103+00:00",
+  "status": "completed",
+  "profile": "deep_local",
+  "mode": "deep local",
+  "model_target": "qwen2.5-coder:32b",
+  "comment_count": 11,
+  "suggested_change_count": 10,
+  "artifact_version": "v2-review-bridge"
+}

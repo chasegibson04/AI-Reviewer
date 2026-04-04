@@ -9,9 +9,9 @@ const inputSchema = lazySchema(() => z.strictObject({
 type InputSchema = ReturnType<typeof inputSchema>
 
 const outputSchema = lazySchema(() => z.object({
-  analysis: z.string(),
+  findings: z.array(z.string()),
+  signal_checks: z.record(z.boolean()),
   skepticism_score: z.number(),
-  critical_findings: z.array(z.string())
 }))
 type OutputSchema = ReturnType<typeof outputSchema>
 
@@ -30,18 +30,8 @@ export const AnalyzeMethodsTool = buildTool({
   async call(input, context) {
     const { mcpTools } = context.getAppState()
     const analyzeMethodsTool = mcpTools.find(t => t.name === 'mcp__review_bridge__analyze_methods')
-    
-    if (analyzeMethodsTool) {
-      return await analyzeMethodsTool.call({ content: input.content, focus: input.focus }, context)
-    }
-
-    return {
-      data: {
-        analysis: "Error: review-bridge MCP server not found or analyze_methods tool missing.",
-        skepticism_score: 0,
-        critical_findings: []
-      }
-    }
+    if (analyzeMethodsTool) return await analyzeMethodsTool.call({ content: input.content, focus: input.focus }, context)
+    throw new Error("review-bridge MCP server not found or analyze_methods tool missing.")
   },
   renderToolUseMessage(_input) {
     return 'Analyzing research methods...'

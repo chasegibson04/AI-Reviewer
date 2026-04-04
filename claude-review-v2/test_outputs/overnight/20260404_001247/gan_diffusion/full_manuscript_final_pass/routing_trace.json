@@ -1,0 +1,21 @@
+{
+  "profile": "full_manuscript_final_pass",
+  "transport": "local_mcp_bridge",
+  "model_target": "gemma4:31b",
+  "stages": [
+    "inspect_project",
+    "parse_pdf",
+    "map_sections",
+    "digest_manuscript",
+    "analyze_terminology",
+    "analyze_coherence",
+    "analyze_methods",
+    "analyze_figures_tables",
+    "analyze_citations",
+    "analyze_journal_format",
+    "generate_line_edits",
+    "arbitrate_review",
+    "render_outputs",
+    "validate_outputs"
+  ]
+}

@@ -22,7 +22,11 @@ export const InspectProjectTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  async call(_input, _context) {
+  async call(_input, context) {
+    const { mcpTools } = context.getAppState()
+    const bridgeTool = mcpTools.find(t => t.name === 'mcp__review_bridge__inspect_project')
+    if (bridgeTool) return await bridgeTool.call({ cwd: getCwd() }, context)
+
     const summary = await getEnvironmentSummary(getCwd())
     return {
       data: summary,

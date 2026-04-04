@@ -25,7 +25,11 @@ export const DiscoverManuscriptTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  async call(_input, _context) {
+  async call(_input, context) {
+    const { mcpTools } = context.getAppState()
+    const bridgeTool = mcpTools.find(t => t.name === 'mcp__review_bridge__discover_manuscript')
+    if (bridgeTool) return await bridgeTool.call({ cwd: getCwd() }, context)
+
     const manuscripts = await detectManuscripts(getCwd())
     return {
       data: manuscripts,

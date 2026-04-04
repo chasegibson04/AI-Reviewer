@@ -1,0 +1,21 @@
+{
+  "profile": "deep_local",
+  "transport": "local_mcp_bridge",
+  "model_target": "qwen2.5-coder:32b",
+  "stages": [
+    "inspect_project",
+    "parse_pdf",
+    "map_sections",
+    "digest_manuscript",
+    "analyze_terminology",
+    "analyze_coherence",
+    "analyze_methods",
+    "analyze_figures_tables",
+    "analyze_citations",
+    "analyze_journal_format",
+    "generate_line_edits",
+    "arbitrate_review",
+    "render_outputs",
+    "validate_outputs"
+  ]
+}

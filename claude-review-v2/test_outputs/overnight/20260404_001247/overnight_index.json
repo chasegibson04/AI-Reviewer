@@ -1,0 +1,500 @@
+{
+  "created_at": "2026-04-04T00:12:58.190859+00:00",
+  "blocked_policy": [
+    "pampa",
+    "horseshoe"
+  ],
+  "targets": [
+    "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+    "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf"
+  ],
+  "profiles": [
+    "balanced_local",
+    "deep_local",
+    "local_moe",
+    "one_big_model",
+    "full_manuscript_final_pass"
+  ],
+  "runs": [
+    {
+      "profile": "balanced_local",
+      "mode": "balanced local",
+      "model_target": "llama3.1:8b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:49.458085+00:00",
+        "status": "completed",
+        "profile": "balanced_local",
+        "mode": "balanced local",
+        "model_target": "llama3.1:8b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/gan_diffusion/balanced_local",
+      "digest_word_count": 1586
+    },
+    {
+      "profile": "deep_local",
+      "mode": "deep local",
+      "model_target": "qwen2.5-coder:32b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:50.437848+00:00",
+        "status": "completed",
+        "profile": "deep_local",
+        "mode": "deep local",
+        "model_target": "qwen2.5-coder:32b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/gan_diffusion/deep_local",
+      "digest_word_count": 1586
+    },
+    {
+      "profile": "local_moe",
+      "mode": "local MOE staged routing",
+      "model_target": "local_moe",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:51.394666+00:00",
+        "status": "completed",
+        "profile": "local_moe",
+        "mode": "local MOE staged routing",
+        "model_target": "local_moe",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/gan_diffusion/local_moe",
+      "digest_word_count": 1586
+    },
+    {
+      "profile": "one_big_model",
+      "mode": "single big-model review",
+      "model_target": "gemma4:31b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:52.369125+00:00",
+        "status": "completed",
+        "profile": "one_big_model",
+        "mode": "single big-model review",
+        "model_target": "gemma4:31b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/gan_diffusion/one_big_model",
+      "digest_word_count": 1586
+    },
+    {
+      "profile": "full_manuscript_final_pass",
+      "mode": "full-manuscript final pass",
+      "model_target": "gemma4:31b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/example_papers/gan_diffusion.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:53.333697+00:00",
+        "status": "completed",
+        "profile": "full_manuscript_final_pass",
+        "mode": "full-manuscript final pass",
+        "model_target": "gemma4:31b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/gan_diffusion/full_manuscript_final_pass",
+      "digest_word_count": 1586
+    },
+    {
+      "profile": "balanced_local",
+      "mode": "balanced local",
+      "model_target": "llama3.1:8b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:54.291620+00:00",
+        "status": "completed",
+        "profile": "balanced_local",
+        "mode": "balanced local",
+        "model_target": "llama3.1:8b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/s44160-023-00351-1/balanced_local",
+      "digest_word_count": 1672
+    },
+    {
+      "profile": "deep_local",
+      "mode": "deep local",
+      "model_target": "qwen2.5-coder:32b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:55.281103+00:00",
+        "status": "completed",
+        "profile": "deep_local",
+        "mode": "deep local",
+        "model_target": "qwen2.5-coder:32b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/s44160-023-00351-1/deep_local",
+      "digest_word_count": 1672
+    },
+    {
+      "profile": "local_moe",
+      "mode": "local MOE staged routing",
+      "model_target": "local_moe",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:56.304526+00:00",
+        "status": "completed",
+        "profile": "local_moe",
+        "mode": "local MOE staged routing",
+        "model_target": "local_moe",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/s44160-023-00351-1/local_moe",
+      "digest_word_count": 1672
+    },
+    {
+      "profile": "one_big_model",
+      "mode": "single big-model review",
+      "model_target": "gemma4:31b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:57.201783+00:00",
+        "status": "completed",
+        "profile": "one_big_model",
+        "mode": "single big-model review",
+        "model_target": "gemma4:31b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/s44160-023-00351-1/one_big_model",
+      "digest_word_count": 1672
+    },
+    {
+      "profile": "full_manuscript_final_pass",
+      "mode": "full-manuscript final pass",
+      "model_target": "gemma4:31b",
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "render": {
+        "status": "success",
+        "artifacts": [
+          "assertion_ledger.json",
+          "citation_verification_ledger.json",
+          "claim_verification_summary.json",
+          "coherence_transition_report.json",
+          "figure_table_reference_report.json",
+          "format_compliance_report.json",
+          "manuscript_comment_manifest.json",
+          "manuscript_suggested_changes_manifest.json",
+          "network_event_log.jsonl",
+          "routing_trace.json",
+          "run_summary.json",
+          "section_map.json",
+          "session_transcript.md",
+          "source_mode.json",
+          "support_ingest_report.json",
+          "support_usage_ledger.json",
+          "terminology_definition_report.json",
+          "tool_event_log.jsonl"
+        ]
+      },
+      "validate": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "replay_summary": {
+        "timestamp": "2026-04-04T00:12:58.182637+00:00",
+        "status": "completed",
+        "profile": "full_manuscript_final_pass",
+        "mode": "full-manuscript final pass",
+        "model_target": "gemma4:31b",
+        "comment_count": 11,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/overnight/20260404_001247/s44160-023-00351-1/full_manuscript_final_pass",
+      "digest_word_count": 1672
+    }
+  ]
+}

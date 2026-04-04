@@ -28,17 +28,8 @@ export const ParseDocxTool = buildTool({
   async call(input, context) {
     const { mcpTools } = context.getAppState()
     const parseDocxTool = mcpTools.find(t => t.name === 'mcp__review_bridge__parse_docx')
-    
-    if (parseDocxTool) {
-      return await parseDocxTool.call({ file_path: input.file_path }, context)
-    }
-
-    return {
-      data: {
-        content: "Error: review-bridge MCP server not found or parse_docx tool missing.",
-        metadata: {}
-      }
-    }
+    if (parseDocxTool) return await parseDocxTool.call({ file_path: input.file_path }, context)
+    throw new Error("review-bridge MCP server not found or parse_docx tool missing.")
   },
   renderToolUseMessage(input) {
     return `Parsing DOCX: ${input.file_path}...`

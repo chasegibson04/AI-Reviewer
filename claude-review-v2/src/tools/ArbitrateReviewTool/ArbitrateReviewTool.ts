@@ -4,13 +4,15 @@ import { lazySchema } from '../../utils/lazySchema.js'
 
 const inputSchema = lazySchema(() => z.strictObject({
   findings: z.array(z.string()).describe('List of review findings to arbitrate'),
-  profile: z.string().describe('The review profile to use for arbitration')
+  profile: z.string().optional().describe('The review profile to use for arbitration')
 }))
 type InputSchema = ReturnType<typeof inputSchema>
 
 const outputSchema = lazySchema(() => z.object({
-  arbitrated_review: z.string(),
-  recommendation: z.enum(['accept', 'minor_revision', 'major_revision', 'reject'])
+  summary: z.string(),
+  recommendation: z.enum(['minor_revision', 'major_revision', 'reject']),
+  score: z.number().optional(),
+  profile: z.string().optional(),
 }))
 type OutputSchema = ReturnType<typeof outputSchema>
 
