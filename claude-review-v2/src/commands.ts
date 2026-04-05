@@ -283,7 +283,10 @@ const getWorkflowCommands = feature('WORKFLOW_SCRIPTS')
  */
 export function meetsAvailabilityRequirement(cmd: Command): boolean {
   if (!cmd.availability) return true
-  for (const a of cmd.availability) {
+  const availability = Array.isArray(cmd.availability)
+    ? cmd.availability
+    : [cmd.availability]
+  for (const a of availability) {
     switch (a) {
       case 'claude-ai':
         if (isClaudeAISubscriber()) return true
@@ -300,8 +303,9 @@ export function meetsAvailabilityRequirement(cmd: Command): boolean {
           return true
         break
       default: {
-        const _exhaustive: never = a
-        void _exhaustive
+        // Unknown availability shape/value should not crash startup.
+        // Treat malformed entries as universally available.
+        return true
         break
       }
     }
@@ -381,6 +385,16 @@ export async function getCommands(cwd: string): Promise<Command[]> {
     ...uniqueDynamicSkills,
     ...baseCommands.slice(insertIndex),
   ]
+}
+
+/**
+ * Fast fallback command surface that avoids dynamic skill/plugin/workflow
+ * loading. Used as a startup recovery path if command loading stalls.
+ */
+export function getBuiltinCommandsOnly(): Command[] {
+  return COMMANDS().filter(
+    _ => meetsAvailabilityRequirement(_) && isCommandEnabled(_),
+  )
 }
 
 /**

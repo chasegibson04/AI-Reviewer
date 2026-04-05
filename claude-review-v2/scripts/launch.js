@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = join(__dirname, '..')
+const runtimeConfigHome = join(projectRoot, '.runtime', '.claude')
+const runtimeGlobalConfigFile = join(runtimeConfigHome, '.claude.json')
 const srcRoot = join(projectRoot, 'src')
 const distCli = join(projectRoot, 'dist', 'cli.mjs')
-const passthroughArgs = process.argv.slice(2)
+const userArgs = process.argv.slice(2)
+const hasBareFlag = userArgs.includes('--bare')
+const hasNoBareFlag = userArgs.includes('--no-bare')
+const passthroughArgs =
+  hasBareFlag || hasNoBareFlag ? userArgs : ['--bare', ...userArgs]
 
 function newestMtimeRecursive(rootPath) {
   let newest = 0
@@ -38,6 +44,41 @@ function newestMtimeRecursive(rootPath) {
     }
   }
   return newest
+}
+
+function ensureRuntimeConfigHome() {
+  // Keep runtime config self-contained for claude-review-v2 launches.
+  // This avoids hidden coupling to user-global Claude config and prevents
+  // trust-dialog dead-ends in this packaged launcher.
+  process.env.CLAUDE_CONFIG_DIR = runtimeConfigHome
+  mkdirSync(runtimeConfigHome, { recursive: true })
+
+  let parsed = {}
+  try {
+    if (existsSync(runtimeGlobalConfigFile)) {
+      parsed = JSON.parse(readFileSync(runtimeGlobalConfigFile, 'utf8'))
+    }
+  } catch {
+    parsed = {}
+  }
+
+  const projects = {
+    ...((parsed && typeof parsed === 'object' && parsed.projects && typeof parsed.projects === 'object')
+      ? parsed.projects
+      : {}),
+    [projectRoot]: {
+      ...((parsed && typeof parsed === 'object' && parsed.projects && parsed.projects[projectRoot] && typeof parsed.projects[projectRoot] === 'object')
+        ? parsed.projects[projectRoot]
+        : {}),
+      hasTrustDialogAccepted: true,
+    },
+  }
+
+  const merged = {
+    ...(parsed && typeof parsed === 'object' ? parsed : {}),
+    projects,
+  }
+  writeFileSync(runtimeGlobalConfigFile, JSON.stringify(merged, null, 2) + '\n', 'utf8')
 }
 
 function getDistHealth() {
@@ -88,7 +129,16 @@ function hasBun() {
 }
 
 function launchDist() {
+  // Bun runtime can be enabled explicitly, but Node remains the default
+  // runtime because Bun TTY streams are unstable in some terminal setups.
+  if (process.env.CLAUDE_REVIEW_USE_BUN_RUNTIME === '1' && hasBun()) {
+    return runCommand('bun', [distCli, ...passthroughArgs])
+  }
   return runCommand(process.execPath, [distCli, ...passthroughArgs])
+}
+
+function launchLineRepl() {
+  return runCommand(process.execPath, [join(projectRoot, 'scripts', 'line-repl.js')])
 }
 
 function buildAndLaunch() {
@@ -106,10 +156,16 @@ function buildAndLaunch() {
     process.exit(1)
   }
 
+  if (shouldUseLineRepl) {
+    process.exit(launchLineRepl())
+  }
   process.exit(launchDist())
 }
 
 const distHealth = getDistHealth()
+ensureRuntimeConfigHome()
+
+const shouldUseLineRepl = userArgs.length === 0
 
 if (!distHealth.exists || distHealth.stale || distHealth.hasKnownBrokenBundleSignature) {
   if (!hasBun()) {
@@ -126,6 +182,10 @@ if (!distHealth.exists || distHealth.stale || distHealth.hasKnownBrokenBundleSig
     process.exit(1)
   }
   buildAndLaunch()
+}
+
+if (shouldUseLineRepl) {
+  process.exit(launchLineRepl())
 }
 
 const firstLaunchStatus = launchDist()

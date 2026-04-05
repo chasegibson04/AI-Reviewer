@@ -421,6 +421,12 @@ function syncRemoteEvalToDisk(): void {
  * Check if GrowthBook operations should be enabled
  */
 function isGrowthBookEnabled(): boolean {
+  // Open/local builds do not depend on GrowthBook runtime flags.
+  // Keeping this disabled outside internal "ant" environments avoids
+  // startup breakage when bundlers partially rewrite GrowthBook imports.
+  if (process.env.USER_TYPE !== 'ant') {
+    return false
+  }
   // GrowthBook depends on 1P event logging.
   return is1PEventLoggingEnabled()
 }

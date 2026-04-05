@@ -85,7 +85,7 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/grow
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { initializeAnalyticsGates } from 'src/services/analytics/sink.js';
 import { getOriginalCwd, setAdditionalDirectoriesForClaudeMd, setIsRemoteMode, setMainLoopModelOverride, setMainThreadAgentType, setTeleportedSessionInfo } from './bootstrap/state.js';
-import { filterCommandsForRemoteMode, getCommands } from './commands.js';
+import { filterCommandsForRemoteMode, getBuiltinCommandsOnly, getCommands } from './commands.js';
 import type { StatsStore } from './context/stats.js';
 import { launchAssistantInstallWizard, launchAssistantSessionChooser, launchInvalidSettingsDialog, launchResumeChooser, launchSnapshotUpdateDialog, launchTeleportRepoMismatchDialog, launchTeleportResumeWrapper } from './dialogLaunchers.js';
 import { SHOW_CURSOR } from './ink/termio/dec.js';
@@ -98,6 +98,7 @@ import { VALID_INSTALLABLE_SCOPES, VALID_UPDATE_SCOPES } from './services/plugin
 import { initBundledSkills } from './skills/bundled/index.js';
 import type { AgentColorName } from './tools/AgentTool/agentColorManager.js';
 import { getActiveAgentsFromList, getAgentDefinitionsWithOverrides, isBuiltInAgent, isCustomAgent, parseAgentsFromJson } from './tools/AgentTool/loadAgentsDir.js';
+import { getBuiltInAgents } from './tools/AgentTool/builtInAgents.js';
 import type { LogOption } from './types/logs.js';
 import type { Message as MessageType } from './types/message.js';
 import { assertMinVersion } from './utils/autoUpdater.js';
@@ -800,7 +801,10 @@ export async function main() {
   const hasPrintFlag = cliArgs.includes('-p') || cliArgs.includes('--print');
   const hasInitOnlyFlag = cliArgs.includes('--init-only');
   const hasSdkUrl = cliArgs.some(arg => arg.startsWith('--sdk-url'));
-  const isNonInteractive = hasPrintFlag || hasInitOnlyFlag || hasSdkUrl || !process.stdout.isTTY;
+  const hasNoInteractiveTty = !process.stdout.isTTY && !process.stderr.isTTY;
+  const forceInteractive = process.env.CLAUDE_REVIEW_FORCE_INTERACTIVE === '1';
+  const isNonInteractive =
+    hasPrintFlag || hasInitOnlyFlag || hasSdkUrl || (!forceInteractive && hasNoInteractiveTty);
 
   // Stop capturing early input for non-interactive modes
   if (isNonInteractive) {
@@ -2019,7 +2023,51 @@ async function run(): Promise<CommanderCommand> {
     const commandsStart = Date.now();
     // Join the promises kicked before setup() (or start fresh if
     // worktreeEnabled gated the early kick). Both memoized by cwd.
-    const [commands, agentDefinitionsResult] = await Promise.all([commandsPromise ?? getCommands(currentCwd), agentDefsPromise ?? getAgentDefinitionsWithOverrides(currentCwd)]);
+    // Guard this join with a timeout so a stalled command/agent loader
+    // cannot block interactive prompt startup.
+    const commandAgentLoadTimeoutMs = Number(
+      process.env.CLAUDE_REVIEW_COMMAND_LOAD_TIMEOUT_MS ??
+        (isBareMode() ? '6000' : '12000'),
+    )
+    const commandAgentLoadPromise = Promise.all([
+      commandsPromise ?? getCommands(currentCwd),
+      agentDefsPromise ?? getAgentDefinitionsWithOverrides(currentCwd),
+    ])
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            `Timed out loading commands/agents after ${commandAgentLoadTimeoutMs}ms`,
+          ),
+        )
+      }, commandAgentLoadTimeoutMs)
+    })
+    let commands: Awaited<ReturnType<typeof getCommands>>
+    let agentDefinitionsResult: Awaited<
+      ReturnType<typeof getAgentDefinitionsWithOverrides>
+    >
+    try {
+      ;[commands, agentDefinitionsResult] = await Promise.race([
+        commandAgentLoadPromise,
+        timeoutPromise,
+      ])
+    } catch (error) {
+      logError(error)
+      logForDebugging(
+        `[STARTUP] command/agent load failed (${toError(error).message}); falling back to built-in command surface`,
+      )
+      try {
+        commands = getBuiltinCommandsOnly()
+      } catch (fallbackError) {
+        logError(fallbackError)
+        commands = []
+      }
+      const builtInAgents = getBuiltInAgents()
+      agentDefinitionsResult = {
+        activeAgents: builtInAgents,
+        allAgents: builtInAgents,
+      }
+    }
     logForDebugging(`[STARTUP] Commands and agents loaded in ${Date.now() - commandsStart}ms`);
     profileCheckpoint('action_commands_loaded');
 
@@ -2209,6 +2257,7 @@ async function run(): Promise<CommanderCommand> {
 
     // Show setup screens after commands are loaded
     if (!isNonInteractiveSession) {
+      logForDebugging('[STARTUP] Entering interactive root initialization');
       const ctx = getRenderContext(false);
       getFpsMetrics = ctx.getFpsMetrics;
       stats = ctx.stats;
@@ -2219,7 +2268,9 @@ async function run(): Promise<CommanderCommand> {
       const {
         createRoot
       } = await import('./ink.js');
+      logForDebugging('[STARTUP] Creating Ink root');
       root = await createRoot(ctx.renderOptions);
+      logForDebugging('[STARTUP] Ink root created');
 
       // Log startup time now, before any blocking dialog renders. Logging
       // from REPL's first render (the old location) included however long
@@ -2230,7 +2281,9 @@ async function run(): Promise<CommanderCommand> {
         durationMs: Math.round(process.uptime() * 1000)
       });
       const setupScreensStart = Date.now();
+      logForDebugging('[STARTUP] showSetupScreens starting');
       const onboardingShown = await showSetupScreens(root, permissionMode, allowDangerouslySkipPermissions, commands, enableClaudeInChrome, devChannels);
+      logForDebugging(`[STARTUP] showSetupScreens completed in ${Date.now() - setupScreensStart}ms`);
 
       // Now that trust is established and GrowthBook has auth headers,
       // resolve the --remote-control / --rc entitlement gate.
