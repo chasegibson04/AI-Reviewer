@@ -29,3 +29,4 @@ bash scripts/smoke_fallback.sh
 
 - Launchers resolve project root relative to launcher path.
 - `scripts/launch.js` auto-builds with Bun when required.
+- macOS launchers prepend `$HOME/.bun/bin` to `PATH` when present so Bun works from Finder/non-login shells.

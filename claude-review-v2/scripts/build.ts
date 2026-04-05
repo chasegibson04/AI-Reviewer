@@ -8,7 +8,7 @@
  * - src/ path aliases
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 const version = pkg.version
@@ -178,6 +178,14 @@ export async function handleBgFlag() { throw new Error("Background sessions are 
             loader: 'js',
           }),
         )
+
+        // Bun currently mis-bundles some zod v4 namespace utility references
+        // in this codebase. Keep zod external so Node resolves it from
+        // node_modules at runtime.
+        build.onResolve({ filter: /^zod(\/.*)?$/ }, args => ({
+          path: args.path,
+          external: true,
+        }))
 
         build.onResolve(
           { filter: /^\.\.\/(daemon\/workerRegistry|daemon\/main|cli\/bg|cli\/handlers\/templateJobs|environment-runner\/main|self-hosted-runner\/main)\.js$/ },
@@ -413,6 +421,40 @@ if (!result.success) {
     console.error(log)
   }
   process.exit(1)
+}
+
+// Bun sometimes emits a bundle where zod namespace utility references
+// (`util.assignProp` / `util.normalizeParams`) are left unresolved.
+// Patch in a local alias so runtime does not crash on launch.
+const distPath = './dist/cli.mjs'
+const distText = readFileSync(distPath, 'utf8')
+if (distText.includes('util.normalizeParams(')) {
+  const zodUtilShim = `var util = {
+  assignProp: (obj, key, value) => {
+    Object.defineProperty(obj, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    });
+  },
+  normalizeParams,
+};`
+
+  let patched = distText
+
+  if (patched.includes('var util = { assignProp, normalizeParams };')) {
+    patched = patched.replace('var util = { assignProp, normalizeParams };', zodUtilShim)
+  } else if (!patched.includes('var util = {')) {
+    patched = patched.replace(
+      'function object(shape, params) {',
+      `${zodUtilShim}\nfunction object(shape, params) {`,
+    )
+  }
+
+  if (patched !== distText) {
+    writeFileSync(distPath, patched, 'utf8')
+  }
 }
 
 console.log(`✓ Built openclaude v${version} → dist/cli.mjs`)
