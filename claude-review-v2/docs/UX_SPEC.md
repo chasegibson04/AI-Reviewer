@@ -1,49 +1,102 @@
 # UX Specification
 
-The target UX is OpenClaude-like session behavior applied to manuscript review.
+This UX spec defines the manuscript-first, OpenClaude-like terminal experience for `claude-review-v2`.
 
-## Core experience
+## UX Goals
 
-- Keep OpenClaude-style conversational terminal loop.
-- Keep tool-driven execution (not a hidden batch subprocess flow).
-- Keep concise operational output and command ergonomics.
-- Avoid custom shell branding drift.
+- Keep interactive command-loop flow simple and explicit.
+- Make profile and reasoning-mode choices visible, not hidden.
+- Surface model readiness and degradation honestly.
+- Keep visible manuscript comments concise and readable.
+- Keep machine-readable metadata rich in artifacts/manifests.
 
-## Startup expectations
+## Startup UX
 
-On launch, the shell should quickly surface:
-- backend availability (Ollama reachability)
-- model/profile availability
-- manuscript/project presence in workspace
-- suggested next commands
+On startup, users should be able to quickly determine:
 
-## Primary command UX
+- active project
+- active profile
+- default deep mode
+- local model availability (especially Gemma variants)
+- next useful commands (`/project`, `/profile`, `/doctor`, `/deep-run`)
 
-The documented manuscript workflow uses:
-- `/project`
-- `/profile`
-- `/doctor` or `/diagnose`
-- `/review` or `/deep-run`
-- `/artifacts`
-- `/replay` and `/diff`
+## Command Workflow UX
 
-## Profile UX
+Primary workflow order:
 
-Users can select profiles by alias or number via `/profile`.
+1. `/project` select manuscript workspace
+2. `/profile` select review profile
+3. `/doctor` or `/diagnose` verify backend/models
+4. `/review` or `/deep-run` execute
+5. `/artifacts` inspect outputs
 
-Main run styles:
-- balanced local
-- deep local
-- local MOE staged routing
-- one big model (Gemma 4 preference)
-- final manuscript pass (Gemma 4 preference)
+Guided variant:
 
-Default profile: `local_moe`.
+- `/wizard` performs project/profile/manuscript selection and run choice.
 
-## Output UX
+## Deep-Run Mode Choice UX
 
-After runs, users should get:
-- explicit run summary with profile/model mode
-- artifact locations
-- validation pass/fail status
-- clear fallback notices when preferred model is unavailable
+Before interactive deep execution, prompt user for reasoning mode:
+
+- `MOE (multi-model specialists)`
+- `Single-model Gemma 4`
+
+Prompt should be plain-language and show recommended default.
+
+User intent controls:
+
+- interactive choice prompt
+- optional CLI flag override (`--mode moe` / `--mode gemma`)
+- persistent default via `/deep-mode`
+
+## Run Summary UX Requirements
+
+Summaries must include:
+
+- profile used
+- reasoning mode requested and effective
+- model target
+- degraded/fallback flag and reason when relevant
+- support ingest summary
+- citation verification summary
+- run directory path
+
+## Stage-to-Model Transparency
+
+Artifacts should expose stage routing in `routing_trace.json`:
+
+- each stage name
+- model assigned
+- stage status (`ok`, `fallback_error`, `heuristic_only`, etc.)
+- error/fallback reason if applicable
+- finding count
+
+## Comment UX Requirements
+
+Visible comment body style:
+
+- compact and direct
+- one issue per comment
+- optional short fix line
+- no metadata boilerplate in the visible message
+
+Manifest metadata style:
+
+- can include richer context (stage, evidence, confidence, support source status)
+
+## Citation UX Requirements
+
+Citation verification outputs should be:
+
+- sentence-local where possible
+- explicit about confidence level
+- explicit when abstract-only fallback was used
+- explicit when support could not be verified
+
+## Degraded-Mode Honesty
+
+If requested model path fails or degrades:
+
+- tell user in terminal summary
+- persist reason in `run_summary.json` and `routing_trace.json`
+- do not label degraded path as fully successful single-model Gemma behavior

@@ -1,52 +1,111 @@
-# AI-Reviewer TS-Python Bridge
+# AI-Reviewer TS-Python Bridge (claude-review-v2)
 
-This bridge is the review-domain backend for `claude-review-v2`.
+This bridge is Layer B for `claude-review-v2` and owns manuscript-domain review execution.
 
-## Purpose
+## Contract Summary
 
-- Provide manuscript review tools to the TypeScript shell through local stdio JSON-RPC.
-- Keep Layer A (shell/session) and Layer B (domain analysis/render/validation) cleanly separated.
+Transport:
 
-## Layer ownership
+- stdio JSON-RPC, MCP-style method surface
+- methods used: `initialize`, `tools/list`, `tools/call`
 
-TypeScript shell (Layer A):
-- command UX and session behavior
-- profile/routing selection and run-mode narration
-- tool orchestration through bridge calls
+Primary implementation:
 
-Python bridge (Layer B):
-- manuscript discovery and parsing
-- review analyses and arbitration helpers
-- artifact generation, validation, replay, diff, benchmark
+- `src/bridge/python/review_mcp_server.py`
 
-## Transport
+## Bridge Responsibilities
 
-- `initialize`
-- `tools/list`
-- `tools/call`
+- manuscript discovery and parse helpers (`.docx`, `.pdf`)
+- section map and digest helpers
+- staged deep review generation
+- model routing transparency and fallback tracing
+- support-paper ingest and cache management
+- line/sentence-level citation verification against references
+- visible comment composition + manifest metadata export
+- suggested change generation
+- run artifact rendering and validation
+- replay/diff support
 
-Tool result payloads are returned as text JSON content.
+## Deep Review Core Flow
 
-## Outputs
+1. parse and clean manuscript text
+2. derive section map and analysis reports
+3. resolve model plan based on profile/mode
+4. ingest support docs into structured cache records
+5. run line-by-line citation verification pass
+6. run stage prompts across stage model map
+7. compose concise visible comments + rich manifests
+8. write run artifacts and validation outputs
 
-Bridge writes run artifacts, including:
-- `run_summary.json`
-- `routing_trace.json`
-- `manuscript_comment_manifest.json`
-- `manuscript_suggested_changes_manifest.json`
-- `tool_event_log.jsonl`
-- `network_event_log.jsonl`
-- `validation_report.json`
-- `session_transcript.md`
+## Model Plan Semantics
 
-## Dependency behavior
+Resolver:
 
-- Runs without requiring external repo layout.
-- Optional `ai_reviewer` package is used when installed in Python environment.
-- Fallback parsers are used when optional parser package is unavailable.
+- `_resolve_stage_models(...)`
 
-## Policy guardrails
+Modes:
 
-Bridge blocks projects containing:
+- `moe`: stage-specific model candidates
+- `gemma_single`: one Gemma target applied across main reasoning stages
+
+Degradation model:
+
+- if requested model path unavailable/unusable, fallback is explicit
+- routing trace includes `degraded` and `fallback_reason`
+
+## Ingest Cache Semantics
+
+Cache root:
+
+- `.runtime/support_ingest_cache`
+
+Record intent:
+
+- stable source identity/fingerprint
+- parsed/derived summaries and evidence blocks
+- machine-readable structure for downstream citation checks
+
+Cache lifecycle:
+
+- unchanged source: reuse
+- changed source: refresh/re-ingest
+
+## Citation Verification Semantics
+
+- parse citation mentions sentence by sentence
+- map markers to reference entries
+- check support docs individually where available
+- permit abstract-only fallback when full paper unavailable (if enabled)
+- label lower-confidence abstract-only checks explicitly
+
+Outputs:
+
+- `citation_verification_ledger.json`
+- `claim_verification_summary.json`
+- citation-related comment details in manifests
+
+## Comment and Metadata Output Strategy
+
+Visible comments (`manuscript_comment_manifest.json`):
+
+- concise human-readable editorial note style
+
+Metadata (`manuscript_comment_metadata.json` and supporting ledgers):
+
+- stage/source/status/confidence/fallback context
+- evidence pointers and ingest/citation traceability
+
+## Reliability and Diagnostics
+
+- model probes feed diagnostic commands (`/doctor`, `/diagnose`)
+- stage fallback states are persisted in `routing_trace.json`
+- network and tool activity are logged (`network_event_log.jsonl`, `tool_event_log.jsonl`)
+
+## Policy Guards
+
+Bridge blocks known disallowed project snippets in path segments:
+
 - `pampa`
 - `horseshoe`
+
+This is enforced before manuscript operations proceed.

@@ -1,52 +1,151 @@
 # Troubleshooting
 
-## `dist/cli.mjs` missing
+This guide is symptom-driven and focused on local `claude-review-v2` operation.
 
-Cause:
-- Build has not run yet.
+## 1) Launcher Does Not Start
 
-Fix:
-- `bun run build`
-- then relaunch via platform launcher.
+### Symptom
 
-## Bun not installed
+- launcher exits early
+- no interactive shell starts
 
-Symptoms:
-- launch script reports missing Bun when `dist/` is absent.
+### Checks
 
-Fix:
-- install Bun from https://bun.sh
-- or run from an already-built checkout containing `dist/cli.mjs`.
+```bash
+node scripts/launch.js --print-launch-plan
+```
 
-## Ollama unreachable
+### Expected default
 
-Symptoms:
-- `/doctor` or `/diagnose` reports backend offline.
-- `scripts/doctor_runtime.sh` fails health check.
+- `launchTarget: line_repl`
 
-Fix:
-- start Ollama (`ollama serve`)
-- verify models with `ollama list`
+### Fix
 
-## Gemma 4 not detected
+- if `dist` is stale/missing and Bun is installed: `bun run build`
+- run fallback smoke: `bash scripts/smoke_fallback.sh`
 
-Symptoms:
-- Big-model profiles report fallback model.
+## 2) Ollama Unreachable
 
-Fix:
-- `ollama pull gemma4:26b`
-- optional: `ollama pull gemma4:31b`
+### Symptom
 
-## Bridge unavailable
+- `/doctor` shows backend offline
+- model probe failures across all lanes
 
-Symptoms:
-- review tools fail to delegate or bridge not connected.
+### Checks
 
-Fix:
-- verify Python runtime: `python3 -m py_compile src/bridge/python/review_mcp_server.py`
-- run bridge tests: `python3 -m pytest -q tests/test_mcp_review.py`
+```bash
+ollama list
+bash scripts/doctor_runtime.sh
+```
 
-## Local-only assurance
+### Fix
 
-Check per-run:
-- `network_event_log.jsonl` should show local backend events only for local runs.
+- start/restart Ollama (`ollama serve`)
+- rerun `/doctor` and `/diagnose`
+
+## 3) Gemma Unavailable
+
+### Symptom
+
+- deep-run Gemma mode degrades immediately
+- fallback reason cites Gemma unavailable
+
+### Checks
+
+```bash
+ollama list
+```
+
+### Fix
+
+```bash
+ollama pull gemma4:26b
+# optional
+ollama pull gemma4:31b
+```
+
+## 4) Gemma Empty/No Content Responses
+
+### Symptom
+
+- probe lane failures (short/medium/json/ingest/citation/long)
+- runtime fallback or heuristic-only stages
+
+### Checks
+
+- run `/doctor` and inspect Gemma probe lane statuses
+- run `/diagnose` and confirm lane results
+- inspect `routing_trace.json` and `run_summary.json` fallback fields
+
+### Notes
+
+Bridge behavior includes:
+
+- explicit unusable probe detection
+- degraded mode propagation into summary artifacts
+- fallback reasoning path when Gemma path is not usable
+
+## 5) Citation Output Too Weak or Noisy
+
+### Symptom
+
+- repetitive citation comments
+- low-value generic messages
+
+### Checks
+
+- inspect `citation_verification_ledger.json`
+- inspect `manuscript_comment_manifest.json`
+
+### Fix direction
+
+- ensure source extraction quality is adequate (prefer `pdftotext` availability)
+- verify model lanes are healthy
+- verify abstract-only labels are present when full docs unavailable
+
+## 6) Ingest Cache Not Reused
+
+### Symptom
+
+- repeated expensive ingest on unchanged sources
+
+### Checks
+
+- inspect `support_ingest_report.json`
+- inspect `support_ingest_cache_index.json`
+
+### Expected
+
+- unchanged sources should appear as cache reused
+- changed source fingerprints should trigger refresh/re-ingest
+
+## 7) Bridge Tool Failures
+
+### Symptom
+
+- tool calls error from shell
+
+### Checks
+
+```bash
+python3 -m py_compile src/bridge/python/review_mcp_server.py
+python3 -m pytest -q tests/test_mcp_review.py
+```
+
+### Fix
+
+- resolve Python env mismatch
+- rerun diagnostics from subproject root
+
+## 8) Launch Path Seems to Escape Subproject
+
+### Check
+
+```bash
+node scripts/launch.js --print-launch-plan
+```
+
+### Interpretation
+
+- `line_repl`: in-subproject path (expected default)
+- `legacy_guided_workflow`: only expected when `CLAUDE_REVIEW_ALLOW_LEGACY_GUIDED=1`

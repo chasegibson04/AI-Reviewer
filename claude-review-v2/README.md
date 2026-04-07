@@ -1,58 +1,77 @@
 # claude-review-v2
 
-`claude-review-v2` is an OpenClaude-style terminal shell adapted for manuscript review.
+`claude-review-v2` is a self-contained OpenClaude-style shell for manuscript review, backed by a local TypeScript-to-Python bridge.
 
-It keeps the OpenClaude session/command experience while shifting the tool domain to AI-Reviewer workflows through a local TypeScript-to-Python bridge.
+This subproject is designed to run review workflows without relying on root-level `ai_reviewer` launch paths for normal operation. The default launcher path stays inside `claude-review-v2` and uses the local bridge/runtime.
 
-## Current state
+## Scope and Boundary
 
-What is working now:
-- OpenClaude-style interactive shell with manuscript-oriented commands.
-- Local-first profile system with explicit MOE and big-model review modes.
-- Python bridge (`src/bridge/python/review_mcp_server.py`) for parsing, analysis, artifact rendering, replay/diff, and validation.
-- Artifact generation under in-folder run outputs.
-- Cross-platform launchers (macOS + Windows) included in this folder.
+- Primary runtime for this effort: `claude-review-v2/`
+- Primary launcher entrypoint: `claude-review-v2/scripts/launch.js`
+- Layer A shell runtime: `claude-review-v2/src/` and `claude-review-v2/scripts/line-repl.js`
+- Layer B Python bridge: `claude-review-v2/src/bridge/python/review_mcp_server.py`
+- Default profile: `local_moe`
 
-What is still partial:
-- Full standalone Bun/OpenClaude build parity is still environment-sensitive.
-- Windows runtime has launcher-level validation and script linting in this environment, but not full native interactive runtime execution.
-- Some OpenClaude upstream command modules remain present in source; manuscript command guidance is prioritized in docs and startup flow.
+Legacy parent-repo guided handoff exists only as an explicit opt-in compatibility path:
 
-## Repository boundary
+- `CLAUDE_REVIEW_ALLOW_LEGACY_GUIDED=1 node scripts/launch.js`
 
-All project runtime/docs/tests for this effort are inside `claude-review-v2/`.
+Without that env var, no-argument launch stays inside `claude-review-v2`.
 
-Do not use blacklisted projects in validation:
-- PAMPA
-- horseshoe / horseshoe crab
+## What You Get
 
-## Architecture summary
+- OpenClaude-like command loop tailored to manuscript operations.
+- Guided project/profile/deep-run flow.
+- Explicit deep-run reasoning mode choice:
+  - `MOE (multi-model specialists)`
+  - `Single-model Gemma 4`
+- Structured deep review with stage-level model routing trace.
+- Support-paper ingest pipeline with reusable structured cache.
+- Line-by-line citation verification against in-text citations and reference section mappings.
+- Artifact rendering, replay, diff, validation, and run summaries.
 
-- Layer A (TypeScript shell): OpenClaude-style command/session runtime (`src/`)
-- Layer B (Python review backend): local MCP-style bridge (`src/bridge/python/review_mcp_server.py`)
-- Bridge contract: JSON-RPC over stdio using `initialize`, `tools/list`, `tools/call`
+## Deep-Run Mode Choice (Important)
 
-See [Architecture](docs/ARCHITECTURE.md).
+When you run `/deep-run` interactively, the shell asks:
 
-## Commands
+```text
+Deep run reasoning mode:
+ 1. MOE (multi-model specialists)
+ 2. Single-model Gemma 4
+Choose mode [1/2, Enter=<recommended>]:
+```
 
-Primary manuscript command surface:
-- `/project`
-- `/review`
-- `/deep-run`
-- `/artifacts`
-- `/diagnose`
-- `/doctor`
-- `/replay`
-- `/diff`
-- `/profile`
+Implementation path:
 
-## Selectable review profiles
+- Prompt logic: `scripts/line-repl.js` (`chooseDeepRunMode`)
+- Execution: `runReviewFlow(..., reasoningMode)`
+- Backend routing: `review_mcp_server.py` (`_resolve_stage_models`)
+
+### Gemma-single routing behavior
+
+In `gemma_single` mode, the bridge maps the core reasoning stages to one Gemma model target when available:
+
+- `structural_review`
+- `high_level_review`
+- `hostile_review`
+- `methods_verification`
+- `line_by_line_edits`
+- `style_alignment`
+- `reconciliation`
+- `final_arbitration`
+
+Support ingest and citation verification model targets also follow the same Gemma target in this mode.
+
+If Gemma is unavailable/unusable, degradation is explicit in run artifacts (`run_summary.json`, `routing_trace.json`) with fallback reason text.
+
+## Profiles
+
+Available review profiles:
 
 - `quick_local`
 - `balanced_local`
 - `deep_local`
-- `local_moe`
+- `local_moe` (default)
 - `one_big_model`
 - `full_manuscript_final_pass`
 - `offline_strict`
@@ -61,97 +80,112 @@ Primary manuscript command surface:
 - `gemma4_26b`
 - `gemma4_31b`
 
-Default profile: `local_moe`.
+Profile metadata and resolution live in:
 
-### Big-model mode (Gemma 4)
+- `src/utils/model/reviewProfiles.ts`
+- `src/commands/review/runParameters.ts`
 
-- `one_big_model`: single-model dominant review path.
-- `full_manuscript_final_pass`: aggregated final-pass/judge path.
-- Preferred model order: `gemma4:26b`, then `gemma4:31b` if detected.
-- If Gemma 4 is unavailable, fallback is explicit in diagnostics/run summaries.
+## Core Commands
+
+- `/wizard` guided run setup
+- `/project` project selection
+- `/profile` profile selection
+- `/deep-mode` default deep-run mode (`moe` / `gemma`)
+- `/review` standard review
+- `/deep-run` deep staged review (with mode prompt)
+- `/doctor` environment and model readiness
+- `/diagnose` tool/state diagnostics
+- `/artifacts` validate/summarize run artifacts
+- `/replay` replay one run
+- `/diff` compare two runs
+
+## Artifact Model
+
+Deep runs typically produce:
+
+- `run_summary.json`
+- `routing_trace.json`
+- `manuscript_comment_manifest.json`
+- `manuscript_comment_metadata.json`
+- `manuscript_suggested_changes_manifest.json`
+- `support_ingest_report.json`
+- `support_ingest_cache_index.json`
+- `support_usage_ledger.json`
+- `citation_verification_ledger.json`
+- `claim_verification_summary.json`
+- `assertion_ledger.json`
+- `terminology_definition_report.json`
+- `coherence_transition_report.json`
+- `methods_report.json`
+- `figure_table_reference_report.json`
+- `format_compliance_report.json`
+- `validation_report.json`
+- `tool_event_log.jsonl`
+- `network_event_log.jsonl`
+
+Visible comment bodies are intentionally concise; richer metadata stays in manifests.
 
 ## Requirements
 
+Required:
+
 - Node.js 20+
-- Bun (for build path)
 - Python 3.10+
-- Ollama running locally for local-first model execution
+- Ollama local service (`http://localhost:11434`)
+
+Recommended:
+
+- Bun (build flow)
+- `pdftotext` for cleaner PDF extraction quality in fallback mode
 
 Optional:
-- `ai_reviewer` Python package for richer parsing (bridge falls back when unavailable)
 
-## Launch
+- `ai_reviewer` Python package for richer parsing/ingest (bridge has internal fallbacks)
 
-### Recommended launcher entrypoint
+## Launching
 
-- `node scripts/launch.js`
+Primary path:
 
-This script:
-- launches `dist/cli.mjs` when available
-- runs `bun run build` automatically when Bun exists and `dist` is missing
-- prints explicit recovery commands when prerequisites are missing
+```bash
+node scripts/launch.js
+```
 
-### macOS
+macOS wrappers:
 
-- `launchers/macos/claude-review-v2.command`
-- `launchers/macos/claude-review-v2.sh`
+```bash
+./launchers/macos/claude-review-v2.sh
+# or double-click
+./launchers/macos/claude-review-v2.command
+```
 
-See [macOS setup](docs/MACOS_SETUP.md).
+Windows wrappers:
 
-### Windows
+```powershell
+.\launchers\windows\claude-review-v2.cmd
+# or
+powershell -ExecutionPolicy Bypass -File .\launchers\windows\claude-review-v2.ps1
+```
 
-- `launchers/windows/claude-review-v2.cmd`
-- `launchers/windows/claude-review-v2.bat`
-- `launchers/windows/claude-review-v2.ps1`
+## Health Checks
 
-See [Windows setup](docs/WINDOWS_SETUP.md).
+```bash
+bash scripts/doctor_runtime.sh
+bash scripts/smoke_fallback.sh
+```
 
-## Diagnostics and smoke
+Additional launch-plan verification:
 
-- `bash scripts/doctor_runtime.sh`
-- `bash scripts/smoke.sh` (Bun build path)
-- `bash scripts/smoke_fallback.sh` (no Bun build required)
+```bash
+node scripts/launch.js --print-launch-plan
+bash launchers/macos/claude-review-v2.sh --print-launch-plan
+```
 
-## Tests
+## Validation Guidance
 
-- `python3 -m pytest -q tests/test_mcp_review.py`
-- `python3 tests/overnight_validation_runner.py`
-- `npm run test:provider-recommendation`
-- `node --test --experimental-strip-types src/utils/model/reviewProfiles.test.ts src/commands/review/runParameters.test.ts`
+For this effort, real validation should stay in-subproject and use approved test projects only.
 
-## Fixtures and outputs
+Do not use blocked project families (for example: horseshoe or pampa-named projects).
 
-Internal fixtures for validation:
-- `fixtures/manuscripts/gan_diffusion.pdf`
-- `fixtures/manuscripts/s44160-023-00351-1.pdf`
+## Documentation Map
 
-Run outputs and reports:
-- `test_outputs/`
-- `reports/`
-- `audits/`
-
-## Artifacts written per run
-
-Typical run directories include:
-- `source_mode.json`
-- `section_map.json`
-- `manuscript_comment_manifest.json`
-- `manuscript_suggested_changes_manifest.json`
-- `support_ingest_report.json`
-- `support_usage_ledger.json`
-- `assertion_ledger.json`
-- `claim_verification_summary.json`
-- `citation_verification_ledger.json`
-- `format_compliance_report.json`
-- `terminology_definition_report.json`
-- `coherence_transition_report.json`
-- `figure_table_reference_report.json`
-- `routing_trace.json`
-- `tool_event_log.jsonl`
-- `network_event_log.jsonl`
-- `run_summary.json`
-- `session_transcript.md`
-
-## Documentation index
-
-Start with [docs/INDEX.md](docs/INDEX.md).
+See [docs/INDEX.md](docs/INDEX.md) for full architecture, launcher, UX, setup, and troubleshooting references.

@@ -1,36 +1,77 @@
 # Project Structure
 
-`claude-review-v2/` is intentionally self-contained.
+`claude-review-v2/` is the required implementation boundary for this effort.
 
-## Top-level layout
+## Top-Level Tree and Ownership
 
-- `README.md`: primary user-facing overview and run instructions.
-- `PLAYBOOK.md`: operational checklist for local review workflow.
-- `docs/`: architecture/setup/launcher/troubleshooting docs.
-- `audits/`: audit artifacts and completion status docs.
-- `reports/`: validation reports and benchmark-readiness notes.
-- `fixtures/`: in-bounds test manuscripts.
-- `launchers/`: platform launch wrappers.
-- `scripts/`: build/doctor/smoke/bootstrap/launch scripts.
-- `src/`: TypeScript shell and Python bridge runtime code.
-- `tests/`: bridge and validation test harnesses.
-- `test_outputs/`: generated run artifacts used for validation.
-
-## Runtime paths
-
-- Primary launch path: `node scripts/launch.js`
-- macOS wrappers: `launchers/macos/*`
-- Windows wrappers: `launchers/windows/*`
-- Bridge runtime: `src/bridge/python/review_mcp_server.py`
-
-## Artifact paths
-
-Run artifacts are expected under:
+- `README.md`
+  - user-facing quickstart and operational behavior.
+- `PLAYBOOK.md`
+  - local execution checklist.
+- `docs/`
+  - architecture, UX, launcher, setup, and troubleshooting docs.
+- `launchers/`
+  - macOS and Windows wrappers.
+- `scripts/`
+  - launch, doctor, smoke, provider helper scripts.
+- `src/`
+  - shell runtime and bridge integration code.
+- `src/bridge/python/`
+  - Python backend bridge and bridge docs.
+- `tests/`
+  - targeted unit/integration validation for shell and bridge.
 - `test_outputs/`
-- `projects/` (if user creates in-folder project snapshots)
-- `outputs/` (if used by specific run flows)
+  - generated run artifacts and validation outputs.
+- `audits/` and `reports/`
+  - audit records and status notes.
 
-## Notes
+## Critical Runtime Files
 
-- Files outside `claude-review-v2/` are not required for current test fixtures.
-- Optional external Python package `ai_reviewer` can enhance parsing quality but is not required for bridge operation.
+Launcher and startup:
+
+- `scripts/launch.js`
+- `launchers/macos/claude-review-v2.command`
+- `launchers/macos/claude-review-v2.sh`
+- `launchers/windows/claude-review-v2.cmd`
+- `launchers/windows/claude-review-v2.bat`
+- `launchers/windows/claude-review-v2.ps1`
+
+Interactive UX:
+
+- `scripts/line-repl.js`
+
+Model/profile config:
+
+- `src/utils/model/reviewProfiles.ts`
+- `src/commands/review/runParameters.ts`
+
+Bridge/backend:
+
+- `src/bridge/python/review_mcp_server.py`
+- `src/bridge/python/BRIDGE_README.md`
+
+## Runtime Storage Locations
+
+- `.runtime/`
+  - bridge-internal and launcher runtime state (including support ingest cache root).
+- `test_outputs/`
+  - run-specific artifacts used for validation and inspection.
+
+## Artifact Subset Worth Checking First
+
+When validating behavior, inspect these first:
+
+- `run_summary.json`
+- `routing_trace.json`
+- `manuscript_comment_manifest.json`
+- `manuscript_suggested_changes_manifest.json`
+- `support_ingest_report.json`
+- `support_ingest_cache_index.json`
+- `citation_verification_ledger.json`
+- `validation_report.json`
+
+## Boundary Rules for This Subproject
+
+- Keep implementation changes inside `claude-review-v2` for this track.
+- Do not rely on parent repo launch/runtime internals for normal no-arg flow.
+- Use bridge artifacts to prove behavior rather than only shell logs.
