@@ -102,6 +102,8 @@ Bridge behavior includes:
 - ensure source extraction quality is adequate (prefer `pdftotext` availability)
 - verify model lanes are healthy
 - verify abstract-only labels are present when full docs unavailable
+- inspect `support_usage_ledger.json`; zero used sources means ingest may be populating cache without successfully linking cited references to local support papers
+- inspect `citation_verification_ledger.json` for `source_resolution`, `support_match_score`, and `support_match_basis` fields before claiming local-paper verification is working
 
 ## 6) Ingest Cache Not Reused
 
@@ -118,6 +120,7 @@ Bridge behavior includes:
 
 - unchanged sources should appear as cache reused
 - changed source fingerprints should trigger refresh/re-ingest
+- cache reuse alone is not proof that citation verification is using those sources; confirm linkage separately in `support_usage_ledger.json`
 
 ## 7) Bridge Tool Failures
 
@@ -149,3 +152,48 @@ node scripts/launch.js --print-launch-plan
 
 - `line_repl`: in-subproject path (expected default)
 - `legacy_guided_workflow`: only expected when `CLAUDE_REVIEW_ALLOW_LEGACY_GUIDED=1`
+
+## 9) Color-Palette Audit Returns Too Many Near-Duplicates
+
+### Symptom
+
+- palette flooded by anti-aliasing shades
+- output feels like pixel noise instead of representative colors
+
+### Checks
+
+- inspect `color_palette_full.json`
+- inspect `color_palette_filtered.json`
+- inspect `color_palette_report.pdf`
+
+### Fix direction
+
+- raise `merge_distance`
+- raise `min_pixel_count` or `min_pixel_fraction`
+- keep the rendered-page honesty model in mind: this utility is not raw PDF object extraction
+
+## 10) Color-Palette Audit Fails To Render PDF
+
+### Symptom
+
+- `extract_color_palette` returns a PDF render error
+- `/color-palette` exits before writing artifacts
+
+### Checks
+
+```bash
+which pdftoppm
+which pdftocairo
+python - <<'PY'
+import importlib.util
+print('pdf2image', importlib.util.find_spec('pdf2image') is not None)
+print('PIL', importlib.util.find_spec('PIL') is not None)
+print('reportlab', importlib.util.find_spec('reportlab') is not None)
+PY
+```
+
+### Fix
+
+- ensure Poppler CLI tools are available (`pdftoppm` and/or `pdftocairo`)
+- ensure Python packages are present: `pdf2image`, `Pillow`, `reportlab`
+- rerun the tool from the `claude-review-v2` root so outputs stay local

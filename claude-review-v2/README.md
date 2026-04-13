@@ -28,6 +28,7 @@ Without that env var, no-argument launch stays inside `claude-review-v2`.
 - Structured deep review with stage-level model routing trace.
 - Support-paper ingest pipeline with reusable structured cache.
 - Line-by-line citation verification against in-text citations and reference section mappings.
+- PDF color-palette audit for rendered scientific-paper pages, with viridis/plasma-like filtering.
 - Artifact rendering, replay, diff, validation, and run summaries.
 
 ## Deep-Run Mode Choice (Important)
@@ -93,6 +94,7 @@ Profile metadata and resolution live in:
 - `/deep-mode` default deep-run mode (`moe` / `gemma`)
 - `/review` standard review
 - `/deep-run` deep staged review (with mode prompt)
+- `/color-palette` extract representative PDF colors and write palette artifacts
 - `/doctor` environment and model readiness
 - `/diagnose` tool/state diagnostics
 - `/artifacts` validate/summarize run artifacts
@@ -124,6 +126,44 @@ Deep runs typically produce:
 - `network_event_log.jsonl`
 
 Visible comment bodies are intentionally concise; richer metadata stays in manifests.
+
+## PDF Color-Palette Audit
+
+The palette utility is a rendered-page audit, not raw PDF semantic color-object extraction.
+
+What it does:
+
+- renders each PDF page to an image
+- downsamples and quantizes the rendered pages
+- merges near-duplicate colors to reduce anti-aliasing noise
+- emits representative hex colors with counts and approximate page usage
+- classifies representative colors as `viridis_like`, `plasma_like`, or `unmatched`
+- writes a second filtered palette with viridis/plasma-like colors and configured neutral colors removed
+
+Run it from the shell:
+
+```text
+/color-palette path/to/paper.pdf
+```
+
+If no path is supplied, the shell picks the first PDF manuscript in the active project.
+
+Artifacts are written under:
+
+- `test_outputs/color_palette_audits/...` by default
+- or the tool caller can supply another in-subproject output directory
+
+Artifacts produced:
+
+- `color_palette_full.json`
+- `color_palette_filtered.json`
+- `color_palette_full.csv`
+- `color_palette_filtered.csv`
+- `color_palette_page_usage.json`
+- `color_palette_report.pdf`
+- `color_palette_debug_montage.png`
+
+The report PDF is meant to be human-readable: swatches, hex codes, counts, page coverage, and viridis/plasma classification.
 
 ## Requirements
 

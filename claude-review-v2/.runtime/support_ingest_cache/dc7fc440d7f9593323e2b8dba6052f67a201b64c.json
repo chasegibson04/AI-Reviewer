@@ -1,0 +1,171 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41467-022-28736-4.pdf",
+    "size_bytes": 434195,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "761171646ba3de772232372f34b3ef1be5288f86"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41467-022-28736-4.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Achieving autonomous multi-step synthesis of novel molecular structures in",
+    "doi": "10.1038/s41467-022-28736-4",
+    "year": "2022",
+    "authors": [
+      "Achieving"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "achieving autonomous multi step synthesis novel molecular structures",
+    "title_tokens": [
+      "achieving",
+      "autonomous",
+      "multi",
+      "step",
+      "synthesis",
+      "novel",
+      "molecular",
+      "structures"
+    ],
+    "author_tokens": [
+      "achieving"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.1038/s41467-022-28736-4"
+    ],
+    "source_name_tokens": []
+  },
+  "abstract": "COMMENT\n https://doi.org/10.1038/s41467-022-28736-4 OPEN\n\n Autonomous platforms for data-\n driven organic synthesis\n Wenhao Gao1, Priyanka Raghavan1 & Connor W. Coley 1,2 \u2709\n\n Achieving autonomous multi-step synthesis of novel molecular structures in\n chemical discovery processes is a goal shared by many researchers. In this\n1234567890():,;\n\n Comment, we discuss key considerations of what an ideal platform may look like\n and the apparent state of the art. While most hardware challenges can be\n overcome with clever engineering, other challenges will require advances in both\n algorithms and data curation.",
+  "key_claims": [],
+  "methods_summary": "Key additional considerations when designing these automation components include minimizing evaporative losses, performing air-sensitive chemistries, and maintaining precise temperature control; all are addressable through engi- neering. Experimental execution of a to a speci c subset can mitigate the burden of puri c\u2026",
+  "quantitative_findings": [
+    "COMMENT https://doi.org/10.1038/s41467-022-28736-4 OPEN Autonomous platforms for data- driven organic synthesis Wenhao Gao1, Priyanka Raghavan1 & Connor W.",
+    "Coley 1,2 Achieving autonomous multi-step synthesis of novel molecular structures in chemical discovery processes is a goal shared by many researchers.",
+    "In this 1234567890():,; Comment, we discuss key considerations of what an ideal platform may look like and the apparent state of the art."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "synthesis",
+    "reaction",
+    "are",
+    "chemical",
+    "nature",
+    "autonomous",
+    "can",
+    "https",
+    "org",
+    "platforms",
+    "organic",
+    "automated"
+  ],
+  "citation_anchors": [
+    "10.1038/s41467-022-28736-4",
+    "2022",
+    "Achieving",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "s41467-022-28736-4-1",
+      "text": "COMMENT https://doi.org/10.1038/s41467-022-28736-4 OPEN",
+      "keywords": [
+        "https",
+        "org"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-2",
+      "text": "Autonomous platforms for data- driven organic synthesis Wenhao Gao1, Priyanka Raghavan1 & Connor W. Coley 1,2",
+      "keywords": [
+        "synthesis",
+        "autonomous",
+        "org",
+        "platforms",
+        "organic"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-3",
+      "text": "Achieving autonomous multi-step synthesis of novel molecular structures in chemical discovery processes is a goal shared by many researchers. In this 1234567890():,;",
+      "keywords": [
+        "synthesis",
+        "are",
+        "chemical",
+        "autonomous"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-4",
+      "text": "Comment, we discuss key considerations of what an ideal platform may look like and the apparent state of the art. While most hardware challenges can be overcome with clever engineering, other challenges will require advances in both algorithms and data curation.",
+      "keywords": [
+        "are",
+        "can"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-5",
+      "text": "A framework for autonomous synthesis In the iterative design, synthesis, and testing of new functional molecules, the rate at which candidate molecules can be physically realized often limits the rate at which computational designs can be validated. Platforms capable of performing chemical reactions in an automated or semi-automated manner, where the physical operations of a chemist are replaced by robotics and the planning by data-driven algorithms, can potentially mitigate this bottleneck. The actualization of autonomous, data-driven organic synthesis will rely on advances in both hardware and software capabilities to overcome a combination of both practical and scienti c challenges1. In this Comment, we outline the major considerations that must\u2026",
+      "keywords": [
+        "synthesis",
+        "reaction",
+        "are",
+        "chemical",
+        "autonomous"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-6",
+      "text": "Hardware requirements and desiderata The basis of automated chemistry is the modularization of common physical operations to perform reactions: transferring a prescribed amount of starting materials to a reaction vessel, heating or cooling that vessel while mixing, purifying/isolating the desired product, analyzing the product, and using it in subsequent reaction steps. Fortunately, many requisite hardware units for such tasks have already been commercialized, such as liquid handling robots, robotic grippers for plate or vial transfer, computer-controlled heater/shaker blocks, and autosamplers for ana- lytical instrumentation. Therefore, a straightforward (but not simple) paradigm for automated chemistry is to automate operations and sample transfer\u2026",
+      "keywords": [
+        "reaction",
+        "are",
+        "automated"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-7",
+      "text": "1 Department of Chemical Engineering, Massachusetts Institute of Technology, Cambridge, MA 02139, USA. 2 Department of Electrical Engineering and",
+      "keywords": [
+        "chemical"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-8",
+      "text": "Computer Science, Massachusetts Institute of Technology, Cambridge, MA 02139, USA. email: ccoley@mit.edu",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-9",
+      "text": "NATURE COMMUNICATIONS | (2022)13:1075 | https://doi.org/10.1038/s41467-022-28736-4 | www.nature.com/naturecommunications 1 COMMENT NATURE COMMUNICATIONS | https://doi.org/10.1038/s41467-022-28736-4",
+      "keywords": [
+        "nature",
+        "https",
+        "org"
+      ]
+    },
+    {
+      "chunk_id": "s41467-022-28736-4-10",
+      "text": "Fig. 1 A high-level work ow for autonomous data-driven organic synthesis. This process requires the close integration of synthesis planning and synthesis execution, linked by data that captures details of reaction and puri cation processes and their outcomes.",
+      "keywords": [
+        "synthesis",
+        "reaction",
+        "autonomous",
+        "org",
+        "organic"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:11:59.569626+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

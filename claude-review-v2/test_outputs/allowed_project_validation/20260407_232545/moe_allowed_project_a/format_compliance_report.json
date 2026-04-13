@@ -1,0 +1,11 @@
+{
+  "findings": [
+    "Core manuscript sections found by heuristic checks."
+  ],
+  "checks": {
+    "has_abstract": true,
+    "has_references": true,
+    "has_keywords": true,
+    "has_methods": true
+  }
+}

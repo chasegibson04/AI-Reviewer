@@ -1,0 +1,96 @@
+{
+  "profile": "one_big_model",
+  "transport": "local_mcp_bridge",
+  "model_target": "gemma4:31b",
+  "reasoning_mode_requested": "gemma_single",
+  "reasoning_mode_effective": "gemma_single_degraded",
+  "degraded": true,
+  "fallback_reason": "Gemma 4 unavailable; requested single-model Gemma mode degraded to fallback model. Stage/model degradation detected: OLLAMA_UNREACHABLE, citation_model_unusable, ingest_model_unusable",
+  "support_ingest_model": "gemma4:31b",
+  "citation_verification_model": "gemma4:31b",
+  "support_ingest_cache_root": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.runtime/support_ingest_cache",
+  "stage_model_map": [
+    {
+      "stage": "supporting_paper_ingest",
+      "model": "gemma4:31b",
+      "status": "heuristic_only",
+      "error": "ingest_model_unusable",
+      "finding_count": 6
+    },
+    {
+      "stage": "citation_verification",
+      "model": "gemma4:31b",
+      "status": "heuristic_only",
+      "error": "citation_model_unusable",
+      "finding_count": 6
+    },
+    {
+      "stage": "structural_review",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "high_level_review",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "hostile_review",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "methods_verification",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "line_by_line_edits",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "style_alignment",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "reconciliation",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "final_arbitration",
+      "model": "gemma4:31b",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    }
+  ],
+  "stages": [
+    "supporting_paper_ingest",
+    "citation_verification",
+    "structural_review",
+    "high_level_review",
+    "hostile_review",
+    "methods_verification",
+    "line_by_line_edits",
+    "style_alignment",
+    "reconciliation",
+    "final_arbitration"
+  ]
+}

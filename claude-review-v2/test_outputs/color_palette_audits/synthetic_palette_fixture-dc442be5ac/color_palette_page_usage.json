@@ -1,0 +1,59 @@
+{
+  "schema_version": "color_palette_v1",
+  "source_pdf": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/color_palette_validation/synthetic_fixture/synthetic_palette_fixture.pdf",
+  "pages": [
+    {
+      "page": 1,
+      "sampled_size": [
+        500,
+        500
+      ],
+      "sampled_pixels": 250000,
+      "unique_quantized_colors": 6
+    }
+  ],
+  "color_page_usage": [
+    {
+      "hex": "#FFFFFF",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    },
+    {
+      "hex": "#0073D9",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    },
+    {
+      "hex": "#440154",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    },
+    {
+      "hex": "#808080",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    },
+    {
+      "hex": "#EF8740",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    },
+    {
+      "hex": "#FF0000",
+      "pages": [
+        1
+      ],
+      "page_count": 1
+    }
+  ]
+}

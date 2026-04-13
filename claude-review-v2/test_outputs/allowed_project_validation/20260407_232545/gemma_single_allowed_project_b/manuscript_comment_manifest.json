@@ -1,0 +1,16 @@
+[
+  "The manuscript lacks a formal Introduction section to frame the scientific gap.",
+  "There is no explicit Results section preceding the presentation of Figure 2. Fix: Create a Results section to interpret the data shown in the Suzuki coupling heatmaps.",
+  "The assumption that 1.2 l droplets maintain consistent stoichiometry is fragile due to evaporation risks in high-boiling solvents. Fix: Provide evaporation rate data or describe t\u2026",
+  "The reliance on UPLC-MS for assay yield in ultraHTE may introduce significant sampling errors at the microliter scale.",
+  "There is no mention of the number of replicates performed for the 1.2 l reaction droplets to ensure reproducibility. Fix: Specify the number of technical and biological replicates\u2026",
+  "The provided text is a fragmented excerpt containing OCR errors and incomplete sentences. Fix: Provide the full, clean manuscript text for a comprehensive reconciliation analysis.",
+  "The Methods section is missing, preventing reconciliation between experimental design and results. Fix: Include the complete Methods section to verify the 1.2 l droplet protocol.",
+  "The provided text contains significant OCR corruption and fragmented characters in the figure legends and data tables.",
+  "This sentence could not be verified against an accessible source. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb Fix: Provide\u2026",
+  "This sentence could not be verified against an accessible source. Sentence: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.1 Fix: Provide\u2026",
+  "Citation marker 100 50 100 50 could not be mapped for this sentence: AcOH 100 50 100 50 Conc. Fix: Check numbering/author-year format and ensure this citation appears in Reference\u2026",
+  "Citation marker (36) could not be mapped for this sentence: 3 | Nanoscale reaction optimization for the reductive amination of staurosporine (36) with Fix: Check numbering/author-\u2026",
+  "The transition from Background to Methods is abrupt and lacks a logical bridge.",
+  "The Methods section is fragmented and lacks a clear structural hierarchy."
+]

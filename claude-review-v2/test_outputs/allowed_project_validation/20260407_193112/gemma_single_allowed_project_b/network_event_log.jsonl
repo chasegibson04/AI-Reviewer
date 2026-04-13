@@ -1,0 +1,9 @@
+{"timestamp": "2026-04-07T19:31:12.579753+00:00", "action": "ollama_request", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.579855+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.579941+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580022+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580099+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580174+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580248+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580325+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}
+{"timestamp": "2026-04-07T19:31:12.580400+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "fail"}

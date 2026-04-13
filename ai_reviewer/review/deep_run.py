@@ -73,6 +73,17 @@ def _verify_claims_semantically(
         
         try:
             payload, _ = _chat_json(provider, model, system_prompt, user_prompt, timeout_seconds)
+            if str(payload.get("warning", "")).strip():
+                verifications.append(ClaimEvidenceVerification(
+                    claim_id=claim.get("issue_id", "CLAIM-UNK"),
+                    claim_text=ctext,
+                    verdict="unresolved",
+                    evidence_summary="Semantic verifier returned degraded output; no reliable verdict.",
+                    supporting_source=None,
+                    rationale=str(payload.get("error") or payload.get("warning")),
+                    confidence=0.0,
+                ))
+                continue
             verifications.append(ClaimEvidenceVerification(
                 claim_id=claim.get("issue_id", "CLAIM-UNK"),
                 claim_text=ctext,
@@ -455,9 +466,44 @@ def run_deep_run(
     context_material_ids: list[str] | None = None,
     disable_training_guidance: bool = False,
     orchestrator: OrchestratorController | None = None,
+    skip_training_sync: bool = False,
 ) -> DeepRunResult:
     warnings: list[str] = []
     stage_status: dict[str, str] = {}
+    fallback_events: list[dict[str, Any]] = []
+
+    def _set_stage_status(stage: str, value: str) -> None:
+        priority = {"ok": 1, "degraded": 2, "failed": 3}
+        current = stage_status.get(stage)
+        if current is None or priority.get(value, 0) >= priority.get(current, 0):
+            stage_status[stage] = value
+
+    def _record_fallback(stage: str, model: str, reason: str, detail: str | None = None) -> None:
+        event = {"stage": stage, "model": model, "reason": reason}
+        if detail:
+            event["detail"] = detail[:280]
+        fallback_events.append(event)
+        logger.warning("deep_run_fallback stage=%s model=%s reason=%s detail=%s", stage, model, reason, (detail or "")[:180])
+
+    def _chat_json_stage(stage: str, model: str, system_prompt: str, user_prompt: str, timeout_seconds: int) -> tuple[dict[str, Any], str]:
+        logger.info("stage_start stage=%s model=%s", stage, model)
+        payload, raw = _chat_json(
+            provider=provider,
+            model=model,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            timeout_seconds=timeout_seconds,
+        )
+        warn = str(payload.get("warning", "")).strip().lower() if isinstance(payload, dict) else ""
+        if warn:
+            detail = str(payload.get("error") or payload.get("raw_text") or "") if isinstance(payload, dict) else ""
+            warnings.append(f"{stage}:{model}:{warn}")
+            _record_fallback(stage=stage, model=model, reason=warn, detail=detail)
+            _set_stage_status(stage, "degraded")
+            logger.info("stage_done stage=%s model=%s status=degraded", stage, model)
+        else:
+            logger.info("stage_done stage=%s model=%s status=ok", stage, model)
+        return payload, raw
     orch_state = OrchestratorRuntimeState(
         max_stage_retries=cfg.orchestrator.max_stage_retries,
         max_total_retries=cfg.orchestrator.max_total_retries,
@@ -529,7 +575,8 @@ def run_deep_run(
     trainer = TrainingCacheManager.from_config(cfg, logger=logger)
     training_used = {"enabled": False, "categories": [], "source_count": 0, "prompt_block": ""}
     if cfg.training.enabled and not disable_training_guidance:
-        trainer.sync(force_rebuild=False)
+        if not skip_training_sync:
+            trainer.sync(force_rebuild=False)
         inj = trainer.injection_for_profile("deep", max_chars=cfg.training.max_injection_chars)
         training_used = {
             "enabled": inj.enabled,
@@ -547,7 +594,7 @@ def run_deep_run(
     _write_json(run_dir / "project_materials_used.json", materials_used)
     _write_json(run_dir / "project_inventory.json", {"project_id": project_id, "material_count": len(meta.materials), "materials_used": materials_used})
     _write_json(run_dir / "context_manifest.json", {"project_id": project_id, "materials": materials_used, "warnings": warnings})
-    stage_status["stage_00_sync"] = "ok"
+    _set_stage_status("stage_00_sync", "ok")
     cfg_deep = copy.deepcopy(cfg)
     cfg_deep.timeouts.chat_seconds = max(cfg_deep.timeouts.chat_seconds, 600)
     cache_root = pdir / "cache" / "deep_workflow"
@@ -692,11 +739,11 @@ def run_deep_run(
     chunk_document(manuscript_doc, max_chars=get_profile("deep").chunk_size, overlap=get_profile("deep").chunk_overlap)
     for d in supporting_docs:
         chunk_document(d, max_chars=get_profile("balanced").chunk_size, overlap=get_profile("balanced").chunk_overlap)
-    stage_status["stage_01_ingest"] = "ok"
+    _set_stage_status("stage_01_ingest", "ok")
 
     # Stage 2 cheap structural triage
-    triage_payload, triage_raw = _chat_json(
-        provider=provider,
+    triage_payload, triage_raw = _chat_json_stage(
+        stage="stage_02_structural_triage",
         model=model_stack["structural_triage"],
         system_prompt="You are a structural triage model. Return strict JSON only.",
         user_prompt=(
@@ -715,7 +762,7 @@ def run_deep_run(
     _write_json(run_dir / "stage_01_structural_triage.json", triage_payload)
     _write_md(run_dir / "stage_01_structural_triage.md", "Stage 1 Structural Triage", triage_payload)
     (run_dir / "stage_01_structural_triage.raw.txt").write_text(triage_raw, encoding="utf-8")
-    stage_status["stage_02_structural_triage"] = "ok"
+    _set_stage_status("stage_02_structural_triage", "ok")
 
     # Stage 3 supporting-paper digestion with persistent cache
     supporting_cards: list[dict[str, Any]] = []
@@ -730,8 +777,8 @@ def run_deep_run(
             digest_payload = json.loads(cache_path.read_text(encoding="utf-8"))
             digest_payload["cache_hit"] = True
         else:
-            digest_payload, _ = _chat_json(
-                provider=provider,
+            digest_payload, _ = _chat_json_stage(
+                stage="stage_03_supporting_digest",
                 model=model_stack["supporting_digest"],
                 system_prompt="Digest a supporting paper into strict JSON cards.",
                 user_prompt=(
@@ -777,7 +824,7 @@ def run_deep_run(
     _write_json(run_dir / "stage_02_supporting_digest.json", supporting_stage)
     _write_md(run_dir / "stage_02_supporting_digest.md", "Stage 2 Supporting Paper Digestion", supporting_stage)
     _write_json(cache_root / "supporting_digest_manifest.json", supporting_stage)
-    stage_status["stage_03_supporting_digest"] = "ok"
+    _set_stage_status("stage_03_supporting_digest", "ok")
 
     # Stage 4 manuscript digestion with cache
     manuscript_fp = _fingerprint(manuscript_doc.source_path_abs)
@@ -794,8 +841,8 @@ def run_deep_run(
         manuscript_digest = {}
 
     if not manuscript_digest:
-        manuscript_digest, manuscript_digest_raw = _chat_json(
-            provider=provider,
+        manuscript_digest, manuscript_digest_raw = _chat_json_stage(
+            stage="stage_04_manuscript_digest",
             model=model_stack["manuscript_digest"],
             system_prompt="Digest manuscript into strict JSON claim map.",
             user_prompt=(
@@ -843,7 +890,7 @@ def run_deep_run(
     _write_json(run_dir / "initial_manuscript_issue_map.json", {"issues": issue_map})
     _write_json(run_dir / "stage_03_manuscript_digest.json", manuscript_digest)
     _write_md(run_dir / "stage_03_manuscript_digest.md", "Stage 3 Manuscript Digestion", manuscript_digest)
-    stage_status["stage_04_manuscript_digest"] = "ok"
+    _set_stage_status("stage_04_manuscript_digest", "ok")
 
     # Stage 5 context/evidence linking
     claims = manuscript_digest.get("claim_map", [])
@@ -888,7 +935,7 @@ def run_deep_run(
     _write_json(run_dir / "stage_04_context_pack.json", context_pack)
     _write_md(run_dir / "stage_04_context_pack.md", "Stage 4 Context/Evidence Linking", context_pack)
     _write_json(cache_root / "latest_context_pack.json", context_pack)
-    stage_status["stage_05_context_linking"] = "ok"
+    _set_stage_status("stage_05_context_linking", "ok")
 
     # Stage 5b Semantic Claim Verification
     try:
@@ -909,14 +956,14 @@ def run_deep_run(
         _write_md(run_dir / "stage_05b_semantic_verification.md", "Stage 5b Semantic Claim Verification", deep_verification.model_dump())
         # Inject these findings into context_pack for later stages
         context_pack["semantic_verifications"] = [v.model_dump() for v in verifications]
-        stage_status["stage_05b_semantic_verification"] = "ok"
+        _set_stage_status("stage_05b_semantic_verification", "ok")
     except Exception as exc:
         warnings.append(f"semantic_verification_failed:{exc}")
-        stage_status["stage_05b_semantic_verification"] = "failed"
+        _set_stage_status("stage_05b_semantic_verification", "failed")
 
     # Stage 6 context synthesis
-    synth_payload, synth_raw = _chat_json(
-        provider=provider,
+    synth_payload, synth_raw = _chat_json_stage(
+        stage="stage_06_context_synthesis",
         model=model_stack["context_synthesis"],
         system_prompt="You synthesize review context and return strict JSON.",
         user_prompt=(
@@ -933,7 +980,7 @@ def run_deep_run(
     _write_json(run_dir / "stage_05_context_synthesis.json", synth_payload)
     _write_md(run_dir / "stage_05_context_synthesis.md", "Stage 5 Context Synthesis", synth_payload)
     (run_dir / "stage_05_context_synthesis.raw.txt").write_text(synth_raw, encoding="utf-8")
-    stage_status["stage_06_context_synthesis"] = "ok"
+    _set_stage_status("stage_06_context_synthesis", "ok")
 
     def _safe_stage_review(
         stage_label: str,
@@ -947,6 +994,7 @@ def run_deep_run(
         stage_dir = run_dir / stage_dir_name
         stage_dir.mkdir(parents=True, exist_ok=True)
         try:
+            logger.info("stage_start stage=%s", stage_label)
             context_guidance = (
                 f"{training_used['prompt_block']}\n\n"
                 f"Structured context pack:\n{json.dumps(context_pack)[:10000]}"
@@ -964,6 +1012,7 @@ def run_deep_run(
 
             payload: dict[str, Any] | None = None
             used_model = model_chain[0] if model_chain else model_stack[model_key]
+            used_fallback = False
             for idx, stage_model in enumerate(model_chain or [model_stack[model_key]]):
                 used_model = stage_model
                 run_review(
@@ -989,8 +1038,15 @@ def run_deep_run(
                 if not summary.startswith("heuristic editorial review"):
                     break
                 if idx < len(model_chain) - 1:
+                    used_fallback = True
                     warnings.append(
                         f"{stage_label}_heuristic_output_with_{stage_model}; retrying with {model_chain[idx + 1]}"
+                    )
+                    _record_fallback(
+                        stage=stage_label,
+                        model=stage_model,
+                        reason="heuristic_editorial_output",
+                        detail=f"retry_with={model_chain[idx + 1]}",
                     )
                     logger.warning(
                         "deep_stage_heuristic_retry stage=%s profile=%s from_model=%s to_model=%s",
@@ -1003,12 +1059,15 @@ def run_deep_run(
             payload.setdefault("stage_model_used", used_model)
             _write_json(run_dir / out_json, payload)
             _write_md(run_dir / out_md, stage_label, payload)
-            return {"status": "ok", "payload": payload}
+            status = "degraded" if used_fallback else "ok"
+            logger.info("stage_done stage=%s status=%s model=%s", stage_label, status, used_model)
+            return {"status": status, "payload": payload}
         except Exception as exc:
             warnings.append(f"{stage_label}_failed:{exc}")
             payload = {"warning": "stage_failed", "stage": stage_label, "error": str(exc)}
             _write_json(run_dir / out_json, payload)
             _write_md(run_dir / out_md, stage_label, payload)
+            logger.info("stage_done stage=%s status=failed", stage_label)
             return {"status": "failed", "payload": payload}
 
     # Stage 7 high-level review
@@ -1021,7 +1080,7 @@ def run_deep_run(
         out_md="stage_06_high_level_review.md",
     )
     s3j = s3["payload"]
-    stage_status["stage_07_high_level_review"] = s3["status"]
+    _set_stage_status("stage_07_high_level_review", s3["status"])
 
     # Stage 8 hostile
     s4 = _safe_stage_review(
@@ -1033,7 +1092,7 @@ def run_deep_run(
         out_md="stage_07_hostile_review.md",
     )
     s4j = s4["payload"]
-    stage_status["stage_08_hostile_review"] = s4["status"]
+    _set_stage_status("stage_08_hostile_review", s4["status"])
 
     # Stage 9 methods verification
     s5 = _safe_stage_review(
@@ -1046,7 +1105,7 @@ def run_deep_run(
         out_md="stage_08_methods_verification.md",
     )
     s5j = s5["payload"]
-    stage_status["stage_09_methods_verification"] = s5["status"]
+    _set_stage_status("stage_09_methods_verification", s5["status"])
     if orchestrator is not None and orchestrator.enabled and cfg.orchestrator.enable_deeprun_qa:
         try:
             distinctness = orchestrator.evaluate_distinctness(
@@ -1071,8 +1130,8 @@ def run_deep_run(
     edits: list[dict[str, Any]] = []
     for c in line_chunks:
         try:
-            payload, raw = _chat_json(
-                provider=provider,
+            payload, raw = _chat_json_stage(
+                stage="stage_10_line_by_line_edits",
                 model=model_stack["line_edits"],
                 system_prompt="You produce concise local edit suggestions in JSON.",
                 user_prompt=(
@@ -1092,7 +1151,7 @@ def run_deep_run(
     stage6 = {"edits": edits, "count": len(edits)}
     _write_json(run_dir / "stage_09_line_by_line_edits.json", stage6)
     _write_md(run_dir / "stage_09_line_by_line_edits.md", "Stage 9 Line-by-Line Edits", stage6)
-    stage_status["stage_10_line_by_line_edits"] = "ok"
+    _set_stage_status("stage_10_line_by_line_edits", "ok")
 
     # Iterative editorial batches and re-check loop.
     batch_a = {"batch": "A", "focus": "structure_clarity", "items": edits[: min(8, len(edits))]}
@@ -1107,8 +1166,8 @@ def run_deep_run(
 
     # Stage 11 style alignment
     try:
-        style_payload, style_raw = _chat_json(
-            provider=provider,
+        style_payload, style_raw = _chat_json_stage(
+            stage="stage_11_style_alignment",
             model=model_stack["style_alignment"],
             system_prompt="You assess style and formatting alignment in strict JSON.",
             user_prompt=(
@@ -1118,12 +1177,12 @@ def run_deep_run(
             ),
             timeout_seconds=cfg_deep.timeouts.chat_seconds,
         )
-        stage_status["stage_11_style_alignment"] = "ok"
+        _set_stage_status("stage_11_style_alignment", "ok")
     except Exception as exc:
         style_payload = {"style_issues": [], "formatting_issues": [], "tone_issues": [], "alignment_actions": [], "warning": str(exc)}
         style_raw = str(exc)
         warnings.append(f"style_alignment_failed:{exc}")
-        stage_status["stage_11_style_alignment"] = "failed"
+        _set_stage_status("stage_11_style_alignment", "failed")
     _write_json(run_dir / "stage_10_style_alignment.json", style_payload)
     _write_md(run_dir / "stage_10_style_alignment.md", "Stage 10 Style Alignment", style_payload)
     (run_dir / "stage_10_style_alignment.raw.txt").write_text(style_raw, encoding="utf-8")
@@ -1131,7 +1190,7 @@ def run_deep_run(
     compliance_payload = build_format_compliance_report(manuscript_doc, context_constraints)
     _write_json(run_dir / "stage_10b_compliance_check.json", compliance_payload)
     _write_md(run_dir / "stage_10b_compliance_check.md", "Stage 10b Context-Pack Compliance Check", compliance_payload)
-    stage_status["stage_11b_compliance_check"] = "ok"
+    _set_stage_status("stage_11b_compliance_check", "ok")
 
     # Stage 12 reconciliation
     required_recon_keys = {
@@ -1221,8 +1280,8 @@ def run_deep_run(
         return payload
 
     try:
-        recon_payload, recon_raw = _chat_json(
-            provider=provider,
+        recon_payload, recon_raw = _chat_json_stage(
+            stage="stage_12_reconciliation",
             model=model_stack["reconciliation"],
             system_prompt="You reconcile multiple reviewer passes and produce strict JSON.",
             user_prompt=(
@@ -1243,13 +1302,13 @@ def run_deep_run(
         if not required_recon_keys.issubset(set(recon_payload.keys())):
             warnings.append("reconciliation_schema_incomplete; applied deterministic fallback synthesis.")
             recon_payload = _fallback_reconciliation_payload()
-        stage_status["stage_12_reconciliation"] = "ok"
+        _set_stage_status("stage_12_reconciliation", "ok")
     except Exception as exc:
         warnings.append(f"reconciliation_failed:{exc}")
         recon_payload = _fallback_reconciliation_payload()
         recon_payload["confidence_notes"] = recon_payload.get("confidence_notes", []) + [str(exc), "Fallback reconciliation used."]
         recon_raw = str(exc)
-        stage_status["stage_12_reconciliation"] = "failed"
+        _set_stage_status("stage_12_reconciliation", "failed")
 
     recon_payload = _apply_compliance_findings(recon_payload)
     recon_qc = build_deep_reconciliation_summary(recon_payload)
@@ -1260,8 +1319,8 @@ def run_deep_run(
     arbitration_reason = "not_run"
     arbitration_qc: dict[str, Any] = {}
     try:
-        arbitration_payload, arbitration_raw = _chat_json(
-            provider=provider,
+        arbitration_payload, arbitration_raw = _chat_json_stage(
+            stage="stage_12b_final_arbitration",
             model=model_stack["final_arbitration"],
             system_prompt="You are the final arbitration model for a deep manuscript review. Return strict JSON only.",
             user_prompt=(
@@ -1295,18 +1354,18 @@ def run_deep_run(
                 recon_qc = arbitration_qc
                 arbitration_kept = True
                 arbitration_reason = "candidate_improved_or_replaced_fallback"
-                stage_status["stage_12b_final_arbitration"] = "ok"
+                _set_stage_status("stage_12b_final_arbitration", "ok")
             else:
                 arbitration_reason = "candidate_not_better_than_current"
-                stage_status["stage_12b_final_arbitration"] = "ok"
+                _set_stage_status("stage_12b_final_arbitration", "ok")
         else:
             arbitration_reason = "schema_incomplete"
             warnings.append("final_arbitration_schema_incomplete")
-            stage_status["stage_12b_final_arbitration"] = "failed"
+            _set_stage_status("stage_12b_final_arbitration", "failed")
     except Exception as exc:
         arbitration_reason = f"failed:{exc}"
         warnings.append(f"final_arbitration_failed:{exc}")
-        stage_status["stage_12b_final_arbitration"] = "failed"
+        _set_stage_status("stage_12b_final_arbitration", "failed")
 
     _write_json(
         run_dir / "stage_11b_final_arbitration.json",
@@ -1528,12 +1587,12 @@ def run_deep_run(
             source_mode_payload["project_id"] = project_id
             _write_json(run_dir / "source_mode.json", source_mode_payload)
         _write_json(run_dir / "commented_docx_validation.json", annotation.get("validation", {}))
-        stage_status["stage_13_docx_comments"] = "ok"
+        _set_stage_status("stage_13_docx_comments", "ok")
     except Exception as exc:
         warnings.append(f"docx_comment_generation_failed:{exc}")
         _write_json(run_dir / "docx_comment_manifest.json", {"error": str(exc)})
         _write_json(run_dir / "manuscript_comment_manifest.json", {"error": str(exc)})
-        stage_status["stage_13_docx_comments"] = "failed"
+        _set_stage_status("stage_13_docx_comments", "failed")
 
     # ROLE C — WHOLE-RUN FINAL QUALITY AUDITOR
     whole_run_audit_payload: dict[str, Any] = {}
@@ -1555,8 +1614,8 @@ def run_deep_run(
             if 'annotation' in locals() and annotation.get("comments"):
                 audit_prompt += f"FINAL DOCX COMMENTS (sample):\\n{json.dumps(annotation['comments'][:10])}\\n"
             
-            resp, _ = _chat_json(
-                provider=provider,
+            resp, _ = _chat_json_stage(
+                stage="stage_14_whole_run_audit",
                 model=audit_model,
                 system_prompt="You are the whole-run quality auditor. Return strict JSON only.",
                 user_prompt=audit_prompt,
@@ -1565,10 +1624,10 @@ def run_deep_run(
             whole_run_audit_payload = resp
             _write_json(run_dir / "stage_14_whole_run_audit.json", whole_run_audit_payload)
             _write_md(run_dir / "stage_14_whole_run_audit.md", "Whole Run Final Quality Audit", whole_run_audit_payload)
-            stage_status["stage_14_whole_run_audit"] = "ok"
+            _set_stage_status("stage_14_whole_run_audit", "ok")
     except Exception as exc:
         warnings.append(f"whole_run_audit_failed:{exc}")
-        stage_status["stage_14_whole_run_audit"] = "failed"
+        _set_stage_status("stage_14_whole_run_audit", "failed")
 
     final_payload = {
         "project_id": project_id,
@@ -1586,13 +1645,24 @@ def run_deep_run(
         "compliance_check": compliance_payload,
         "stage_status": stage_status,
         "warnings": warnings,
+        "fallback_events": fallback_events,
         "final": recon_payload,
     }
     _write_json(run_dir / "final_deep_review_report.json", final_payload)
     _write_md(run_dir / "final_deep_review_report.md", "Final Deep Review Report", final_payload)
     (run_dir / "final_deep_review_report.txt").write_text((run_dir / "final_deep_review_report.md").read_text(encoding="utf-8"), encoding="utf-8")
     write_markdown_as_docx((run_dir / "final_deep_review_report.md").read_text(encoding="utf-8"), run_dir / "final_deep_review_report.docx")
-    status = "success" if all(v == "ok" for v in stage_status.values()) else "partial"
+    has_failed = any(str(v).lower() == "failed" for v in stage_status.values())
+    has_degraded = any(str(v).lower() == "degraded" for v in stage_status.values()) or bool(fallback_events)
+    status = "failed" if has_failed else ("degraded" if has_degraded else "success")
+    _write_json(
+        run_dir / "fallback_events.json",
+        {
+            "fallback_count": len(fallback_events),
+            "events": fallback_events,
+            "degraded": has_degraded,
+        },
+    )
     _write_json(run_dir / "run_metadata.json", {
         "command": "deep-run",
         "project_id": project_id,
@@ -1603,6 +1673,8 @@ def run_deep_run(
         "context_pack_materials": context_constraints.get("materials", []),
         "stage_status": stage_status,
         "warnings_count": len(final_payload["warnings"]),
+        "degraded": has_degraded,
+        "fallback_count": len(fallback_events),
     })
     return DeepRunResult(
         run_dir=run_dir,

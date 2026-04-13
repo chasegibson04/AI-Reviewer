@@ -1,0 +1,69 @@
+{
+  "allowed_project_only": "20260325163524_test-existingphactorpaper",
+  "run_a": {
+    "report": {
+      "available_support_docs": 1,
+      "selected_support_docs": 1,
+      "ingested_docs": 1,
+      "cache_reused_docs": 0,
+      "cache_refreshed_docs": 0,
+      "failed_docs": 0,
+      "selection_basis": "local_discovery_near_manuscript",
+      "reasoning_mode": "gemma_single",
+      "model_requested": "gemma4:31b",
+      "model_usable_for_ingest": true,
+      "ingest_mode": "model_assisted"
+    },
+    "stage": {
+      "stage": "supporting_paper_ingest",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 1
+    }
+  },
+  "run_b": {
+    "report": {
+      "available_support_docs": 1,
+      "selected_support_docs": 1,
+      "ingested_docs": 1,
+      "cache_reused_docs": 1,
+      "cache_refreshed_docs": 0,
+      "failed_docs": 0,
+      "selection_basis": "local_discovery_near_manuscript",
+      "reasoning_mode": "gemma_single",
+      "model_requested": "gemma4:31b",
+      "model_usable_for_ingest": true,
+      "ingest_mode": "model_assisted"
+    },
+    "stage": {
+      "stage": "supporting_paper_ingest",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 1
+    }
+  },
+  "run_c_after_source_change": {
+    "report": {
+      "available_support_docs": 1,
+      "selected_support_docs": 1,
+      "ingested_docs": 1,
+      "cache_reused_docs": 0,
+      "cache_refreshed_docs": 1,
+      "failed_docs": 0,
+      "selection_basis": "local_discovery_near_manuscript",
+      "reasoning_mode": "gemma_single",
+      "model_requested": "gemma4:31b",
+      "model_usable_for_ingest": true,
+      "ingest_mode": "model_assisted"
+    },
+    "stage": {
+      "stage": "supporting_paper_ingest",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 1
+    }
+  }
+}

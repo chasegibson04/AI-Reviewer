@@ -40,7 +40,7 @@ def test_review_fails_if_output_verification_fails(monkeypatch, tmp_path: Path):
     def fake_store():
         return store
 
-    def fake_provider_and_config(config_path, output_dir_override, command_name, debug=False):
+    def fake_provider_and_config(config_path, output_dir_override, command_name, debug=False, **kwargs):
         from ai_reviewer.config import load_config
         from ai_reviewer.logging_utils import configure_logging, create_run_dir
 
@@ -70,4 +70,3 @@ def test_review_fails_if_output_verification_fails(monkeypatch, tmp_path: Path):
     result = runner.invoke(app, ["review", "--project", meta.project_id])
     assert result.exit_code != 0
     assert "output verification failed" in result.stdout.lower()
-

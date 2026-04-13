@@ -1,0 +1,371 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker (Ho et al., 2020) could not be mapped for this sentence: Among these, diffusion models have emerged as T a powerful tool for generating high-quality",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker (Ho et al., 2020) could not be mapped for this sentence: Among these, diffusion models have emerged as T a powerful tool for generating high-quality Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker (Yang et al., 2023) could not be mapped for this sentence: This trade-off is a H common issue in generative models and is particularly pronounced in d",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker (Yang et al., 2023) could not be mapped for this sentence: This trade-off is a H common issue in generative models and is particularly pronounced in d Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker (Ho et al., 2020) could not be mapped for this sentence: Diffusion models, such as the Denoising Diffusion Probabilistic Model (DDPM) (Ho et al., 20",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker (Ho et al., 2020) could not be mapped for this sentence: Diffusion models, such as the Denoising Diffusion Probabilistic Model (DDPM) (Ho et al., 20 Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker (Karras et al., 2022) could not be mapped for this sentence: The Elucidating the Design Space of Diffusion-Based Generative Models (EDM) (Karras et al.,",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker (Karras et al., 2022) could not be mapped for this sentence: The Elucidating the Design Space of Diffusion-Based Generative Models (EDM) (Karras et al., Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker (Kotelnikov et al., 2022) could not be mapped for this sentence: For instance, the TabDDPM (Kotelnikov et al., 2022) paper combines diffusion models with GA",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker (Kotelnikov et al., 2022) could not be mapped for this sentence: For instance, the TabDDPM (Kotelnikov et al., 2022) paper combines diffusion models with GA Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 1 AI-Scientist Generated Preprint While our approach shows significant improvements, there",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 1 AI-Scientist Generated Preprint While our approach shows significant improvements, there"
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 2 R ELATED W ORK Generative models have seen significant advancements in recent years, with",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 2 R ELATED W ORK Generative models have seen significant advancements in recent years, with"
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Third, we provide a comprehensive evaluation of our model s performance across H U multiple",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Third, we provide a comprehensive evaluation of our model s performance across H U multiple"
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: These contributions make our work a significant O H advancement in the field of generative",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: These contributions make our work a significant O H advancement in the field of generative"
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 3.1 P ROBLEM S ETTING In this work, we aim to enhance the sample quality of diffusion model",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 3.1 P ROBLEM S ETTING In this work, we aim to enhance the sample quality of diffusion model"
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 4.1 D ENOISER N ETWORK P Y NT The denoiser network, denoted as f , reconstructs the origina",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 4.1 D ENOISER N ETWORK P Y NT The denoiser network, denoted as f , reconstructs the origina"
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "structural_review",
+    "severity": "high",
+    "issue": "The abstract lacks a clear statement of the problem and its significance.",
+    "fix": "Add a concise problem statement and its importance in the abstract.",
+    "source": "model",
+    "body": "The abstract lacks a clear statement of the problem and its significance. Fix: Add a concise problem statement and its importance in the abstract."
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "structural_review",
+    "severity": "high",
+    "issue": "The introduction does not clearly frame the research gap or motivation.",
+    "fix": "Include a clear research gap and motivation in the introduction.",
+    "source": "model",
+    "body": "The introduction does not clearly frame the research gap or motivation. Fix: Include a clear research gap and motivation in the introduction."
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "The methodology section is missing a logical flow explaining the integration of GAN and diffusion models.",
+    "fix": "Reorganize the methodology to explain the integration of GAN and diffusion models step-by-step.",
+    "source": "model",
+    "body": "The methodology section is missing a logical flow explaining the integration of GAN and diffusion models."
+  },
+  {
+    "id": "comment-detail-15",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "The loss functions are described without context on how they contribute to the overall model performance.",
+    "fix": "Provide context on how each loss function contributes to the model's performance in the methodology section.",
+    "source": "model",
+    "body": "The loss functions are described without context on how they contribute to the overall model performance."
+  },
+  {
+    "id": "comment-detail-16",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "The claim of 'more realistic and diverse samples' is not directly supported by specific evidence in the abstract.",
+    "fix": "Explicitly state the metrics or results that demonstrate improved realism and diversity.",
+    "source": "model",
+    "body": "The claim of 'more realistic and diverse samples' is not directly supported by specific evidence in the abstract."
+  },
+  {
+    "id": "comment-detail-17",
+    "stage": "high_level_review",
+    "severity": "low",
+    "issue": "The abstract mentions 'extensive experiments' but does not specify the datasets used.",
+    "fix": "Include the names or descriptions of the datasets used in the experiments.",
+    "source": "model",
+    "body": "The abstract mentions 'extensive experiments' but does not specify the datasets used."
+  },
+  {
+    "id": "comment-detail-18",
+    "stage": "high_level_review",
+    "severity": "high",
+    "issue": "The paper claims to 'boost sample quality and diversity' but does not quantify the improvement.",
+    "fix": "Provide quantitative results comparing the new model's performance against baseline diffusion models.",
+    "source": "model",
+    "body": "The paper claims to 'boost sample quality and diversity' but does not quantify the improvement."
+  },
+  {
+    "id": "comment-detail-19",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "The introduction is truncated and does not provide a clear research gap or hypothesis.",
+    "fix": "Complete the introduction to explicitly state the research gap and the hypothesis being tested.",
+    "source": "model",
+    "body": "The introduction is truncated and does not provide a clear research gap or hypothesis."
+  },
+  {
+    "id": "comment-detail-20",
+    "stage": "hostile_review",
+    "severity": "medium",
+    "issue": "The manuscript assumes that integrating a GAN framework into diffusion models inherently improves sample quality without addressing potential instability issues.",
+    "fix": "Conduct ablation studies to isolate the effect of each component (GAN, gradient penalty) on stability and performance.",
+    "source": "model",
+    "body": "The manuscript assumes that integrating a GAN framework into diffusion models inherently improves sample quality without addressing potential instability issues."
+  },
+  {
+    "id": "comment-detail-21",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "The paper claims improved training stability via gradient penalty but does not provide empirical evidence or comparisons with alternative regularization methods.",
+    "fix": "Include comparative experiments with other stabilization techniques and report detailed metrics.",
+    "source": "model",
+    "body": "The paper claims improved training stability via gradient penalty but does not provide empirical evidence or comparisons with alternative regularization methods."
+  },
+  {
+    "id": "comment-detail-22",
+    "stage": "hostile_review",
+    "severity": "medium",
+    "issue": "The manuscript uses unsupported leaps in stating that the GAN-enhanced diffusion model produces more realistic samples without discussing potential overfitting risks.",
+    "fix": "Perform additional validation on unseen datasets and include regularization strategies to mitigate overfitting.",
+    "source": "model",
+    "body": "The manuscript uses unsupported leaps in stating that the GAN-enhanced diffusion model produces more realistic samples without discussing potential overfitting risks."
+  },
+  {
+    "id": "comment-detail-23",
+    "stage": "hostile_review",
+    "severity": "low",
+    "issue": "The description of the loss functions is incomplete, lacking discussion on hyperparameter sensitivity and tuning procedures.",
+    "fix": "Provide a detailed analysis of hyperparameter selection and its impact on model performance.",
+    "source": "model",
+    "body": "The description of the loss functions is incomplete, lacking discussion on hyperparameter sensitivity and tuning procedures."
+  },
+  {
+    "id": "comment-detail-24",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "The paper lacks a clear description of the statistical methods used for comparison.",
+    "fix": "Explicitly state the statistical tests and metrics used for evaluating the performance differences.",
+    "source": "model",
+    "body": "The paper lacks a clear description of the statistical methods used for comparison."
+  },
+  {
+    "id": "comment-detail-25",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "The reproducibility of the experiments is not well-documented.",
+    "fix": "Provide detailed information about the hardware, software, and random seeds used.",
+    "source": "model",
+    "body": "The reproducibility of the experiments is not well-documented."
+  },
+  {
+    "id": "comment-detail-26",
+    "stage": "methods_verification",
+    "severity": "low",
+    "issue": "The control experiments against baseline models are not thoroughly described.",
+    "fix": "Include a detailed description of the baseline models and the specific modifications made.",
+    "source": "model",
+    "body": "The control experiments against baseline models are not thoroughly described."
+  },
+  {
+    "id": "comment-detail-27",
+    "stage": "methods_verification",
+    "severity": "low",
+    "issue": "The paper does not discuss the rigor of the validation process.",
+    "fix": "Add a section discussing the validation strategy, including cross-validation and robustness checks.",
+    "source": "model",
+    "body": "The paper does not discuss the rigor of the validation process."
+  },
+  {
+    "id": "comment-detail-28",
+    "stage": "line_by_line_edits",
+    "severity": "low",
+    "issue": "Inconsistent capitalization in 'GAN-E NHANCED D IFFUSION'",
+    "fix": "Uniformly capitalize to 'GAN-Enhanced Diffusion'",
+    "source": "model",
+    "body": "Inconsistent capitalization in 'GAN-E NHANCED D IFFUSION'"
+  },
+  {
+    "id": "comment-detail-29",
+    "stage": "line_by_line_edits",
+    "severity": "high",
+    "issue": "'!! D' and 'E ON A S', 'T', 'A', 'U T', 'R W E R', 'CA APE GE IST N' are not sentences",
+    "fix": "Remove these non-sensical fragments",
+    "source": "model",
+    "body": "'!! D' and 'E ON A S', 'T', 'A', 'U T', 'R W E R', 'CA APE GE IST N' are not sentences Fix: Remove these non-sensical fragments"
+  },
+  {
+    "id": "comment-detail-30",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Inconsistent use of symbols in equation (1)",
+    "fix": "Replace ' ' with '\\|' for proper LaTeX formatting",
+    "source": "model",
+    "body": "Inconsistent use of symbols in equation (1)"
+  },
+  {
+    "id": "comment-detail-31",
+    "stage": "line_by_line_edits",
+    "severity": "low",
+    "issue": "'where n is the noise added to the data' is redundant given context",
+    "fix": "Remove redundancy, e.g., 'n represents the noise'",
+    "source": "model",
+    "body": "'where n is the noise added to the data' is redundant given context"
+  },
+  {
+    "id": "comment-detail-32",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "The abstract contains unnecessary exclamation marks and symbols.",
+    "fix": "Remove all exclamation marks and symbols for a more professional tone.",
+    "source": "model",
+    "body": "The abstract contains unnecessary exclamation marks and symbols."
+  },
+  {
+    "id": "comment-detail-33",
+    "stage": "style_alignment",
+    "severity": "low",
+    "issue": "The phrase 'GAN-E NHANCED D IFFUSION : B OOSTING S AMPLE Q UALITY AND D IVERSITY' is unnecessarily fragmented and stylized.",
+    "fix": "Rewrite the title in a standard, clear format.",
+    "source": "model",
+    "body": "The phrase 'GAN-E NHANCED D IFFUSION : B OOSTING S AMPLE Q UALITY AND D IVERSITY' is unnecessarily fragmented and stylized."
+  },
+  {
+    "id": "comment-detail-34",
+    "stage": "style_alignment",
+    "severity": "low",
+    "issue": "The abstract and introduction contain informal phrasing like 'great promise' and 'cornerstone'.",
+    "fix": "Replace informal phrases with more formal, scientific language.",
+    "source": "model",
+    "body": "The abstract and introduction contain informal phrasing like 'great promise' and 'cornerstone'."
+  },
+  {
+    "id": "comment-detail-35",
+    "stage": "style_alignment",
+    "severity": "high",
+    "issue": "The manuscript abruptly truncates mid-sentence.",
+    "fix": "Ensure the manuscript is complete and properly formatted.",
+    "source": "model",
+    "body": "The manuscript abruptly truncates mid-sentence. Fix: Ensure the manuscript is complete and properly formatted."
+  },
+  {
+    "id": "comment-detail-36",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "The manuscript contains significant formatting artifacts and random character strings in the header and abstract.",
+    "fix": "Remove all fragmented text and non-standard characters from the title and abstract sections.",
+    "source": "model",
+    "body": "The manuscript contains significant formatting artifacts and random character strings in the header and abstract. Fix: Remove all fragmented text and non-standard characters from the title and abstract sections."
+  },
+  {
+    "id": "comment-detail-37",
+    "stage": "reconciliation",
+    "severity": "medium",
+    "issue": "Equation 2 uses inconsistent notation for the generated sample term.",
+    "fix": "Ensure the denoiser output notation is consistent with the defined model parameters.",
+    "source": "model",
+    "body": "Equation 2 uses inconsistent notation for the generated sample term."
+  },
+  {
+    "id": "comment-detail-38",
+    "stage": "reconciliation",
+    "severity": "medium",
+    "issue": "The gradient penalty equation (3) contains a formatting error in the exponent and norm notation.",
+    "fix": "Correct the mathematical typesetting of the L2 norm and the squaring operation.",
+    "source": "model",
+    "body": "The gradient penalty equation (3) contains a formatting error in the exponent and norm notation."
+  },
+  {
+    "id": "comment-detail-39",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "The manuscript contains severe formatting artifacts and fragmented text in the abstract and introduction.",
+    "fix": "Perform a complete layout cleanup to remove random characters and broken words.",
+    "source": "model",
+    "body": "The manuscript contains severe formatting artifacts and fragmented text in the abstract and introduction. Fix: Perform a complete layout cleanup to remove random characters and broken words."
+  },
+  {
+    "id": "comment-detail-40",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "The methodology is validated only on 2D datasets, which is insufficient for modern diffusion model claims.",
+    "fix": "Include experiments on standard high-dimensional benchmarks like CIFAR-10 or ImageNet.",
+    "source": "model",
+    "body": "The methodology is validated only on 2D datasets, which is insufficient for modern diffusion model claims. Fix: Include experiments on standard high-dimensional benchmarks like CIFAR-10 or ImageNet."
+  },
+  {
+    "id": "comment-detail-41",
+    "stage": "final_arbitration",
+    "severity": "medium",
+    "issue": "The adversarial loss formulation in Equation 2 lacks a clear definition of the mapping function f .",
+    "fix": "Explicitly define the relationship between the denoiser output and the generated sample x0.",
+    "source": "model",
+    "body": "The adversarial loss formulation in Equation 2 lacks a clear definition of the mapping function f ."
+  }
+]

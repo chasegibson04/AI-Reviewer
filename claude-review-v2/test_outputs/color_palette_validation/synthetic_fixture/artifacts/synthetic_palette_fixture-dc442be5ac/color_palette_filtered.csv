@@ -1,0 +1,10 @@
+hex,rgb,pixel_count,pixel_fraction,page_count,pages,classification,match_distance,match_confidence,merge_sources,base_filter_reasons,filtered_out
+#0073D9,"0,115,217",24649,0.070571,1,1,unmatched,86.1046,0.0,5,,False
+#FF0000,"255,0,0",24649,0.070571,1,1,unmatched,140.3175,0.0,3,,False
+#CDBCD2,"205,188,210",315,0.000902,1,1,unmatched,147.7058,0.0,1,,False
+#61A8E7,"97,168,231",314,0.000899,1,1,unmatched,113.2519,0.0,1,,False
+#FAA993,"250,169,147",314,0.000899,1,1,unmatched,90.3659,0.0,1,,False
+#FBECE1,"251,236,225",159,0.000455,1,1,unmatched,188.0771,0.0,1,,False
+#F8D0B7,"248,208,183",158,0.000452,1,1,unmatched,139.8964,0.0,1,,False
+#F0D6DC,"240,214,220",157,0.000449,1,1,unmatched,171.5867,0.0,1,,False
+#FF6160,"255,97,96",157,0.000449,1,1,unmatched,32.4962,0.0,1,,False

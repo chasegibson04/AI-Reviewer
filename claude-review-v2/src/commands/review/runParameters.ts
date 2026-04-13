@@ -42,6 +42,8 @@ function resolveReviewProfileSelection(input: string): ReviewProfileAlias | null
 export type ReviewRunParameters = {
   profile: ReviewProfileAlias
   manuscriptHint: string
+  reasoningMode: 'moe' | 'gemma_single'
+  reasoningModeExplicit: boolean
 }
 
 function parseProfileFlag(args: string): string | null {
@@ -52,6 +54,28 @@ function parseProfileFlag(args: string): string | null {
   if (profileInline?.[1]) return profileInline[1]
 
   return null
+}
+
+function parseReasoningModeFlag(args: string): 'moe' | 'gemma_single' | null {
+  const modeFlag = args.match(/(?:^|\s)--mode\s+([^\s]+)/i)
+  const modeInline = args.match(/(?:^|\s)mode=([^\s]+)/i)
+  const value = (modeFlag?.[1] || modeInline?.[1] || '').trim().toLowerCase()
+  if (!value) return null
+  if (value === 'moe') return 'moe'
+  if (value === 'gemma' || value === 'gemma_single' || value === 'single') return 'gemma_single'
+  return null
+}
+
+function profileDefaultReasoningMode(profile: ReviewProfileAlias): 'moe' | 'gemma_single' {
+  if (
+    profile === 'one_big_model' ||
+    profile === 'full_manuscript_final_pass' ||
+    profile === 'gemma4_26b' ||
+    profile === 'gemma4_31b'
+  ) {
+    return 'gemma_single'
+  }
+  return 'moe'
 }
 
 export function parseReviewRunParameters(
@@ -68,14 +92,19 @@ export function parseReviewRunParameters(
     : null
 
   const profile = explicitProfile ?? inheritedProfile ?? DEFAULT_REVIEW_PROFILE
+  const explicitMode = parseReasoningModeFlag(args)
 
   const manuscriptHint = args
     .replace(/(?:^|\s)--profile\s+([^\s]+)/gi, ' ')
     .replace(/(?:^|\s)profile=([^\s]+)/gi, ' ')
+    .replace(/(?:^|\s)--mode\s+([^\s]+)/gi, ' ')
+    .replace(/(?:^|\s)mode=([^\s]+)/gi, ' ')
     .trim()
 
   return {
     profile,
     manuscriptHint,
+    reasoningMode: explicitMode ?? profileDefaultReasoningMode(profile),
+    reasoningModeExplicit: explicitMode !== null,
   }
 }

@@ -39,10 +39,10 @@ if ($Doctor) {
 
 if ($Diagnose) {
   Write-Host "Running Windows diagnose checks for claude-review-v2..."
-  python -m py_compile src/bridge/python/review_mcp_server.py tests/test_mcp_review.py tests/overnight_validation_runner.py
+  python -m py_compile src/bridge/python/review_mcp_server.py tests/test_mcp_review.py tests/test_gemma_diagnose_path.py tests/overnight_validation_runner.py
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-  python -m pytest -q tests/test_mcp_review.py
+  python -m pytest -q tests/test_mcp_review.py tests/test_launch_boundary.py tests/test_gemma_diagnose_path.py
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   node --test --experimental-strip-types src/utils/providerRecommendation.test.ts src/utils/providerProfile.test.ts

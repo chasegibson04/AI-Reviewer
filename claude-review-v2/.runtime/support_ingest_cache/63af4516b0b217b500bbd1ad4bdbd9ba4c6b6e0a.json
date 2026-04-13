@@ -1,0 +1,189 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin.pdf",
+    "size_bytes": 2368039,
+    "mtime_ns": 1774728822000000000,
+    "sha1_prefix": "b8021f26c8837ff7b4c6b6a0e4d30ca5cee70c9f"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Predicting reaction conditions from limited data",
+    "doi": "10.1039/d1sc06932b",
+    "year": "2022",
+    "authors": [
+      "Predicting"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "predicting reaction conditions from limited data",
+    "title_tokens": [
+      "predicting",
+      "reaction",
+      "conditions",
+      "from",
+      "limited",
+      "data"
+    ],
+    "author_tokens": [
+      "predicting"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.1039/d1sc06932b"
+    ],
+    "source_name_tokens": [
+      "predicting",
+      "reaction",
+      "conditions",
+      "from",
+      "limited",
+      "data",
+      "active",
+      "transfer",
+      "learnin"
+    ]
+  },
+  "abstract": "Chemical\n Science\n This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence. View Article Online\n EDGE ARTICLE View Journal | View Issue\n\n Predicting reaction conditions from limited data\n Cite this: Chem. Sci., 2022, 13, 6655\n through active transfer learning\u2020\nOpen Access Article. Published on 11 May 2022.",
+  "key_claims": [
+    "Taking advantage of diverse campaigns, this study will show that transferred models can be e ective in Fig.",
+    "O -diagonals show the performance of source models predicting target reactions with reaction conditions used in the training set.",
+    "Square blocks, divided by bold black lines, show pairs of nucleophiles that fall under the same reaction type.",
+    "nucleophile models, predictions on nitrogen-based nucleo- Models trained on reactions using pinacol boronate esters did philes are not particularly accurate (ROC-AUC between 0.52 and not show meaningful performance on either amide or 0.77), and vice versa."
+  ],
+  "methods_summary": "This article shows how speci cally tuned machine learning models, based on random forest classi ers, can expand the applicability of Pd-catalyzed cross-coupling reactions to types of nucleophiles unknown to the model. Lastly, for a challenging target where model transfer only provides a modest bene t over random selec\u2026",
+  "quantitative_findings": [
+    "Chemical Science This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+    "Sci., 2022, 13, 6655 through active transfer learning Open Access Article.",
+    "Published on 11 May 2022."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "reaction",
+    "model",
+    "reactions",
+    "learning",
+    "doi",
+    "target",
+    "source",
+    "models",
+    "data",
+    "article",
+    "transfer",
+    "fig"
+  ],
+  "citation_anchors": [
+    "10.1039/d1sc06932b",
+    "2022",
+    "Predicting",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-1",
+      "text": "Chemical Science This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+      "keywords": [
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-2",
+      "text": "View Article Online EDGE ARTICLE View Journal | View Issue",
+      "keywords": [
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-3",
+      "text": "Predicting reaction conditions from limited data Cite this: Chem. Sci., 2022, 13, 6655 through active transfer learning Open Access Article. Published on 11 May 2022. Downloaded on 3/28/2026 8:13:41 PM.",
+      "keywords": [
+        "reaction",
+        "learning",
+        "data",
+        "article",
+        "transfer"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-4",
+      "text": "All publication charges for this article Eunjae Shim, a Joshua A. Kammeraad, ab Ziping Xu, b Ambuj Tewari, bc have been paid for by the Royal Society Tim Cernak *ad and Paul M. Zimmerman *a of Chemistry",
+      "keywords": [
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-5",
+      "text": "Transfer and active learning have the potential to accelerate the development of new chemical reactions, using prior data and new experiments to inform models that adapt to the target area of interest. This article shows how speci cally tuned machine learning models, based on random forest classi ers, can expand the applicability of Pd-catalyzed cross-coupling reactions to types of nucleophiles unknown to the model. First, model transfer is shown to be e ective when reaction mechanisms and substrates are closely related, even when models are trained on relatively small numbers of data points. Then, a model simpli cation scheme is tested and found to provide comparative predictivity on reactions of new nucleophiles that include unseen Received 10th D\u2026",
+      "keywords": [
+        "reaction",
+        "model",
+        "reactions",
+        "learning",
+        "target"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-6",
+      "text": "substrates with chemically similar reaction centers have trans- Introduction ferable performance provides a plausible starting point for Computers are becoming increasingly capable of performing experimental exploration. This concept of chemical similarity, high-level chemical tasks.1 4 Machine learning approaches have together with literature data, guides expert chemists in the demonstrated viable retrosynthetic analyses,5 7 product predic- development of new reactions. Transfer learning, which tion,8 11 reaction condition suggestion,12 16 prediction of ster- assumes that data from a nearby domain, called the source eoselectivity,17 20 regioselectivity,19,21 24 and reaction yield25,26 domain, can be leveraged to model the problem of interest in and\u2026",
+      "keywords": [
+        "reaction",
+        "model",
+        "reactions",
+        "learning",
+        "source"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-7",
+      "text": "2022 The Author(s). Published by the Royal Society of Chemistry Chem. Sci., 2022, 13, 6655 6668 | 6655 View Article Online",
+      "keywords": [
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-9",
+      "text": "labeling a small number of datapoints, active learning updates models with knowledge from newly labeled data. As a result, exploration is guided into the most informative areas and avoids collection of unnecessary data.38,39 Active learning is This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+      "keywords": [
+        "model",
+        "learning",
+        "models",
+        "data",
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-10",
+      "text": "therefore well-suited for reaction development, which greatly bene ts from e cient exploration and where chemists conduct the next batch of reactions based on previous experimental results. Based on this analogy, reaction optimization27,28 and reaction condition identi cation40 have been demonstrated to bene t from active learning. However, these prior works initiate exploration with randomly selected data points (Fig. 1A) which Open Access Article. Published on 11 May 2022. Downloaded on 3/28/2026 8:13:41 PM.",
+      "keywords": [
+        "reaction",
+        "reactions",
+        "learning",
+        "data",
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin-11",
+      "text": "does not leverage prior knowledge, and therefore does not re ect how expert chemists initiate exploration. Initial search directed by transfer learning could identify productive regions early on, which in turn will help build more useful models for subsequent active learning steps. To align transfer and active learning closer to how expert chemists develop new reactions, appropriate chemical reaction data is necessary.41 Available datasets42 that are o en used for machine learning are overrepresented by positive reactions, failing to re ect reactions with negative outcomes. On the other hand, reaction condition screening data of methodology reports which chemists o en refer to only constitute a sparse subset of possible reagent combinations, making\u2026",
+      "keywords": [
+        "reaction",
+        "model",
+        "reactions",
+        "learning",
+        "models"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:08:39.157881+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

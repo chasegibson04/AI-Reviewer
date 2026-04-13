@@ -1,0 +1,141 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/gym_Provides_Access_to_the_OpenAI_Gym_API.pdf",
+    "size_bytes": 102429,
+    "mtime_ns": 1774728835000000000,
+    "sha1_prefix": "5567dd992417ecb13f4e3017a15195979e05b7c4"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/gym_Provides_Access_to_the_OpenAI_Gym_API.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Description OpenAI Gym is a open-source Python toolkit for developing and comparing",
+    "doi": "",
+    "year": "2025",
+    "authors": [
+      "Description",
+      "Python"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "description openai open source python toolkit developing comparing",
+    "title_tokens": [
+      "description",
+      "openai",
+      "open",
+      "source",
+      "python",
+      "toolkit",
+      "developing",
+      "comparing"
+    ],
+    "author_tokens": [
+      "description",
+      "python"
+    ],
+    "year": "2025",
+    "doi_variants": [],
+    "source_name_tokens": [
+      "provides",
+      "access",
+      "openai"
+    ]
+  },
+  "abstract": "Package \u2018gym\u2019\n July 22, 2025\nVersion 0.1.0\nTitle Provides Access to the OpenAI Gym API\nDescription OpenAI Gym is a open-source Python toolkit for developing and comparing\n reinforcement learning algorithms. This is a wrapper for the OpenAI Gym API,\n and enables access to an ever-growing variety of environments. For more details on OpenAI Gym, please see here: <https://github.com/openai/gym>. For more details on the OpenAI Gym API specification, please see here:\n <https://github.com/openai/gym-http-api>.",
+  "key_claims": [],
+  "methods_summary": "Examples ## Not run: remote_base <- \"http://127.0.0.1:5000\" client <- create_GymClient(remote_base) env_id <- \"CartPole-v0\" instance_id <- env_create(client, env_id) outdir <- \"/tmp/random-agent-results\" env_monitor_start(client, instance_id, outdir, force = TRUE, resume = FALSE Usage ## S3 method for class 'GymClient\u2026",
+  "quantitative_findings": [
+    "Package gym July 22, 2025 Version 0.1.0 Title Provides Access to the OpenAI Gym API Description OpenAI Gym is a open-source Python toolkit for developing and comparing reinforcement learning algorithms.",
+    "License MIT + file LICENSE LazyData true Depends R (>= 3.3.1) Imports httr, jsonlite URL https://github.com/paulhendricks/gym-R BugReports https://github.com/paulhendricks/gym-R/issues RoxygenNote 5.0.1 Suggests testthat NeedsCompilation no Author Paul Hendricks [aut, cre] Maint\u2026",
+    "2 env_action_space_contains ."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "remote_base",
+    "client",
+    "instance_id",
+    "run",
+    "not",
+    "instance",
+    "action",
+    "gymclient",
+    "environment",
+    "env_id",
+    "create_gymclient",
+    "arguments"
+  ],
+  "citation_anchors": [
+    "2025",
+    "Description",
+    "Python",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-1",
+      "text": "Package gym July 22, 2025 Version 0.1.0 Title Provides Access to the OpenAI Gym API Description OpenAI Gym is a open-source Python toolkit for developing and comparing reinforcement learning algorithms. This is a wrapper for the OpenAI Gym API, and enables access to an ever-growing variety of environments. For more details on OpenAI Gym, please see here: <https://github.com/openai/gym>. For more details on the OpenAI Gym API specification, please see here: <https://github.com/openai/gym-http-api>. License MIT + file LICENSE LazyData true Depends R (>= 3.3.1) Imports httr, jsonlite",
+      "keywords": [
+        "environment"
+      ]
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-3",
+      "text": "BugReports https://github.com/paulhendricks/gym-R/issues RoxygenNote 5.0.1 Suggests testthat NeedsCompilation no Author Paul Hendricks [aut, cre] Maintainer Paul Hendricks <paul.hendricks.2013@owu.edu> Repository CRAN Date/Publication 2016-10-25 00:57:54",
+      "keywords": [
+        "not"
+      ]
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-4",
+      "text": "Contents create_GymClient . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2 env_action_space_contains . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3 env_action_space_info . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3 env_action_space_sample . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4 env_close . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5 env_create . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6",
+      "keywords": [
+        "client",
+        "action",
+        "gymclient",
+        "create_gymclient"
+      ]
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-6",
+      "text": "env_list_all . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 env_monitor_close . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 env_monitor_start . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8 env_observation_space_info . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 env_reset . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 env_step . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 get_request . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11 gym . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\u2026",
+      "keywords": []
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-10",
+      "text": "This function instantiates a GymClient instance to integrate with an OpenAI Gym server.",
+      "keywords": [
+        "client",
+        "instance",
+        "gymclient"
+      ]
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-14",
+      "text": "remote_base The URL of the OpenAI gym server. This value is usually \"http://127.0.0.1:5000\".",
+      "keywords": [
+        "remote_base"
+      ]
+    },
+    {
+      "chunk_id": "gym_Provides_Access_to_the_OpenAI_Gym_API-16",
+      "text": "An instance of class \"GymClient\"; this object has \"remote_base\" as an attribute.",
+      "keywords": [
+        "remote_base",
+        "client",
+        "instance",
+        "gymclient"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:11:19.525013+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

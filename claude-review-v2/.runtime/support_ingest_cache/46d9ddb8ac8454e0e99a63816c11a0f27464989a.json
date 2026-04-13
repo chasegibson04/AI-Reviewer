@@ -1,0 +1,200 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min.pdf",
+    "size_bytes": 917891,
+    "mtime_ns": 1774728825000000000,
+    "sha1_prefix": "fd079c63e120d28c4d6f4cc7a941623981f03a48"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Microsoft Research AI4Science, Beijing, China, 2 Peking University, Beijing, China and 3 Microsoft Research, Redmond, WA, USA",
+    "doi": "",
+    "year": "2023",
+    "authors": [
+      "Microsoft",
+      "Research",
+      "Beijing",
+      "China",
+      "Peking",
+      "University"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "microsoft research beijing china peking university redmond",
+    "title_tokens": [
+      "microsoft",
+      "research",
+      "beijing",
+      "china",
+      "peking",
+      "university",
+      "redmond"
+    ],
+    "author_tokens": [
+      "microsoft",
+      "research",
+      "beijing",
+      "china",
+      "peking",
+      "university"
+    ],
+    "year": "2023",
+    "doi_variants": [],
+    "source_name_tokens": [
+      "biogpt",
+      "generative",
+      "trained",
+      "transformer",
+      "biomedical",
+      "text",
+      "generation"
+    ]
+  },
+  "abstract": "Pre-trained language models have attracted increasing attention in the biomedical domain, inspired by their great success in the general natural language domain. Among the two main branches of pre-trained language models in the general language domain, i.e., BERT (and its variants) and GPT (and its variants), the first one has been extensively studied in the biomedical domain, such as BioBERT and PubMedBERT. While they have achieved great success on a variety of discriminative downstream biomedical tasks, the lack of generation ability constrains their application scope. In this paper, we propose BioGPT, a domain-specific generative Transformer language model pre-trained on large scale biomedical literature. We evaluate BioGPT on six biomedical NLP tasks and demonstrate that our model outperforms previous models on most tasks. Especially, we get 44.98%, 38.42% and 40.76% F1 score on BC5CDR, KD-DTI and DDI end-to-end relation extraction tasks respectively, and 78.2% accuracy on PubMedQA, creating a new record. Our case study on text generation further demonstrates the advantage of BioGPT on biomedical literature to generate fluent descriptions for biomedical terms. Code is available at https://github.com/microsoft/BioGPT. Key words: biomedical literature, generative pre-trained language model, text generation, text mining",
+  "key_claims": [
+    "It is pre- recent works show that GPT models, even much more powerful trained via carefully designed self-supervision tasks: masked GPT-3 model, perform poorly on biomedical tasks [11, 12].",
+    "The core We will show the detailed implementation for each task and component of Transformer as well as our BioGPT is the multi- empirically verify the effectiveness of our method later.",
+    "Example of generated text Input Model Text Bicalutamide, a synthetic bicalutamide derivative, was found to increase the cellular proliferation of C.",
+    "The increase in Janus kinase GPT-2 glucose uptake by skeletal muscle is believed to be associated with a reduction in muscle protein breakdown 3 (JAK-3) and with the release of ketone bodies, which contribute to the metabolism of glucose."
+  ],
+  "methods_summary": "A language modeling (MLM) task where random word tokens previous work on pre-training GPT on biomedical literature of the input text are replaced by a special token [MASK] is DARE [21]. Summary of the downstream tasks Task Method Dataset Relation Extraction GLRE [23], REBEL [24], seq2rel [25] KD-DTI [14], BC5CDR [13],\u2026",
+  "quantitative_findings": [
+    "BioGPT 1 BioGPT: Generative Pre-trained Transformer for Biomedical Text Generation and Mining Renqian Luo 1, , Liai Sun2 , Yingce Xia 1, , Tao Qin 1, , Sheng Zhang 3 , Hoifung Poon 3 and Tie-Yan Liu1 1 Microsoft Research AI4Science, Beijing, China, 2 Peking University, Beijing,\u2026",
+    "Especially, we get 44.98%, 38.42% and 40.76% F1 score on BC5CDR, KD-DTI and DDI end-to-end relation extraction tasks respectively, and 78.2% accuracy on PubMedQA, creating a new record.",
+    "However, directly applying these models to the interaction between drugs and proteins/diseases/other drugs, biomedical domain leads to unsatisfactory performance due to answering questions given reference text, generating abstracts domain shift [8, 9]."
+  ],
+  "limitations": [
+    "Electra: Pre-training text future work, we plan to train larger scale BioGPT on larger encoders as discriminators rather than generators.",
+    "Minimize exposure bias of seq2seq models Sam Gross, Nathan Ng, David Grangier, and Michael Auli."
+  ],
+  "terminology_entities": [
+    "biogpt",
+    "language",
+    "text",
+    "model",
+    "biomedical",
+    "tasks",
+    "task",
+    "relation",
+    "are",
+    "extraction",
+    "pre-trained",
+    "models"
+  ],
+  "citation_anchors": [
+    "2023",
+    "Microsoft",
+    "Research",
+    "Beijing",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-2",
+      "text": "BioGPT: Generative Pre-trained Transformer for Biomedical Text Generation and Mining Renqian Luo 1, , Liai Sun2 , Yingce Xia 1, , Tao Qin 1, , Sheng Zhang 3 , Hoifung Poon 3 and Tie-Yan Liu1 1 Microsoft Research AI4Science, Beijing, China, 2 Peking University, Beijing, China and 3 Microsoft Research, Redmond, WA, USA Corresponding authors: Renqian Luo, Microsoft Research AI4Science, E-mail: renqianluo@microsoft.com; Yingce Xia, Microsoft Research AI4Science, E-mail: yinxia@microsoft.com; Tao Qin, Microsoft Research AI4Science, E-mail: taoqin@microsoft.com arXiv:2210.10341v3 [cs.CL] 3 Apr 2023",
+      "keywords": [
+        "biogpt",
+        "text",
+        "biomedical",
+        "pre-trained"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-3",
+      "text": "Abstract Pre-trained language models have attracted increasing attention in the biomedical domain, inspired by their great success in the general natural language domain. Among the two main branches of pre-trained language models in the general language domain, i.e., BERT (and its variants) and GPT (and its variants), the first one has been extensively studied in the biomedical domain, such as BioBERT and PubMedBERT. While they have achieved great success on a variety of discriminative downstream biomedical tasks, the lack of generation ability constrains their application scope. In this paper, we propose BioGPT, a domain-specific generative Transformer language model pre-trained on large scale biomedical literature. We evaluate BioGPT on six biomed\u2026",
+      "keywords": [
+        "biogpt",
+        "language",
+        "model",
+        "biomedical",
+        "tasks"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-4",
+      "text": "Key words: biomedical literature, generative pre-trained language model, text generation, text mining",
+      "keywords": [
+        "language",
+        "text",
+        "model",
+        "biomedical",
+        "pre-trained"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-5",
+      "text": "Introduction the complete document. In comparison, the GPT-like models are often used in generation tasks (e.g., abstract generation, Text mining and knowledge discovery from biomedical knowledge triplet generation). literature play important roles in drug discovery, clinical By witnessing the success of pre-training in general NLP, therapy, pathology research, etc. Typical tasks include people explore adapting these techniques into biomedical recognizing named entities in the articles, mining the domain. However, directly applying these models to the interaction between drugs and proteins/diseases/other drugs, biomedical domain leads to unsatisfactory performance due to answering questions given reference text, generating abstracts domain shift [8,\u2026",
+      "keywords": [
+        "text",
+        "model",
+        "biomedical",
+        "tasks",
+        "task"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-6",
+      "text": "Related Work pre-trained on 14M PubMed abstracts from scratch. Similarly, [20] pre-train on 28M data as in [8] also from scratch, using Pre-trained Language Models the more advanced ELECTRA model. All these works have It has proven to be a very successful pattern in deep shown improved performance on plenty of biomedical literature learning to pre-train models on large scale unlabeled data language processing tasks compared to the original BERT pre- via careful designed self-supervision tasks and then transfer trained on general domain, while none of them is for biomedical to downstream tasks by fine-tuning on them. Downstream generation tasks. tasks can benefit from the learned representations from the Noticing the powerful generation ability of GP\u2026",
+      "keywords": [
+        "language",
+        "model",
+        "biomedical",
+        "tasks",
+        "task"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-9",
+      "text": "Relation Extraction GLRE [23], REBEL [24], seq2rel [25] KD-DTI [14], BC5CDR [13], DDI [15]",
+      "keywords": [
+        "relation",
+        "extraction"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-10",
+      "text": "QA-Net [26], LUKE [27], BERT [2], PubMedBERT [9], Question Answering PubMedQA [16], BioASQ [30, 31] BioELECTRA [28], LinkBERT [29]",
+      "keywords": []
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-11",
+      "text": "BERT [2], BlueBERT [8], SciBERT [18], SPECTER [32], Document Classification HoC [17], SciDocs [32] PubMedBERT [9], BioELECTRA [28], LinkBERT [29]",
+      "keywords": []
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-12",
+      "text": "Document Classification the parameter for the affine transformation. The output of Document classification is to classify a document into multi-head attention layer is then fed into a feed-forward predefined categories (single label or multi label). Recent layer to construct a Transformer layer (or Transformer block). works on biomedical document classification also leverage Practically, we adopt GPT-2medium as the backbone network large pre-trained language models for understanding the text which has 24 layers, 1024 hidden size and 16 attention heads and predicting the label [8, 9, 28, 29]. Generative models resulting in 355M parameters in total, and our BioGPT has [6, 7] generate the label words instead of predicting from the 347M parameters (the\u2026",
+      "keywords": [
+        "biogpt",
+        "language",
+        "text",
+        "model",
+        "biomedical"
+      ]
+    },
+    {
+      "chunk_id": "BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min-13",
+      "text": "3. the the relation between subject and object is rel.noun In this work, we mainly adopt soft prompts in prefix- form (rel-is). tuning [49], which leverage continuous embeddings (virtual tokens) to steer the pre-trained language model by directly If there are multiple relational triplets for an input appending several additional virtual tokens before the text document, we sort them according to their order of appearance as the prompts. Such continuous embeddings are randomly in the document and use semicolons to concatenated them initialized and learned end-to-end on the downstream tasks together. to be task-specific. Different from [49], we do not append Let us use a hdrug, target, interactioni triplet as example. the virtual tokens to the very beg\u2026",
+      "keywords": [
+        "language",
+        "text",
+        "model",
+        "tasks",
+        "task"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:07:17.555808+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "claim_count": 12,
+  "claims": [
+    {
+      "sentence_index": 1,
+      "sentence": "nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentati\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 4,
+      "sentence": "Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, N-alkylation, N-Boc (tert-butyloxycarbonyl) deprotection and Suzuk\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 26,
+      "sentence": "e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082 Article https://doi.org/10.1038/s44160-023-00351-1 Amide coupling O Other reactions O OH\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 70,
+      "sentence": "Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.1038/s44160-023-00351-1 Table 1 | Coupling of Informer Library halides to 3-boronopyridine\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 91,
+      "sentence": "See Supplementary Section 5.1 for full list of aldehydes and ketones.",
+      "marker": ""
+    },
+    {
+      "sentence_index": 98,
+      "sentence": "4a; see Supplementary Section 5.2 for struc- yield or greater using XPhos with aqueous K3PO4 in 3:1 DMSO:water.",
+      "marker": ""
+    },
+    {
+      "sentence_index": 104,
+      "sentence": "of products (45 50 and S1) varied from 38% to 89%, with some of the Reductive amination is another of the most popular transfor- lower yields attributed to observed instabilities\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 112,
+      "sentence": "While completed the synthesis of analogues of three drug molecules on a reductive amination has been a popular choice for library synthesis larger 0.30 mmol scale (51 53) (Fig.",
+      "marker": ""
+    },
+    {
+      "sentence_index": 119,
+      "sentence": "We demonstrate here a simple entry to multistep of 36 with eight aldehydes and eight ketones (see Supplementary Sec- nanoscale synthesis in the form of a selective N-alkylation an\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 123,
+      "sentence": "We found 54 and 55 with 12 primary, secondary, allyl and benzyl halides in the on average that between three and five equivalents of AcOH and two presence of four organic and orga\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 126,
+      "sentence": "The which staurosporine was observed to be more soluble than in DMAc.",
+      "marker": ""
+    }
+  ]
+}

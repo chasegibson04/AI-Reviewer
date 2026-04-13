@@ -1,0 +1,82 @@
+[
+  {
+    "id": "suggested-change-1",
+    "target": "body",
+    "original": "This citation may not support the exact claim in this sentence. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb",
+    "suggested": "Provide the full text or the specific results section of the Nature Synthesis article (Volume 2, November 2023, pp. 1082 1091) to verify the solvent",
+    "stage": "citation_verification",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-2",
+    "target": "body",
+    "original": "This sentence could not be verified against an accessible source. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb",
+    "suggested": "Provide accessible source text or tighten this claim to verifiable evidence.",
+    "stage": "citation_verification",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-3",
+    "target": "body",
+    "original": "Citation marker 100 50 100 50 could not be mapped for this sentence: AcOH 100 50 100 50 Conc.",
+    "suggested": "Check numbering/author-year format and ensure this citation appears in References.",
+    "stage": "citation_verification",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-4",
+    "target": "body",
+    "original": "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-5",
+    "target": "body",
+    "original": "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-6",
+    "target": "body",
+    "original": "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-7",
+    "target": "body",
+    "original": "This sentence may need a citation: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.103",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-8",
+    "target": "body",
+    "original": "This sentence may need a citation: See Supplementary Section 5.1 for full list of aldehydes and ketones.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-9",
+    "target": "body",
+    "original": "This sentence may need a citation: 4a; see Supplementary Section 5.2 for struc- yield or greater using XPhos with aqueous K3PO",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-10",
+    "target": "body",
+    "original": "The manuscript lacks a formal Introduction section to frame the scientific gap.",
+    "suggested": "Insert a dedicated Introduction section before the Background to explicitly state the research objective.",
+    "stage": "structural_review",
+    "severity": "high"
+  }
+]

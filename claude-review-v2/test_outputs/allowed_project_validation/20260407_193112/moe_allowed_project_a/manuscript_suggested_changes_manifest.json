@@ -1,0 +1,82 @@
+[
+  {
+    "id": "suggested-change-1",
+    "target": "body",
+    "original": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "structural_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-2",
+    "target": "body",
+    "original": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "structural_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-3",
+    "target": "body",
+    "original": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "suggested": "Add the missing section elements in the manuscript front matter.",
+    "stage": "high_level_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-4",
+    "target": "body",
+    "original": "No conventional in-text citation markers detected.",
+    "suggested": "Add explicit citation markers near evidence-backed claims.",
+    "stage": "high_level_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-5",
+    "target": "body",
+    "original": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "suggested": "Clarify controls, sample rationale, and statistical assumptions.",
+    "stage": "hostile_review",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-6",
+    "target": "body",
+    "original": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "suggested": "State exact thresholds, controls, and reproducibility details.",
+    "stage": "methods_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-7",
+    "target": "body",
+    "original": "Long sentence",
+    "suggested": "\u0001\u0002\u0003\u0004\u0005\u0006\u0004\u0006\u0005 \u0007\b\u0002 \u0004 \u0002 \u000e\u0004\u000f\u0006 \u0010\u0011\u0011 \u0012\u0003 \u0013\u0003\u0004\u0006\u0005 \u0014\b \u000e\u000f\u0011 \u0007\b \u000e\u0016\u0014\u0017 \u0001\u0002\u0003\u0002\u0004 \u0005\u0002\u0006\u0007\b \u000e\u000e \u0002\u000f \u0010\b\u0011\u0012\u0013\u0002\u0014\u0013 \u0002\u000f\u0014 \u0015 \u0016 \u0017\u0018 \u000f\u0002\u0004 \u0007\u0004\u000e\u0002 \u0017\b\u0004\u0003\u0018 \u0001\u0002\u0003\u0004 \u0005\u0002\u0006\u0007\b \b \u0004 \b \u0004 \u0001\u0002\u0001\u0003\u0004 \u0001\u0005\u0004 \u0006\u0007\u0006\u0002\b\u0006\u0007\u0006 \u0002 \u0015 \u0019\u0006 \u0004\u0006\u0002 \u0001 \u0002 \u0002 \u0003 \u0004 \u0004 \u0001 \u0002 \u0003 \u0004 \u0005 \u0006 \u0007\u2026",
+    "stage": "line_by_line_edits",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-8",
+    "target": "body",
+    "original": "Long sentence",
+    "suggested": "\u0007\u0017\u001b\u0019 \u0006 \u0010\u0006 5 \u0011\u0006\u0002* \u000e \u0010\u0010 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0018 \u0010\u0002\u0003\u000e \u0018 \u0017\u0004\u000f\u0006& ' \u001a\b\u0007\u001b\\(\b\u001a \u000f \u0006\b \u000f\u0006\u0002\u0011\u000f\u0014\u0014\u0015 \u0003 \u000e \u0007\u000f\u0006 \u0007 \u000f\u0003 \u000e\u0006 \u0007\b \b\u0010\u000f\u0014\u0010 \u000f\u000e\u0018 \u0011 \u0006 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0013\b\u0007 \b \u0014\u000f\u0007 \u0007 \u000f\u0011\u0006\u0002\b\u000e\u0010 \u001a\u000f\u0010 \u0018 * \u0014\b \u0018\u0016 \u0006\u0015 \u0002\u0011\u000f\u0014 \u001a\b\u0007\u001b\\(\b\u001a \u0011\u2026",
+    "stage": "line_by_line_edits",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-9",
+    "target": "body",
+    "original": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "style_alignment",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-10",
+    "target": "body",
+    "original": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "style_alignment",
+    "severity": "medium"
+  }
+]

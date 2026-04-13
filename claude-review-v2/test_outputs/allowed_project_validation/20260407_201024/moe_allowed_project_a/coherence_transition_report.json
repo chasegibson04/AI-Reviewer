@@ -1,0 +1,16 @@
+{
+  "findings": [
+    "Missing explicit transition markers for: however, therefore, in contrast, consequently",
+    "Introduction detected without a clear Methods heading."
+  ],
+  "avg_sentence_length": 10.42,
+  "transition_markers": {
+    "however": 0,
+    "therefore": 0,
+    "in contrast": 0,
+    "moreover": 1,
+    "consequently": 0,
+    "in summary": 0,
+    "overall": 1
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "color_palette_v1",
+  "source_pdf": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/color_palette_validation/synthetic_fixture/synthetic_palette_fixture.pdf",
+  "extraction_mode": "rendered_pages",
+  "config": {
+    "dpi": 120,
+    "max_page_pixels": 350000,
+    "quantized_colors_per_page": 48,
+    "merge_distance": 16.0,
+    "family_match_distance": 30.0,
+    "min_pixel_fraction": 0.0005,
+    "min_pixel_count": 48,
+    "suppress_near_white": true,
+    "suppress_near_black": true,
+    "suppress_neutral_gray": true,
+    "white_threshold": 242,
+    "black_threshold": 18,
+    "gray_chroma_threshold": 12,
+    "create_debug_montage": true
+  },
+  "filter_basis": {
+    "exclude_classifications": [
+      "viridis_like",
+      "plasma_like"
+    ],
+    "suppress_near_white": true,
+    "suppress_near_black": true,
+    "suppress_neutral_gray": true
+  },
+  "summary": {
+    "retained_colors": 2,
+    "removed_colors": 4
+  },
+  "colors": [
+    {
+      "hex": "#0073D9",
+      "rgb": [
+        0,
+        115,
+        217
+      ],
+      "pixel_count": 17822,
+      "pixel_fraction": 0.071288,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 86.1046,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#FF0000",
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "pixel_count": 17822,
+      "pixel_fraction": 0.071288,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 140.3175,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    }
+  ]
+}

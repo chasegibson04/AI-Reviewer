@@ -1,0 +1,35 @@
+{
+  "without_think_field": {
+    "model": "gemma4:31b",
+    "created_at": "2026-04-07T22:03:29.170826Z",
+    "message": {
+      "role": "assistant",
+      "content": "",
+      "thinking": "The user wants me to reply with the exact string \"OK_SHORT\".\n\n    *   Input: \"Reply exactly OK_SHORT\"\n"
+    },
+    "done": true,
+    "done_reason": "length",
+    "total_duration": 12891344209,
+    "load_duration": 5886141959,
+    "prompt_eval_count": 20,
+    "prompt_eval_duration": 5159931834,
+    "eval_count": 32,
+    "eval_duration": 1773310462
+  },
+  "with_think_false": {
+    "model": "gemma4:31b",
+    "created_at": "2026-04-07T22:03:29.970444Z",
+    "message": {
+      "role": "assistant",
+      "content": "OK_SHORT"
+    },
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 795527959,
+    "load_duration": 149741667,
+    "prompt_eval_count": 14,
+    "prompt_eval_duration": 242157417,
+    "eval_count": 8,
+    "eval_duration": 398961335
+  }
+}

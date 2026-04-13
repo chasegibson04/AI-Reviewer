@@ -1,0 +1,326 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker could not be mapped to a reference entry.",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker could not be mapped to a reference entry. Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker could not be mapped to a reference entry.",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker could not be mapped to a reference entry. Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-15",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-16",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-17",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-18",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-19",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-20",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-21",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-22",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This evidence-bearing sentence may need an explicit citation.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This evidence-bearing sentence may need an explicit citation. Fix: Add a citation that directly supports this sentence."
+  },
+  {
+    "id": "comment-detail-23",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-24",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-25",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "fix": "Add the missing section elements in the manuscript front matter.",
+    "source": "heuristic_fallback",
+    "body": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods Fix: Add the missing section elements in the manuscript front matter."
+  },
+  {
+    "id": "comment-detail-26",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "No DOI strings detected in manuscript text.",
+    "fix": "Add explicit citation markers near evidence-backed claims.",
+    "source": "heuristic_fallback",
+    "body": "No DOI strings detected in manuscript text. Fix: Add explicit citation markers near evidence-backed claims."
+  },
+  {
+    "id": "comment-detail-27",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-28",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Statistical language exists, but control/baseline evidence is weak.",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Statistical language exists, but control/baseline evidence is weak. Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-29",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: State exact thresholds, controls, and reproducibility details."
+  },
+  {
+    "id": "comment-detail-30",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Statistical language exists, but control/baseline evidence is weak.",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Statistical language exists, but control/baseline evidence is weak. Fix: State exact thresholds, controls, and reproducibility details."
+  },
+  {
+    "id": "comment-detail-31",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "Split this sentence and keep only the key result and needed context.",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: Split this sentence and keep only the key result and needed context."
+  },
+  {
+    "id": "comment-detail-32",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "Split this sentence and keep only the key result and needed context.",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: Split this sentence and keep only the key result and needed context."
+  },
+  {
+    "id": "comment-detail-33",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-34",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-35",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  },
+  {
+    "id": "comment-detail-36",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  }
+]

@@ -1,10 +1,15 @@
 {
-  "timestamp": "2026-04-04T00:22:44.167689+00:00",
+  "timestamp": "2026-04-07T23:14:09.408372+00:00",
   "status": "completed",
   "profile": "balanced_local",
   "mode": "unspecified",
+  "reasoning_mode_requested": "unspecified",
+  "reasoning_mode_effective": "unspecified",
+  "degraded": false,
+  "fallback_reason": "",
   "model_target": "unknown",
-  "comment_count": 2,
-  "suggested_change_count": 2,
+  "stage_model_map": [],
+  "comment_count": 14,
+  "suggested_change_count": 8,
   "artifact_version": "v2-review-bridge"
 }

@@ -1,0 +1,16 @@
+{
+  "findings": [
+    "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "Average sentence length is high; prose may be hard to follow in dense sections."
+  ],
+  "avg_sentence_length": 46.81,
+  "transition_markers": {
+    "however": 0,
+    "therefore": 0,
+    "in contrast": 0,
+    "moreover": 0,
+    "consequently": 0,
+    "in summary": 0,
+    "overall": 0
+  }
+}

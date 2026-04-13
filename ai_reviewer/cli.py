@@ -89,7 +89,13 @@ def _project_or_exit(project: Optional[str]):
         _exit(str(exc))
 
 
-def _provider_and_config(config_path: Optional[str], output_dir: Optional[Path], cmd: str, debug: bool = False):
+def _provider_and_config(
+    config_path: Optional[str],
+    output_dir: Optional[Path],
+    cmd: str,
+    debug: bool = False,
+    auto_training_sync: bool = True,
+):
     cfg = load_config(config_path)
     output_root = _resolve_repo_path(output_dir or Path(cfg.defaults.output_root))
     run_dir = create_run_dir(output_root, cmd)
@@ -103,18 +109,22 @@ def _provider_and_config(config_path: Optional[str], output_dir: Optional[Path],
         base_backoff_seconds=cfg.retries.base_backoff_seconds,
         logger=logger,
     )
-    if cfg.training.enabled and cfg.training.auto_sync_on_start:
+    if auto_training_sync and cfg.training.enabled and cfg.training.auto_sync_on_start:
         trainer = TrainingCacheManager.from_config(cfg, logger=logger)
         report = trainer.sync(force_rebuild=False)
-        logger.info(
-            "training_auto_sync added=%s changed=%s removed=%s unchanged=%s failed=%s active=%s",
-            report.added,
-            report.changed,
-            report.removed,
-            report.unchanged,
-            report.failed,
-            report.active_files,
-        )
+        # Keep startup logs high-signal: only emit the full sync line when state changed.
+        if report.added or report.changed or report.removed or report.failed:
+            logger.info(
+                "training_auto_sync added=%s changed=%s removed=%s unchanged=%s failed=%s active=%s",
+                report.added,
+                report.changed,
+                report.removed,
+                report.unchanged,
+                report.failed,
+                report.active_files,
+            )
+        else:
+            logger.info("training_auto_sync unchanged=%s active=%s", report.unchanged, report.active_files)
     return provider, cfg, run_dir, logger
 
 
@@ -132,6 +142,7 @@ def _provider_for_workflow(
     debug: bool = False,
     project_id: Optional[str] = None,
     scope: str = "runs",
+    auto_training_sync: bool = True,
 ):
     if project_id:
         if output_dir is not None:
@@ -139,8 +150,8 @@ def _provider_for_workflow(
                 "[yellow]Ignoring --output-dir for project-scoped run; using project-local storage.[/yellow]"
             )
         project_root = _project_scoped_root(project_id, scope)
-        return _provider_and_config(config_path, project_root, cmd, debug)
-    return _provider_and_config(config_path, output_dir, cmd, debug)
+        return _provider_and_config(config_path, project_root, cmd, debug, auto_training_sync=auto_training_sync)
+    return _provider_and_config(config_path, output_dir, cmd, debug, auto_training_sync=auto_training_sync)
 
 
 def _build_orchestrator(cfg, provider, logger) -> OrchestratorController:
@@ -222,13 +233,30 @@ def _record_run(project_id: str | None, run_dir: Path, workflow: str, profile: s
     )
 
 
-def _print_run_outcome(title: str, run_dir: Path, key_files: list[Path], verified: bool, issues: list[str] | None = None) -> None:
+def _print_run_outcome(
+    title: str,
+    run_dir: Path,
+    key_files: list[Path],
+    verified: bool,
+    issues: list[str] | None = None,
+    summary_lines: list[str] | None = None,
+) -> None:
     resolved = run_dir.resolve()
-    lines = [f"[bold]{title}[/bold]", f"Run directory: {resolved}"]
+    try:
+        display_run = str(resolved.relative_to(REPO_ROOT))
+    except Exception:
+        display_run = str(resolved)
+    lines = [f"[bold]{title}[/bold]", f"Run directory: {display_run}"]
+    if summary_lines:
+        lines.extend(summary_lines)
     if key_files:
         lines.append("Key files:")
         for path in key_files[:8]:
-            lines.append(f"- {path.resolve()}")
+            try:
+                display = str(path.resolve().relative_to(REPO_ROOT))
+            except Exception:
+                display = str(path.resolve())
+            lines.append(f"- {display}")
     if verified:
         lines.append("[green]Output verification: passed[/green]")
     else:
@@ -841,6 +869,8 @@ def deep_run_cmd(
         None, help="Comma-separated material IDs to use as optional orchestrator/context-pack standards."
     ),
     disable_training_guidance: bool = typer.Option(False),
+    suppress_preflight_output: bool = typer.Option(False, hidden=True),
+    skip_startup_sync: bool = typer.Option(False, hidden=True),
 ):
     provider, cfg, run_dir, logger = _provider_for_workflow(
         config_path=config_path,
@@ -848,12 +878,17 @@ def deep_run_cmd(
         cmd="deep_run",
         project_id=project,
         scope="runs",
+        auto_training_sync=not skip_startup_sync,
     )
     ok, msg = provider.health()
     if not ok:
         _exit(msg)
     installed = provider.list_models()
-    _, emb, roles = _model_table(installed, cfg)
+    if suppress_preflight_output:
+        _, emb = split_chat_and_embedding_models(installed)
+        roles = infer_model_roles(installed, cfg)
+    else:
+        _, emb, roles = _model_table(installed, cfg)
     selected_embed = embedding_model or roles.embedding_model
     if selected_embed not in emb:
         selected_embed = None
@@ -880,7 +915,7 @@ def deep_run_cmd(
         pdir, _ = _store().get_project(project)
 
     docs, _, _, _ = _resolve_docs(None, project, manuscript_id)
-    fetch_citations_for_documents(docs, pdir, cfg, logger, run_dir=run_dir)
+    citation_report = fetch_citations_for_documents(docs, pdir, cfg, logger, run_dir=run_dir)
     
     # Sync support docs again to include newly downloaded citations
     refreshed_support, refresh_failures = _refresh_supporting_docs(project)
@@ -891,6 +926,12 @@ def deep_run_cmd(
     store = _store()
     try:
         orchestrator = _build_orchestrator(cfg, provider, logger)
+        if orchestrator.enabled:
+            console.print(
+                f"[cyan]Orchestrator QA[/cyan]: enabled (model={cfg.orchestrator.model}, fail_open={cfg.orchestrator.fail_open})"
+            )
+        else:
+            console.print("[dim]Orchestrator QA disabled by config; deep-run using deterministic stage flow.[/dim]")
         context_ids = _parse_optional_csv_option(context_material_ids)
         result = run_deep_run(
             provider=provider,
@@ -904,6 +945,7 @@ def deep_run_cmd(
             context_material_ids=context_ids,
             disable_training_guidance=disable_training_guidance,
             orchestrator=orchestrator,
+            skip_training_sync=skip_startup_sync,
         )
     except DeepRunError as exc:
         _exit(str(exc))
@@ -930,7 +972,51 @@ def deep_run_cmd(
         {"manuscript_id": manuscript_id, "verification_issues": verification.issues},
         warning_count=len(result.warnings),
     )
-    _print_run_outcome("Deep run complete", result.run_dir, verification.key_files, verification.ok, verification.issues)
+    model_stack = {}
+    fallback_count = 0
+    total_comments = 0
+    total_suggestions = 0
+    try:
+        run_meta = json.loads((run_dir / "run_metadata.json").read_text(encoding="utf-8"))
+        model_stack = run_meta.get("model_stack", {}) if isinstance(run_meta, dict) else {}
+    except Exception:
+        pass
+    try:
+        fallback_payload = json.loads((run_dir / "fallback_events.json").read_text(encoding="utf-8"))
+        if isinstance(fallback_payload, dict):
+            fallback_count = int(fallback_payload.get("fallback_count", 0) or 0)
+    except Exception:
+        pass
+    try:
+        manifest = json.loads((run_dir / "manuscript_comment_manifest.json").read_text(encoding="utf-8"))
+        if isinstance(manifest, dict):
+            total_comments = int(manifest.get("comments_added", 0) or 0)
+            suggested = manifest.get("suggested_changes_manifest", {})
+            if isinstance(suggested, dict):
+                total_suggestions = int(suggested.get("suggestion_count", 0) or 0)
+    except Exception:
+        pass
+    summary_lines = [
+        f"Project: {project}",
+        "Workflow: deep-run",
+        f"Final status: {status}",
+        f"Fallback/degraded events: {fallback_count}",
+        (
+            f"Citations: {citation_report.total_downloaded} downloaded / "
+            f"{citation_report.total_references} references ({citation_report.total_candidates} candidates checked)"
+        ),
+        f"Comments: {total_comments}, Suggested edits: {total_suggestions}",
+    ]
+    if model_stack:
+        summary_lines.append(f"Models used: {', '.join(sorted(set(str(v) for v in model_stack.values())))}")
+    _print_run_outcome(
+        "Deep run complete",
+        result.run_dir,
+        verification.key_files,
+        verification.ok,
+        verification.issues,
+        summary_lines=summary_lines,
+    )
     if not verification.ok:
         _exit("Deep run finished but output verification failed. See debug.log and listed issues.")
 
@@ -1063,7 +1149,7 @@ def _interactive_project_select() -> Optional[str]:
 @app.command("launch")
 def launch(config_path: Optional[str] = typer.Option(None), output_dir: Optional[Path] = typer.Option(None)):
     console.print(Panel.fit("[bold cyan]AI-Reviewer[/bold cyan]\nProject-first, local-only paper review workflow.\nDefault mode keeps data local and uses Ollama models.", title="Welcome"))
-    provider, cfg, _, _ = _provider_and_config(config_path, output_dir, "launch")
+    provider, cfg, _, _ = _provider_and_config(config_path, output_dir, "launch", auto_training_sync=False)
     ok, msg = provider.health()
     if not ok:
         _exit(msg)
@@ -1157,6 +1243,8 @@ def launch(config_path: Optional[str] = typer.Option(None), output_dir: Optional
             config_path=config_path,
             embedding_model=roles.embedding_model if roles.embedding_model in emb else None,
             disable_training_guidance=False,
+            suppress_preflight_output=True,
+            skip_startup_sync=True,
         )
         return
     if workflow == "full-evaluation-sweep":

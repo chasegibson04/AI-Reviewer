@@ -1,0 +1,7 @@
+hex,rgb,pixel_count,pixel_fraction,page_count,pages,classification,match_distance,match_confidence,merge_sources,base_filter_reasons,filtered_out
+#FFFFFF,"255,255,255",160890,0.64356,1,1,unmatched,219.3262,0.0,1,"near_white,neutral_gray",True
+#0073D9,"0,115,217",17822,0.071288,1,1,unmatched,86.1046,0.0,1,,False
+#440154,"68,1,84",17822,0.071288,1,1,viridis_like,0.0,1.0,1,,True
+#808080,"128,128,128",17822,0.071288,1,1,unmatched,82.9638,0.0,1,neutral_gray,True
+#EF8740,"239,135,64",17822,0.071288,1,1,plasma_like,0.0,1.0,1,,True
+#FF0000,"255,0,0",17822,0.071288,1,1,unmatched,140.3175,0.0,1,,False

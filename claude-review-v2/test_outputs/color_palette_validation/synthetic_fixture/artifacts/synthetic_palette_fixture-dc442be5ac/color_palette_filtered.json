@@ -1,0 +1,216 @@
+{
+  "schema_version": "color_palette_v1",
+  "source_pdf": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/color_palette_validation/synthetic_fixture/synthetic_palette_fixture.pdf",
+  "extraction_mode": "rendered_pages",
+  "config": {
+    "dpi": 144,
+    "max_page_pixels": 350000,
+    "quantized_colors_per_page": 48,
+    "merge_distance": 16.0,
+    "family_match_distance": 30.0,
+    "min_pixel_fraction": 0.0,
+    "min_pixel_count": 20,
+    "suppress_near_white": true,
+    "suppress_near_black": true,
+    "suppress_neutral_gray": true,
+    "white_threshold": 242,
+    "black_threshold": 18,
+    "gray_chroma_threshold": 12,
+    "create_debug_montage": true
+  },
+  "filter_basis": {
+    "exclude_classifications": [
+      "viridis_like",
+      "plasma_like"
+    ],
+    "suppress_near_white": true,
+    "suppress_near_black": true,
+    "suppress_neutral_gray": true
+  },
+  "summary": {
+    "retained_colors": 9,
+    "removed_colors": 10
+  },
+  "colors": [
+    {
+      "hex": "#0073D9",
+      "rgb": [
+        0,
+        115,
+        217
+      ],
+      "pixel_count": 24649,
+      "pixel_fraction": 0.070571,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 86.1046,
+      "match_confidence": 0.0,
+      "merge_sources": 5,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#FF0000",
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "pixel_count": 24649,
+      "pixel_fraction": 0.070571,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 140.3175,
+      "match_confidence": 0.0,
+      "merge_sources": 3,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#CDBCD2",
+      "rgb": [
+        205,
+        188,
+        210
+      ],
+      "pixel_count": 315,
+      "pixel_fraction": 0.000902,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 147.7058,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#61A8E7",
+      "rgb": [
+        97,
+        168,
+        231
+      ],
+      "pixel_count": 314,
+      "pixel_fraction": 0.000899,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 113.2519,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#FAA993",
+      "rgb": [
+        250,
+        169,
+        147
+      ],
+      "pixel_count": 314,
+      "pixel_fraction": 0.000899,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 90.3659,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#FBECE1",
+      "rgb": [
+        251,
+        236,
+        225
+      ],
+      "pixel_count": 159,
+      "pixel_fraction": 0.000455,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 188.0771,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#F8D0B7",
+      "rgb": [
+        248,
+        208,
+        183
+      ],
+      "pixel_count": 158,
+      "pixel_fraction": 0.000452,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 139.8964,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#F0D6DC",
+      "rgb": [
+        240,
+        214,
+        220
+      ],
+      "pixel_count": 157,
+      "pixel_fraction": 0.000449,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 171.5867,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#FF6160",
+      "rgb": [
+        255,
+        97,
+        96
+      ],
+      "pixel_count": 157,
+      "pixel_fraction": 0.000449,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 32.4962,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    }
+  ]
+}

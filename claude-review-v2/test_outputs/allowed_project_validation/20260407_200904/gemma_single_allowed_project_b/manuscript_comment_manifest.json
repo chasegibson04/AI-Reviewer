@@ -1,0 +1,12 @@
+[
+  "Missing explicit methods evidence: sample_size, controls, statistics Fix: Clarify controls, sample rationale, and statistical assumptions.",
+  "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion.",
+  "Missing explicit transition markers for: in contrast, moreover, consequently, in summary",
+  "Missing common manuscript sections: has_abstract, has_keywords",
+  "Citation markers and DOI-like identifiers detected.",
+  "Long sentence",
+  "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu",
+  "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as",
+  "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082",
+  "This sentence may need a citation: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November"
+]

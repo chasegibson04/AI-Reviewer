@@ -1,0 +1,331 @@
+{
+  "created_at": "2026-04-07T22:31:20.078296+00:00",
+  "allowed_projects_only": [
+    "20260327051312_miniaturization_d2b"
+  ],
+  "run": {
+    "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+    "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_222433/gemma_single_allowed_project_b_afterfix",
+    "validation": {
+      "valid": true,
+      "missing": [],
+      "json_errors": [],
+      "front_matter_violations": [],
+      "remote_network_events": [
+        {
+          "timestamp": "2026-04-07T22:26:28.823517+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:30.074587+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:45.583782+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.286954+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.287204+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.840350+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:58.857055+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:59.132706+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:09.129761+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:09.865167+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:18.669750+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:20.042046+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:20.042306+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:21.184116+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:21.184361+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:22.045251+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        }
+      ],
+      "allowed_remote_metadata_events": [
+        {
+          "timestamp": "2026-04-07T22:26:28.823517+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:30.074587+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:45.583782+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.286954+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.287204+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:46.840350+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:58.857055+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:26:59.132706+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:09.129761+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:09.865167+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:18.669750+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:20.042046+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:20.042306+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:21.184116+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:21.184361+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "start"
+        },
+        {
+          "timestamp": "2026-04-07T22:27:22.045251+00:00",
+          "action": "openalex_lookup",
+          "host": "api.openalex.org",
+          "protocol": "https",
+          "status": "ok"
+        }
+      ],
+      "disallowed_remote_events": []
+    },
+    "run_summary": {
+      "timestamp": "2026-04-07T22:31:20.072980+00:00",
+      "status": "completed",
+      "profile": "one_big_model",
+      "mode": "deep_review",
+      "reasoning_mode_requested": "gemma_single",
+      "reasoning_mode_effective": "gemma_single",
+      "degraded": false,
+      "fallback_reason": "",
+      "model_target": "gemma4:31b",
+      "stage_model_map": [
+        {
+          "stage": "supporting_paper_ingest",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 6
+        },
+        {
+          "stage": "citation_verification",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 9
+        },
+        {
+          "stage": "structural_review",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 4
+        },
+        {
+          "stage": "high_level_review",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 2
+        },
+        {
+          "stage": "hostile_review",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 4
+        },
+        {
+          "stage": "methods_verification",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 3
+        },
+        {
+          "stage": "line_by_line_edits",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 3
+        },
+        {
+          "stage": "style_alignment",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 4
+        },
+        {
+          "stage": "reconciliation",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 3
+        },
+        {
+          "stage": "final_arbitration",
+          "model": "gemma4:31b",
+          "status": "ok",
+          "error": "",
+          "finding_count": 2
+        }
+      ],
+      "comment_count": 14,
+      "suggested_change_count": 10,
+      "artifact_version": "v2-review-bridge"
+    }
+  }
+}

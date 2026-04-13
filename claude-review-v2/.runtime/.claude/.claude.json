@@ -1,0 +1,11 @@
+{
+  "projects": {
+    "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2": {
+      "hasTrustDialogAccepted": true
+    }
+  },
+  "firstStartTime": "2026-04-05T21:27:57.420Z",
+  "opusProMigrationComplete": true,
+  "sonnet1m45MigrationComplete": true,
+  "migrationVersion": 11
+}

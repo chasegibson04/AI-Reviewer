@@ -1,0 +1,1 @@
+{"timestamp": "2026-04-05T22:33:49.486100+00:00", "action": "ollama_healthcheck", "host": "localhost", "protocol": "tcp", "status": "ok"}

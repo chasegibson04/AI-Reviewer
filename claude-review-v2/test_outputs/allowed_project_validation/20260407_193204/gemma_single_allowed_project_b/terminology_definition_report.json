@@ -1,0 +1,39 @@
+{
+  "findings": [
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "graphik",
+      "count": 4
+    },
+    {
+      "term": "nature",
+      "count": 4
+    },
+    {
+      "term": "regular",
+      "count": 3
+    },
+    {
+      "term": "harding",
+      "count": 2
+    },
+    {
+      "term": "text",
+      "count": 2
+    },
+    {
+      "term": "dad",
+      "count": 2
+    },
+    {
+      "term": "helv",
+      "count": 1
+    },
+    {
+      "term": "j9kd",
+      "count": 1
+    }
+  ]
+}

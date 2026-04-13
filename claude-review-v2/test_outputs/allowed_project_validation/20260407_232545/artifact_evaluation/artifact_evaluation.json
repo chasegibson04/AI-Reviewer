@@ -1,0 +1,187 @@
+{
+  "created_at": "2026-04-08T16:37:04.315977+00:00",
+  "validation_root": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_232545",
+  "allowed_projects_only": [
+    "20260325163524_test-existingphactorpaper",
+    "20260327051312_miniaturization_d2b"
+  ],
+  "runs": [
+    {
+      "run_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_232545/moe_allowed_project_a",
+      "profile": "local_moe",
+      "reasoning_mode_effective": "moe",
+      "validation_valid": true,
+      "missing_files": [],
+      "comment_count": 14,
+      "clutter_hits": 0,
+      "long_comment_hits": 0,
+      "no_op_suggested_changes": 0,
+      "citation_mention_count": 1,
+      "citation_entry_count": 6,
+      "citation_status_counts": {
+        "unverifiable": 1,
+        "missing_citation": 5
+      },
+      "citation_local_cache_hits": 0,
+      "citation_abstract_only_hits": 0,
+      "support_used_sources": 0,
+      "support_unused_sources": 18,
+      "support_cache_reused_docs": 18,
+      "support_cache_refreshed_docs": 0,
+      "support_ingested_docs": 18,
+      "degraded_honest": true,
+      "stage_statuses": [
+        {
+          "stage": "supporting_paper_ingest",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "citation_verification",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "structural_review",
+          "model": "qwen3:8b",
+          "status": "ok"
+        },
+        {
+          "stage": "high_level_review",
+          "model": "mistral-small3.2:latest",
+          "status": "ok"
+        },
+        {
+          "stage": "hostile_review",
+          "model": "phi4-reasoning:plus",
+          "status": "ok"
+        },
+        {
+          "stage": "methods_verification",
+          "model": "mistral-small3.2:latest",
+          "status": "ok"
+        },
+        {
+          "stage": "line_by_line_edits",
+          "model": "qwen2.5:7b-instruct",
+          "status": "ok"
+        },
+        {
+          "stage": "style_alignment",
+          "model": "mistral-small3.2:latest",
+          "status": "ok"
+        },
+        {
+          "stage": "reconciliation",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "final_arbitration",
+          "model": "gemma4:31b",
+          "status": "ok"
+        }
+      ],
+      "metadata_stage_counts": {
+        "citation_verification": 6,
+        "structural_review": 4,
+        "high_level_review": 4,
+        "hostile_review": 4,
+        "methods_verification": 4,
+        "line_by_line_edits": 4,
+        "style_alignment": 4,
+        "reconciliation": 2,
+        "final_arbitration": 3
+      }
+    },
+    {
+      "run_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_232545/gemma_single_allowed_project_b",
+      "profile": "one_big_model",
+      "reasoning_mode_effective": "gemma_single",
+      "validation_valid": true,
+      "missing_files": [],
+      "comment_count": 14,
+      "clutter_hits": 0,
+      "long_comment_hits": 0,
+      "no_op_suggested_changes": 0,
+      "citation_mention_count": 10,
+      "citation_entry_count": 28,
+      "citation_status_counts": {
+        "abstract_only": 4,
+        "unverifiable": 12,
+        "missing_citation": 12
+      },
+      "citation_local_cache_hits": 0,
+      "citation_abstract_only_hits": 4,
+      "support_used_sources": 0,
+      "support_unused_sources": 6,
+      "support_cache_reused_docs": 6,
+      "support_cache_refreshed_docs": 0,
+      "support_ingested_docs": 6,
+      "degraded_honest": true,
+      "stage_statuses": [
+        {
+          "stage": "supporting_paper_ingest",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "citation_verification",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "structural_review",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "high_level_review",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "hostile_review",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "methods_verification",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "line_by_line_edits",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "style_alignment",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "reconciliation",
+          "model": "gemma4:31b",
+          "status": "ok"
+        },
+        {
+          "stage": "final_arbitration",
+          "model": "gemma4:31b",
+          "status": "ok"
+        }
+      ],
+      "metadata_stage_counts": {
+        "citation_verification": 12,
+        "structural_review": 4,
+        "high_level_review": 2,
+        "hostile_review": 4,
+        "methods_verification": 3,
+        "line_by_line_edits": 3,
+        "style_alignment": 4,
+        "reconciliation": 3,
+        "final_arbitration": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in.pdf",
+    "size_bytes": 12440439,
+    "mtime_ns": 1775507128621442309,
+    "sha1_prefix": "390825c64c1a99b241ffe2bfe781aa3454dca373"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Antimo Gioiello,* Alessandro Piccinno, Anna Maria Lozza, and Bruno Cerra",
+    "doi": "10.1021/acs.jmedchem.9b01956",
+    "year": "2020",
+    "authors": [
+      "Antimo",
+      "Gioiello",
+      "Alessandro",
+      "Piccinno",
+      "Anna",
+      "Maria"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "antimo gioiello alessandro piccinno anna maria lozza bruno cerra",
+    "title_tokens": [
+      "antimo",
+      "gioiello",
+      "alessandro",
+      "piccinno",
+      "anna",
+      "maria",
+      "lozza",
+      "bruno",
+      "cerra"
+    ],
+    "author_tokens": [
+      "antimo",
+      "gioiello",
+      "alessandro",
+      "piccinno",
+      "anna",
+      "maria"
+    ],
+    "year": "2020",
+    "doi_variants": [
+      "10.1021/acs.jmedchem.9b01956"
+    ],
+    "source_name_tokens": [
+      "medicinal",
+      "chemistry",
+      "machines",
+      "automation",
+      "recent",
+      "advances"
+    ]
+  },
+  "abstract": "Made available through a Creative Commons CC-BY License\n\n pubs.acs.org/jmc Perspective\n\n The Medicinal Chemistry in the Era of Machines and Automation:\n Recent Advances in Continuous Flow Technology\n Antimo Gioiello,* Alessandro Piccinno, Anna Maria Lozza, and Bruno Cerra\n\n Cite This: J. Med. Chem. 2020, 63, 6624\u22126647 Read Online\n\n ACCESS Metrics & More Article Recommendations\nSee https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.",
+  "key_claims": [
+    "AUTOMATED FLOW SYSTEMS TO POWER operations and to increase time for creativity and innova- MEDICINAL CHEMISTRY: CONCEPTS AND tion.29 31 Furthermore, integration of reaction steps with EQUIPMENT downstream processes, such as in-line software-assisted Automation in drug discovery\u2026",
+    "The micro uidic bioassay was later implemented with the in a decrease of uorescence.",
+    "The result obtained as IC50 value was readily clinically relevant Abl1 mutants and selective for Abl1 over processed by means of the design algorithm to suggest the next P38 , with the amide derivative 32 being also endowed with a compound to be synthesized within the virtual sp\u2026",
+    "Biographies Although encouraging progresses have been made as we have Antimo Gioiello is associate professor of Medicinal Chemistry and highlighted in this Perspective, their widespread application Organic Synthesis at the University of Perugia (Italy)."
+  ],
+  "methods_summary": "Continuous relevance of ow-based approaches in organic synthesis and ow systems have demonstrated their potential in the rapid method development, in this Perspective, we discuss contribu- 6625 https://dx.doi.org/10.1021/acs.jmedchem.9b01956 J. approaches take advantage of automation, computer control, and robotics to\u2026",
+  "quantitative_findings": [
+    "2020, 63, 6624 6647 Read Online ACCESS Metrics & More Article Recommendations See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.",
+    "Using traditional approaches, the time from hypothesis to Downloaded via 73.18.17.11 on April 6, 2026 at 20:25:27 (UTC).",
+    "1."
+  ],
+  "limitations": [
+    "approaches take advantage of automation, computer control, and robotics to limit manual and repetitive experimental 2."
+  ],
+  "terminology_entities": [
+    "chemistry",
+    "synthesis",
+    "was",
+    "chem",
+    "org",
+    "medicinal",
+    "discovery",
+    "drug",
+    "automated",
+    "acs",
+    "chemical",
+    "reaction"
+  ],
+  "citation_anchors": [
+    "10.1021/acs.jmedchem.9b01956",
+    "2020",
+    "Antimo",
+    "Gioiello",
+    "Alessandro"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-1",
+      "text": "Made available through a Creative Commons CC-BY License",
+      "keywords": []
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-3",
+      "text": "The Medicinal Chemistry in the Era of Machines and Automation: Recent Advances in Continuous Flow Technology Antimo Gioiello,* Alessandro Piccinno, Anna Maria Lozza, and Bruno Cerra",
+      "keywords": [
+        "chemistry",
+        "chem",
+        "medicinal"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-4",
+      "text": "Cite This: J. Med. Chem. 2020, 63, 6624 6647 Read Online",
+      "keywords": [
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-5",
+      "text": "ACCESS Metrics & More Article Recommendations See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.",
+      "keywords": [
+        "org",
+        "acs"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-6",
+      "text": "ABSTRACT: Medicinal chemistry plays a fundamental and underlying role in chemical biology, pharmacology, and medicine to discover safe and e cacious drugs. Small molecule medicinal chemistry relies on iterative learning cycles composed of compound design, synthesis, testing, and data analysis to provide new chemical probes and lead compounds for novel and druggable targets. Using traditional approaches, the time from hypothesis to Downloaded via 73.18.17.11 on April 6, 2026 at 20:25:27 (UTC).",
+      "keywords": [
+        "chemistry",
+        "synthesis",
+        "chem",
+        "medicinal",
+        "drug"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-7",
+      "text": "obtaining the results can be protracted, thus limiting the number of compounds that can be advanced into clinical studies. This challenge can be tackled with the recourse of enabling technologies that are showing great potential in improving the drug discovery process. In this Perspective, we highlight recent developments toward innovative medicinal chemistry strategies based on continuous ow systems coupled with automation and bioassays. After a discussion of the aims and concepts, we describe equipment and representative examples of automated ow systems and end-to-end prototypes realized to expedite medicinal chemistry discovery cycles.",
+      "keywords": [
+        "chemistry",
+        "chem",
+        "medicinal",
+        "discovery",
+        "drug"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-8",
+      "text": "1. THE MEDICINAL CHEMISTRY (R)EVOLUTION: early drug discovery is therefore a persisting issue that needs DRAWBACKS AND TECHNOLOGICAL SOLUTIONS multimodal approaches and innovative solutions. Accordingly, Medicinal chemistry is an interdisciplinary science at the pharmaceutical companies and academic groups are both interface of chemical biology, pharmacology, and medicine, engaged in new concepts and a deep (r)evolution in general playing a crucial role in drug discovery. The main objectives of thinking and strategies in response to new discoveries and medicinal chemistry are (i) to discover chemical probes and lead technologies.7 9 compounds for understudied biological targets, (ii) to Up to 1980, there was limited information regarding demonstrate\u2026",
+      "keywords": [
+        "chemistry",
+        "was",
+        "chem",
+        "medicinal",
+        "discovery"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-9",
+      "text": "2020 American Chemical Society https://dx.doi.org/10.1021/acs.jmedchem.9b01956 6624 J. Med. Chem. 2020, 63, 6624 6647 Journal of Medicinal Chemistry pubs.acs.org/jmc Perspective",
+      "keywords": [
+        "chemistry",
+        "chem",
+        "org",
+        "medicinal",
+        "acs"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-10",
+      "text": "Figure 1. (A) Cost and timing in early stages of drug discovery. Adapted from ref 6. Copyright 2010 Nature Publishing Group. (B) Iterative learning cycles of medicinal chemistry based on diverse discipline activities with examples of key approaches used before 1980 (blue), up to 2000 (orange), and nowadays (red).",
+      "keywords": [
+        "chemistry",
+        "chem",
+        "medicinal",
+        "discovery",
+        "drug"
+      ]
+    },
+    {
+      "chunk_id": "The_Medicinal_Chemistry_in_the_Era_of_Machines_and_Automation_Recent_Advances_in-11",
+      "text": "design and evaluation of a huge number of compounds.11,12 In assembly of compound collections, in straightforward opti- vitro screening of in-house compounds collections and virtual mization and scale-up of relevant products and, more recently, screening campaigns can disclose diverse classes of active being further applied to the development and manufacturing compounds (hits) that are chemically elaborated to furnish phase of active pharmaceutical ingredients (API).14 16 In early analogues with improved properties (leads). Having powerful 2019, the IUPAC organization named ow chemistry among the synthetic capabilities in terms of compound throughput and top ten emerging technologies in chemistry17 and the FDA scalability is therefore crucial to mee\u2026",
+      "keywords": [
+        "chemistry",
+        "chem",
+        "org",
+        "chemical"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:26:36.211389+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

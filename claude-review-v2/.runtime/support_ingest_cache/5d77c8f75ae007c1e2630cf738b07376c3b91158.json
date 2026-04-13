@@ -1,0 +1,98 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/managed/20260329_174704_158099/project2_clean_native.docx",
+    "size_bytes": 53563,
+    "mtime_ns": 1774805171000000000,
+    "sha1_prefix": "c669eb12e538fce9de5197f31cd2c9d83afccc68"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/managed/20260329_174704_158099/project2_clean_native.docx",
+    "parse_engine": "zip-docx-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "## **Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentation**",
+    "doi": "10.1038/s44160-023-00351-1",
+    "year": "2022",
+    "authors": [
+      "Miniaturization"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "miniaturization popular reactions from medicinal chemists toolbox ultrahigh throughput experimentation",
+    "title_tokens": [
+      "miniaturization",
+      "popular",
+      "reactions",
+      "from",
+      "medicinal",
+      "chemists",
+      "toolbox",
+      "ultrahigh",
+      "throughput",
+      "experimentation"
+    ],
+    "author_tokens": [
+      "miniaturization"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.1038/s44160-023-00351-1"
+    ],
+    "source_name_tokens": [
+      "clean",
+      "native"
+    ]
+  },
+  "abstract": "s44160-023-00351-1\nhttps://doi.org/10.1038/s44160-023-00351-1\n## **nature synthesis**\n**Article**\n## **Miniaturization of popular reactions from the medicinal chemists\u2019 toolbox for ultrahigh-throughput experimentation**\nReceived: 17 August 2022 **Nathan Gesmundo[1,4] , Kevin Dykstra[2] , James L. Douthwaite[3] , Yu-Ting Kao[3] , Ruheng Zhao[3] , Babak Mahjour[3] , Ron Ferguson[2] ,** Accepted: 22 May 2023 **Spencer Dreher[2] , B\u00e9reng\u00e8re Sauvagnat[1,5] , Josep Saur\u00ed[1,6] & Tim Cernak[1,3,7]** Published online: 22 June 2023 Check for updates Miniaturization is a tactic employed in many technologies to accelerate discovery through parallelized data collection. The miniaturization of chemical synthesis to the limits of chemoanalytical and bioanalytical detection could accelerate drug discovery by increasing the amount of experimental data collected per milligram of material consumed. Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, _N_ -alkylation, _N_ -Boc ( _tert_ -butyloxycarbonyl) deprotection and Suzuki coupling for utilization in 1.2 \u00b5l reaction droplets.",
+  "key_claims": [],
+  "methods_summary": "In ultraHTE[8] , a typical reaction volume is ~1 l, and solvents and reagents generally have a low enough vapour pressure that they can be handled without substantial evaporation during experiment setup. Our development of a Suzuki coupling protocol for ultraHTE was inspired by prior reports detailing the nanoscale us\u2026",
+  "quantitative_findings": [
+    "s44160-023-00351-1 https://doi.org/10.1038/s44160-023-00351-1 ## **nature synthesis** **Article** ## **Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentation** Received: 17 August 2022 **Nathan Gesmundo[1,4] , Kevin Dyks\u2026",
+    "Douthwaite[3] , Yu-Ting Kao[3] , Ruheng Zhao[3] , Babak Mahjour[3] , Ron Ferguson[2] ,** Accepted: 22 May 2023 **Spencer Dreher[2] , B reng re Sauvagnat[1,5] , Josep Saur [1,6] & Tim Cernak[1,3,7]** Published online: 22 June 2023 Check for updates Miniaturization is a tactic emp\u2026",
+    "Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, _N_ -alkylation, _N_ -Boc ( _tert_ -butyloxycarbonyl) deprotection and Suzuki coupling for utilization in 1.2 l reaction droplets."
+  ],
+  "limitations": [
+    "(We caution that concentrated solutions of sulfuric acid will corrode components of the SPT mosquito robot so care should be used in handling these solutions.) The partnering of Nature Synthesis | Volume 2 | November 2023 | 1082 1091 **1088** **Article** https://doi.org/10.1038/\u2026"
+  ],
+  "terminology_entities": [
+    "reaction",
+    "reactions",
+    "was",
+    "synthesis",
+    "chemical",
+    "conditions",
+    "reductive",
+    "coupling",
+    "dmso",
+    "equiv",
+    "chemistry",
+    "amination"
+  ],
+  "citation_anchors": [
+    "10.1038/s44160-023-00351-1",
+    "2022",
+    "Miniaturization"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "project2_clean_native-1",
+      "text": "s44160-023-00351-1 https://doi.org/10.1038/s44160-023-00351-1 ## **nature synthesis** **Article** ## **Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentation** Received: 17 August 2022 **Nathan Gesmundo[1,4] , Kevin Dykstra[2] , James L. Douthwaite[3] , Yu-Ting Kao[3] , Ruheng Zhao[3] , Babak Mahjour[3] , Ron Ferguson[2] ,** Accepted: 22 May 2023 **Spencer Dreher[2] , B reng re Sauvagnat[1,5] , Josep Saur [1,6] & Tim Cernak[1,3,7]** Published online: 22 June 2023 Check for updates Miniaturization is a tactic employed in many technologies to accelerate discovery through parallelized data collection. The miniaturization of chemical synthesis to the limits of chemoanalytical and bioanalytical d\u2026",
+      "keywords": [
+        "reaction",
+        "reactions",
+        "synthesis",
+        "chemical"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:23:14.298205+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

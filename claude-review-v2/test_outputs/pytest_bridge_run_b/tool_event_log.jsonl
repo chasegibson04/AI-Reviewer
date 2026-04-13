@@ -1,9 +1,9 @@
-{"timestamp": "2026-04-04T00:22:44.169376+00:00", "tool": "render_outputs", "status": "ok", "meta": {"artifact_count": 19}}
-{"timestamp": "2026-04-04T00:22:44.169380+00:00", "tool": "render_outputs", "status": "complete", "meta": {"elapsed_ms": 1.81}}
-{"timestamp": "2026-04-04T00:22:44.169487+00:00", "tool": "validate_outputs", "status": "start", "meta": {"arguments": ["output_dir"]}}
-{"timestamp": "2026-04-04T00:22:44.170570+00:00", "tool": "validate_outputs", "status": "ok", "meta": {"valid": true}}
-{"timestamp": "2026-04-04T00:22:44.170573+00:00", "tool": "validate_outputs", "status": "complete", "meta": {"elapsed_ms": 1.09}}
-{"timestamp": "2026-04-04T00:22:44.170672+00:00", "tool": "replay_run", "status": "start", "meta": {"arguments": ["run_id"]}}
-{"timestamp": "2026-04-04T00:22:44.170905+00:00", "tool": "replay_run", "status": "ok", "meta": {"run_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/pytest_bridge_run_a"}}
-{"timestamp": "2026-04-04T00:22:44.170907+00:00", "tool": "replay_run", "status": "complete", "meta": {"elapsed_ms": 0.24}}
-{"timestamp": "2026-04-04T00:22:44.171054+00:00", "tool": "render_outputs", "status": "start", "meta": {"arguments": ["review_data", "output_dir"]}}
+{"timestamp": "2026-04-07T23:14:09.416901+00:00", "tool": "render_outputs", "status": "ok", "meta": {"artifact_count": 21}}
+{"timestamp": "2026-04-07T23:14:09.416908+00:00", "tool": "render_outputs", "status": "complete", "meta": {"elapsed_ms": 9.68}}
+{"timestamp": "2026-04-07T23:14:09.417723+00:00", "tool": "validate_outputs", "status": "start", "meta": {"arguments": ["output_dir"]}}
+{"timestamp": "2026-04-07T23:14:09.420311+00:00", "tool": "validate_outputs", "status": "ok", "meta": {"valid": true}}
+{"timestamp": "2026-04-07T23:14:09.420314+00:00", "tool": "validate_outputs", "status": "complete", "meta": {"elapsed_ms": 2.59}}
+{"timestamp": "2026-04-07T23:14:09.421254+00:00", "tool": "replay_run", "status": "start", "meta": {"arguments": ["run_id"]}}
+{"timestamp": "2026-04-07T23:14:09.421535+00:00", "tool": "replay_run", "status": "ok", "meta": {"run_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/pytest_bridge_run_a"}}
+{"timestamp": "2026-04-07T23:14:09.421538+00:00", "tool": "replay_run", "status": "complete", "meta": {"elapsed_ms": 0.28}}
+{"timestamp": "2026-04-07T23:14:09.423288+00:00", "tool": "render_outputs", "status": "start", "meta": {"arguments": ["review_data", "output_dir"]}}

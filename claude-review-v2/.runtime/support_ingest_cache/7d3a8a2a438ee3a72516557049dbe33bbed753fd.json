@@ -1,0 +1,203 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Purification_Systems_Based_on_Bacterial_Surface_Proteins.pdf",
+    "size_bytes": 850014,
+    "mtime_ns": 1774857209000000000,
+    "sha1_prefix": "668163527d054358c558357a0b1c0b9016f41eaf"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Purification_Systems_Based_on_Bacterial_Surface_Proteins.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Tove Bostr m*, Johan Nilvebrant* and Sophia Hober",
+    "doi": "",
+    "year": "1968",
+    "authors": [
+      "Tove",
+      "Bostr",
+      "Johan",
+      "Nilvebrant",
+      "Sophia",
+      "Hober"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "tove bostr johan nilvebrant sophia hober",
+    "title_tokens": [
+      "tove",
+      "bostr",
+      "johan",
+      "nilvebrant",
+      "sophia",
+      "hober"
+    ],
+    "author_tokens": [
+      "tove",
+      "bostr",
+      "johan",
+      "nilvebrant",
+      "sophia",
+      "hober"
+    ],
+    "year": "1968",
+    "doi_variants": [],
+    "source_name_tokens": [
+      "purification",
+      "systems",
+      "based",
+      "bacterial",
+      "surface",
+      "proteins"
+    ]
+  },
+  "abstract": "5\n\n Purification Systems Based on\n Bacterial Surface Proteins\n Tove Bostr\u00f6m*, Johan Nilvebrant* and Sophia Hober\n Royal Institute of Technology, Stockholm,\n Sweden\n\n1. Introduction\nAffinity purification is based on the selective and reversible interaction between two\nbinding partners, of which one is bound to a chromatography matrix and the other may be\neither a native target protein or a recombinant protein fused with an affinity tag\n(Cuatrecasas et al. 1968). Recombinant DNA-technology allows straightforward\nconstruction of gene fusions to provide fusion proteins with two or more functions.",
+  "key_claims": [
+    "Several bacterial surface proteins that show high affinity against different host proteins as immunoglobulins (Ig:s) and serum albumin, but also other host serum proteins, have been identified, see table 1 for examples.",
+    "A homology gradient along the protein sequence has been established as two regions lying next to each other show a higher degree of sequence identity than two domains situated further apart.",
+    "They show a limited specificity and bind weakly to human IgG (Myhre & Kronvall 1981).",
+    "However, SPA has been shown to cope well with high NaOH concentrations with only a small decrease in binding capability (Hale et al."
+  ],
+  "methods_summary": "A single domain of SPA can bind to Fc and Fab simultaneously, as has been shown for domain D in an enzyme-linked immunosorbent assay (ELISA) (Roben et al. In one study, a competition assay was used to analyze the binding to IgG of sera from 80 animals.",
+  "quantitative_findings": [
+    "5 Purification Systems Based on Bacterial Surface Proteins Tove Bostr m*, Johan Nilvebrant* and Sophia Hober Royal Institute of Technology, Stockholm, Sweden 1.",
+    "1968).",
+    "The main intention is to facilitate downstream purification; however gene fusions may also improve solubility and proteolytic stability and assist in refolding (Waugh 2005)."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "protein",
+    "proteins",
+    "binding",
+    "been",
+    "domains",
+    "spa",
+    "purification",
+    "spg",
+    "affinity",
+    "has",
+    "domain",
+    "also"
+  ],
+  "citation_anchors": [
+    "1968",
+    "Tove",
+    "Bostr",
+    "Johan"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-2",
+      "text": "Purification Systems Based on Bacterial Surface Proteins Tove Bostr m*, Johan Nilvebrant* and Sophia Hober Royal Institute of Technology, Stockholm, Sweden",
+      "keywords": [
+        "protein",
+        "proteins",
+        "purification"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-3",
+      "text": "1. Introduction Affinity purification is based on the selective and reversible interaction between two binding partners, of which one is bound to a chromatography matrix and the other may be either a native target protein or a recombinant protein fused with an affinity tag (Cuatrecasas et al. 1968). Recombinant DNA-technology allows straightforward construction of gene fusions to provide fusion proteins with two or more functions. The main intention is to facilitate downstream purification; however gene fusions may also improve solubility and proteolytic stability and assist in refolding (Waugh 2005). There are many fusion partners for which commercially available purification systems exist, ranging in size from a few amino acids to whole proteins (\u2026",
+      "keywords": [
+        "protein",
+        "proteins",
+        "binding",
+        "purification",
+        "affinity"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-6",
+      "text": "blood. Bacteria able to bind albumin may therefore also benefit by scavenging albumin- bound nutrients (de Chateau et al. 1996). One of the most studied immunoglobulin-binding proteins is the surface-exposed protein A of Staphylococcus aureus. Several animal models have demonstrated a decreased virulence for mutants of S. aureus that lack Staphylococcal protein A (SPA) on their surface (Foster 2005). Another staphylococcal surface protein, S. aureus binder of IgG (Sbi), has also been described (Atkins et al. 2008; Zhang et al. 1998). Several cell surface proteins binding immunoglobulins and other host proteins have also been discovered in Streptococcus strains. Streptococcal protein G (SPG), which binds both to immunoglobulins and serum albumin of d\u2026",
+      "keywords": [
+        "protein",
+        "proteins",
+        "binding",
+        "been",
+        "spa"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-7",
+      "text": "www.intechopen.com Purification Systems Based on Bacterial Surface Proteins 91",
+      "keywords": [
+        "protein",
+        "proteins",
+        "purification"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-8",
+      "text": "repeated homologous domains, a natural development has been to investigate the utility of them individually. In section 3 we introduce how these domains have been generated and how they have found applicability in the protein purification field. With the recombinant DNA technology, it has become more feasible to create proteins with new properties and several improvements have been made to the domains of SPA and SPG regarding for example stability and binding specificity using rational design or combinatorial engineering. Modified domain variants have proven to be very useful as ligands in affinity purification of antibodies and as fusion partners for purification of target proteins. The engineered proteins have been used in a wide range of applicat\u2026",
+      "keywords": [
+        "protein",
+        "proteins",
+        "binding",
+        "been",
+        "domains"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-9",
+      "text": "Table 1. Overview of some staphylococcal and streptococcal surface proteins that bind different immunoglobulin classes, albumin and other host serum proteins.",
+      "keywords": [
+        "protein",
+        "proteins"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-10",
+      "text": "2. Protein A and protein G applied in protein purification SPA and SPG represent the best-characterized bacterial surface proteins. Several structures of their immunoglobulin- and albumin-binding, in the case of protein G, domains have been solved. Species specificities and affinities of the full-length proteins as well as individual domains have been determined. Based on the interesting properties and accumulated knowledge regarding these proteins, they have found many different applications in the field of biotechnology. In this section, we will first present some background information on the proteins, before describing some examples of where the proteins have been utilized in different applications related to protein expression and purification.",
+      "keywords": [
+        "protein",
+        "proteins",
+        "binding",
+        "been",
+        "domains"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-11",
+      "text": "2.1 Staphylococcal protein A The interaction between SPA and IgG has been widely studied and SPA has for a long time been used as a tool in many biotechnological applications (Langone 1982). The molecule was discovered already in 1940, when extraction of cells of the J13 strain of S. aureus yielded an antigenic fraction, which was found to consist of proteins (Verwey 1940) and the protein received its name in 1964 (Oeding et al. 1964). It was observed in 1958 that SPA stimulated an immune response in rabbits, wherefore it was believed that SPA participated in an antigen-antibody interaction. However, it was later shown that the observed interaction between SPA and the immunoglobulin did not involve the antigen-binding site, but rather the constant F\u2026",
+      "keywords": [
+        "protein",
+        "proteins",
+        "binding",
+        "been",
+        "spa"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-13",
+      "text": "reaction (Forsgren & Sjoquist 1966). This interaction causes many immunological effects similar to an antigen-antibody interaction, including complement activation and hypersensitivity reactions (Martin et al. 1967; Sjoquist & Stalenheim 1969). The gene for SPA was sequenced in 1984 (Uhlen et al. 1984) and the corresponding protein was shown to be a surface protein of about 58 kDa consisting of a single polypeptide chain. The protein can be divided into three regions with different functions. The N-terminal part consists of a signal peptide (Ss) followed by five homologous IgG-binding domains (E, D, A, B and C) and the C-terminal region (X and M) anchors the protein to the bacterial cell wall (Abrahmsen et al. 1985; Guss et al. 1984; Lofdahl et al.\u2026",
+      "keywords": [
+        "protein",
+        "binding",
+        "domains",
+        "spa",
+        "domain"
+      ]
+    },
+    {
+      "chunk_id": "Purification_Systems_Based_on_Bacterial_Surface_Proteins-14",
+      "text": "Fig. 1. (A) Organization of the different regions of SPA; An N-terminal signal sequence (Ss), which localizes the protein to the cell surface, five homologous IgG-binding domains (E, D, A, B and C) and two domains for anchoring of the protein to the cell wall (X and M). (B) The IgG-binding Z-domain, which is an engineered version of the B-domain, discussed in section 3. SPA is produced by many strains of S. aureus and most of them typically produce a cell wall-bound variant. Usually about 85% of the protein is anchored to the cell wall whereas 15% exists as a soluble protein in the cytoplasm, however some strains produce the soluble variant exclusively (Movitz 1976). SPA is produced in the form of a precursor protein that contains a 36 amino acid N-\u2026",
+      "keywords": [
+        "protein",
+        "binding",
+        "domains",
+        "spa",
+        "domain"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:25:56.100839+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-04-07T23:18:43.406180+00:00",
+  "status": "completed",
+  "profile": "local_moe",
+  "mode": "deep_review",
+  "reasoning_mode_requested": "moe",
+  "reasoning_mode_effective": "moe",
+  "degraded": false,
+  "fallback_reason": "",
+  "model_target": "gemma4:31b",
+  "stage_model_map": [
+    {
+      "stage": "supporting_paper_ingest",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 18
+    },
+    {
+      "stage": "citation_verification",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 6
+    },
+    {
+      "stage": "structural_review",
+      "model": "qwen3:8b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "high_level_review",
+      "model": "mistral-small3.2:latest",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "hostile_review",
+      "model": "phi4-reasoning:plus",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "methods_verification",
+      "model": "mistral-small3.2:latest",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "line_by_line_edits",
+      "model": "qwen2.5:7b-instruct",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "style_alignment",
+      "model": "mistral-small3.2:latest",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "reconciliation",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 2
+    },
+    {
+      "stage": "final_arbitration",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 3
+    }
+  ],
+  "comment_count": 14,
+  "suggested_change_count": 10,
+  "artifact_version": "v2-review-bridge"
+}

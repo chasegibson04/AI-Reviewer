@@ -129,6 +129,44 @@ Validation/manifests:
 - `commented_docx_validation.json`
 - `manuscript_suggested_changes_manifest.json`
 - `suggested_changes_validation.json`
+- `sentence_claim_check_manifest.json`
+- `style_clarity_manifest.json`
+- `comment_response_manifest.json`
+- `comment_response_manifest.md`
+- `artifact_quality_checks.json`
+
+## Comment System Passes
+
+`build_annotated_manuscript_output` now layers four targeted passes before final arbitration:
+
+1. Sentence-level claim check
+- reviewable sentence segmentation with stable sentence IDs
+- sentence classification and verdict mapping (`supported`, `unclear support`, `likely overclaim`, etc.)
+- privacy gate before optional external search
+- search metadata recorded in `sentence_claim_check_manifest.json`
+
+2. Style and clarity pass
+- sentence-local style detection (flow/readability/overloaded sentence/redundancy)
+- rewrite usefulness gate blocks no-op, trivial, and malformed rewrites
+- compact style comments emitted from useful rewrites only
+- outputs in `style_clarity_manifest.json`
+
+3. Existing-comment responder
+- reads existing DOCX comments when present
+- emits practical response actions (`text_fix`, `response_strategy`, `needs_clarification`, `already_addressed`)
+- writes `comment_response_manifest.json` and `.md`
+
+4. Artifact quality checks
+- validates paragraph-wide local anchors, duplicate comments, and rewrite no-op/duplicate conditions
+- reports in `artifact_quality_checks.json`
+
+Model preference for these passes:
+- prefer `gemma4:31b` when available
+- if model calls fail, pass-level fail-fast fallback triggers deterministic/local mode and is recorded in manifest model metadata (`fallback_used`, `fail_fast_fallback_triggered`)
+
+Privacy defaults:
+- local-first claim checking with external search disabled unless explicitly enabled
+- `AI_REVIEWER_EXTERNAL_SEARCH_ENABLED=true` enables external lookup path, still gated per sentence by privacy classifier
 
 Current limitation:
 - suggested revisions now render as Word tracked insertions/deletions in the suggested-revisions DOCX
@@ -190,3 +228,18 @@ Get-Content audits\support_claim_validation\summary.json
 ```powershell
 python -m pytest -q
 ```
+
+Focused evaluation harness for the new comment system:
+
+```powershell
+python scripts\run_comment_quality_eval.py --out-root outputs\evals\comment_quality_run
+```
+
+This writes JSON + Markdown metrics for:
+- anchor localization
+- rewrite usefulness
+- comment concision
+- deduplication quality
+- claim-check coverage
+- privacy/search safety
+- existing-comment responder coverage

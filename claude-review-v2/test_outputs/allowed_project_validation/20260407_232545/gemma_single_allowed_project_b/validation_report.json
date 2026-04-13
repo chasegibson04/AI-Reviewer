@@ -1,0 +1,319 @@
+{
+  "valid": true,
+  "missing": [],
+  "json_errors": [],
+  "front_matter_violations": [],
+  "remote_network_events": [
+    {
+      "timestamp": "2026-04-07T23:32:09.780283+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:11.048238+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:26.515792+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:27.281184+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:27.281463+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:28.095233+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:40.055568+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:40.341174+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:50.329735+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:51.138379+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:59.891563+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:00.608209+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:00.608478+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:01.579158+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:01.579415+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:02.513744+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:02.513991+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.195832+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.196109+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.514185+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.514480+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.777709+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    }
+  ],
+  "allowed_remote_metadata_events": [
+    {
+      "timestamp": "2026-04-07T23:32:09.780283+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:11.048238+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:26.515792+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:27.281184+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:27.281463+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:28.095233+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:40.055568+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:40.341174+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:50.329735+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:51.138379+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:32:59.891563+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:00.608209+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:00.608478+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:01.579158+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:01.579415+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:02.513744+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:02.513991+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.195832+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.196109+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.514185+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.514480+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "start"
+    },
+    {
+      "timestamp": "2026-04-07T23:33:03.777709+00:00",
+      "action": "openalex_lookup",
+      "host": "api.openalex.org",
+      "protocol": "https",
+      "status": "ok"
+    }
+  ],
+  "disallowed_remote_events": []
+}

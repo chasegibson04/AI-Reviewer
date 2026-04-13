@@ -1,0 +1,40 @@
+{
+  "findings": [
+    "High-frequency technical terms: springernature_natsynth_351, indd, anchor, endobj, obj, nature, endstream, graphik, http, org",
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "springernature_natsynth_351",
+      "count": 27
+    },
+    {
+      "term": "indd",
+      "count": 27
+    },
+    {
+      "term": "anchor",
+      "count": 27
+    },
+    {
+      "term": "endobj",
+      "count": 12
+    },
+    {
+      "term": "obj",
+      "count": 12
+    },
+    {
+      "term": "nature",
+      "count": 11
+    },
+    {
+      "term": "endstream",
+      "count": 11
+    },
+    {
+      "term": "graphik",
+      "count": 9
+    }
+  ]
+}

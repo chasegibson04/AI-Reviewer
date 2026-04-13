@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import re
 
@@ -19,6 +20,32 @@ def _non_empty(path: Path) -> bool:
 def _require_non_empty(path: Path, issues: list[str], label: str) -> None:
     if not _non_empty(path):
         issues.append(f"Missing or empty {label}: {path}")
+
+
+def _load_json(path: Path, issues: list[str], label: str) -> dict:
+    if not _non_empty(path):
+        issues.append(f"Missing or empty {label}: {path}")
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        issues.append(f"Invalid JSON in {label}: {exc}")
+        return {}
+    if not isinstance(data, dict):
+        issues.append(f"{label} must be a JSON object.")
+        return {}
+    return data
+
+
+def _read_text(path: Path, issues: list[str], label: str) -> str:
+    if not _non_empty(path):
+        issues.append(f"Missing or empty {label}: {path}")
+        return ""
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception as exc:
+        issues.append(f"Could not read {label}: {exc}")
+        return ""
 
 
 def verify_review_run(run_dir: Path) -> VerificationResult:
@@ -110,6 +137,78 @@ def verify_deep_run(run_dir: Path) -> VerificationResult:
         issues.append("Missing suggested-changes deep-run manuscript DOCX.")
     else:
         key_files.append(next(p for p in suggested_candidates if _non_empty(p)))
+
+    run_meta = _load_json(run_dir / "run_metadata.json", issues, "run_metadata.json")
+    report = _load_json(run_dir / "final_deep_review_report.json", issues, "final_deep_review_report.json")
+    comment_manifest = _load_json(run_dir / "manuscript_comment_manifest.json", issues, "manuscript_comment_manifest.json")
+    docx_manifest = _load_json(run_dir / "docx_comment_manifest.json", issues, "docx_comment_manifest.json")
+    commented_validation = _load_json(run_dir / "commented_docx_validation.json", issues, "commented_docx_validation.json")
+
+    report_md = _read_text(run_dir / "final_deep_review_report.md", issues, "final_deep_review_report.md")
+    if report_md:
+        if len(report_md.strip()) < 600:
+            issues.append("final_deep_review_report.md is unusually short; expected non-trivial synthesis content.")
+        required_heads = ["## final", "## stage_status", "## warnings"]
+        for head in required_heads:
+            if head not in report_md.lower():
+                issues.append(f"final_deep_review_report.md missing expected section heading: {head}")
+
+    if report:
+        final_payload = report.get("final", {})
+        if not isinstance(final_payload, dict):
+            issues.append("final_deep_review_report.json has invalid final payload.")
+        else:
+            major = len(final_payload.get("consolidated_weaknesses", []) or [])
+            actions = len(final_payload.get("priority_actions", []) or [])
+            if major == 0 and actions == 0:
+                issues.append("Final report has no weaknesses/actions; likely low-value or malformed synthesis.")
+        report_warnings = report.get("warnings", [])
+        if isinstance(report_warnings, list) and run_meta:
+            expected = int(run_meta.get("warnings_count", 0) or 0)
+            if expected != len(report_warnings):
+                issues.append(
+                    f"warnings_count mismatch: run_metadata={expected}, final_report={len(report_warnings)}."
+                )
+
+    if run_meta:
+        stage_status = run_meta.get("stage_status", {})
+        if isinstance(stage_status, dict):
+            failed = [k for k, v in stage_status.items() if str(v).lower() == "failed"]
+            degraded = [k for k, v in stage_status.items() if str(v).lower() == "degraded"]
+            if failed and str(run_meta.get("status", "")).lower() == "success":
+                issues.append("run_metadata status=success despite failed stages.")
+            if degraded and str(run_meta.get("status", "")).lower() == "success":
+                issues.append("run_metadata status=success despite degraded stages.")
+
+    if comment_manifest and docx_manifest:
+        c_added = int(comment_manifest.get("comments_added", 0) or 0)
+        d_added = int(docx_manifest.get("comments_added", 0) or 0)
+        if c_added != d_added:
+            issues.append(f"Comment manifest mismatch: manuscript={c_added}, docx_manifest={d_added}.")
+        targets = comment_manifest.get("comment_targets", [])
+        if isinstance(targets, list) and c_added > 0 and len(targets) == 0:
+            issues.append("comments_added > 0 but comment_targets is empty.")
+        if c_added == 0:
+            issues.append("No comments were added; deep-run should produce actionable comments.")
+
+    if commented_validation:
+        if not bool(commented_validation.get("comments_attached", False)):
+            issues.append("commented_docx_validation indicates comments_attached=false.")
+        if bool(commented_validation.get("silent_noop_suspected", False)):
+            issues.append("commented_docx_validation flagged silent_noop_suspected=true.")
+        val_count = int(commented_validation.get("new_ai_reviewer_comments_added_count", 0) or 0)
+        man_count = int(comment_manifest.get("new_ai_reviewer_comments_added_count", 0) or 0) if comment_manifest else 0
+        if man_count and val_count and man_count != val_count:
+            issues.append(
+                f"new_ai_reviewer_comments_added_count mismatch: validation={val_count}, manifest={man_count}."
+            )
+
+    debug_text = _read_text(run_dir / "debug.log", issues, "debug.log")
+    if debug_text:
+        if "code=empty_response" in debug_text.lower():
+            warning_count = int(run_meta.get("warnings_count", 0) or 0) if run_meta else 0
+            if warning_count == 0:
+                issues.append("debug.log shows EMPTY_RESPONSE failures but warnings_count is 0.")
     return VerificationResult(ok=not issues, issues=issues, key_files=key_files)
 
 

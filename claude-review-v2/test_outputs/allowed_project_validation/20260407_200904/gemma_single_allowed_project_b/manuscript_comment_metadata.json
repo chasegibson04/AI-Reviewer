@@ -1,0 +1,146 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu"
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as"
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082"
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November"
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.103",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.103"
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: See Supplementary Section 5.1 for full list of aldehydes and ketones.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: See Supplementary Section 5.1 for full list of aldehydes and ketones."
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: in contrast, moreover, consequently, in summary",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: in contrast, moreover, consequently, in summary"
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Missing common manuscript sections: has_abstract, has_keywords",
+    "fix": "Add the missing section elements in the manuscript front matter.",
+    "source": "heuristic_fallback",
+    "body": "Missing common manuscript sections: has_abstract, has_keywords"
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Citation markers and DOI-like identifiers detected.",
+    "fix": "Add explicit citation markers near evidence-backed claims.",
+    "source": "heuristic_fallback",
+    "body": "Citation markers and DOI-like identifiers detected."
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics"
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "Douthwaite 3, Yu-Ting Kao 3, Ruheng Zhao 3, Babak Mahjour 3, Ron Ferguson2, Accepted: 22 May 2023 Spencer Dreher2, B reng re Sauvagnat1,5,\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence"
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "reaction miniaturization has emerged as a technology with consid- The recent ability to computationally predict chemical properties erable\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence"
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: in contrast, moreover, consequently, in summary",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: in contrast, moreover, consequently, in summary"
+  },
+  {
+    "id": "comment-detail-15",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  },
+  {
+    "id": "comment-detail-16",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  }
+]

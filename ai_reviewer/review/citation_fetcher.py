@@ -633,6 +633,23 @@ def fetch_citations_for_documents(
         total_downloaded=total_downloaded,
         entries=entries,
     )
+    if report.total_downloaded > 0:
+        citation_outcome = (
+            f"Retrieved {report.total_downloaded} new citation PDFs from {report.total_references} references."
+        )
+    elif total_cache_hits > 0:
+        citation_outcome = (
+            f"No new downloads; reused {total_cache_hits} cached/local citation PDFs from {report.total_references} references."
+        )
+    elif report.total_candidates > 0:
+        citation_outcome = (
+            f"Checked {report.total_candidates} candidates across {report.total_references} references; "
+            "no OA/local retrievable full-text matches found."
+        )
+    else:
+        citation_outcome = (
+            f"No retrievable citation candidates found in {report.total_references} parsed references."
+        )
     payload = {
         "enabled": report.enabled,
         "reason": report.reason,
@@ -642,6 +659,7 @@ def fetch_citations_for_documents(
         "total_candidates": report.total_candidates,
         "total_downloaded": report.total_downloaded,
         "total_cache_hits": total_cache_hits,
+        "outcome_summary": citation_outcome,
         "doi_cache_entries": len(doi_cache),
         "query_policy": {
             "no_manuscript_raw_text": True,
@@ -701,4 +719,5 @@ def fetch_citations_for_documents(
             report.total_candidates,
             report.total_references,
         )
+        logger.info("citation_fetch_interpretation %s", citation_outcome)
     return report

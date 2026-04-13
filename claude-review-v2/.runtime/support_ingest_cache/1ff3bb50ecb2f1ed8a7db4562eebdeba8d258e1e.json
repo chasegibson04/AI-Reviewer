@@ -1,0 +1,190 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predictive_chemistry_machine_learning_for_reaction_deployment,_reaction_developm.pdf",
+    "size_bytes": 1332368,
+    "mtime_ns": 1774728816000000000,
+    "sha1_prefix": "73dc644239ade419a89adc7382c0d3a1c83100b7"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predictive_chemistry_machine_learning_for_reaction_deployment,_reaction_developm.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Predictive chemistry: machine learning for reaction",
+    "doi": "10.1039/d2sc05089g",
+    "year": "2022",
+    "authors": [
+      "Predictive"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "predictive chemistry machine learning reaction",
+    "title_tokens": [
+      "predictive",
+      "chemistry",
+      "machine",
+      "learning",
+      "reaction"
+    ],
+    "author_tokens": [
+      "predictive"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.1039/d2sc05089g"
+    ],
+    "source_name_tokens": [
+      "predictive",
+      "chemistry",
+      "machine",
+      "learning",
+      "reaction",
+      "deployment",
+      "developm"
+    ]
+  },
+  "abstract": "Chemical\n Science\n View Article Online\n REVIEW View Journal | View Issue\n\n Predictive chemistry: machine learning for reaction\n This article is licensed under a Creative Commons Attribution 3.0 Unported Licence. deployment, reaction development, and reaction\nOpen Access Article. Published on 28 November 2022. Downloaded on 3/28/2026 8:13:37 PM.",
+  "key_claims": [
+    "Given the current the network edges that connect similar molecules, they were level of interest in these techniques however, one can expect even able to suggest promising starting points for a high- that they will become increasingly common and ubiquitous in throughput reaction\u2026",
+    "argued that a model may show overly optimistic performance if 3 F."
+  ],
+  "methods_summary": "Because there arguably count, but the implicit emphasis in this article will be are many starting materials that could produce the target of on neural networks (e.g., feedforward neural networks, graph interest, evaluation has focused on models' abilities to reca- neural network The top-k accuracy (%) on the USPTO-50k\u2026",
+  "quantitative_findings": [
+    "Chemical Science View Article Online REVIEW View Journal | View Issue Predictive chemistry: machine learning for reaction This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.",
+    "Published on 28 November 2022.",
+    "Downloaded on 3/28/2026 8:13:37 PM."
+  ],
+  "limitations": [
+    "cantly limit the generalizability of the model since it assumes One fundamental challenge of multi-step planning is with that a small collection of molecules includes every structure the evaluation of proposed pathways.",
+    "Beker et al.144 recently argued that in some are analyzed, and an algorithm proposes a new set of conditions cases, the level of noise and bias in literature data can impede to try next.",
+    "generative models (particularly in drug discovery applications, Here, we will limit ourselves to two challenging (sub)domains of though the techniques translate well to catalyst and ligand chemical discovery which hold a lot of promise, yet have only design) should not overshado\u2026"
+  ],
+  "terminology_entities": [
+    "reaction",
+    "chem",
+    "are",
+    "model",
+    "models",
+    "learning",
+    "which",
+    "can",
+    "chemical",
+    "article",
+    "sci",
+    "data"
+  ],
+  "citation_anchors": [
+    "10.1039/d2sc05089g",
+    "2022",
+    "Predictive",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-1",
+      "text": "Chemical Science View Article Online REVIEW View Journal | View Issue",
+      "keywords": [
+        "chem",
+        "chemical",
+        "article",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-2",
+      "text": "Predictive chemistry: machine learning for reaction This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.",
+      "keywords": [
+        "reaction",
+        "chem",
+        "learning",
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-3",
+      "text": "deployment, reaction development, and reaction Open Access Article. Published on 28 November 2022. Downloaded on 3/28/2026 8:13:37 PM.",
+      "keywords": [
+        "reaction",
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-4",
+      "text": "Cite this: Chem. Sci., 2023, 14, 226 discovery Zhengkai Tu, a Thijs Stuyver b and Connor W. Coley *ab",
+      "keywords": [
+        "chem",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-5",
+      "text": "The eld of predictive chemistry relates to the development of models able to describe how molecules Received 12th September 2022 Accepted 25th November 2022 interact and react. It encompasses the long-standing task of computer-aided retrosynthesis, but is far more reaching and ambitious in its goals. In this review, we summarize several areas where predictive DOI: 10.1039/d2sc05089g chemistry models hold the potential to accelerate the deployment, development, and discovery of rsc.li/chemical-science organic reactions and advance synthetic chemistry.",
+      "keywords": [
+        "reaction",
+        "chem",
+        "are",
+        "model",
+        "models"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-6",
+      "text": "(1) Reaction deployment learning from reaction corpora to Introduction identify trends and predict when known reactions apply to Advances in the high-throughput generation and availability of novel substrates or combinations thereof. chemical reaction data have spurred a rapidly growing interest (2) Reaction development accelerating the improvement or in the intersection of machine learning and chemical optimization of an existing chemical process, o en in an iter- synthesis.1 4 Deep learning approaches have achieved unprece- ative setting incorporating experimental feedback. dented accuracy and performance in a wide variety of predictive (3) Reaction discovery creating new knowledge through the tasks; their potential to accelerate scienti c discove\u2026",
+      "keywords": [
+        "reaction",
+        "chem",
+        "learning",
+        "chemical",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-7",
+      "text": "Zhengkai Tu received his BASc in Thijs Stuyver received his PhD Chemical Engineering from degree under the supervision of University of Waterloo and his Prof. Paul Geerlings, Prof. Frank SM in Computational Science De Pro , and Dr Stijn Fias at the and Engineering from MIT. He is Vrije Universiteit Brussel in currently a PhD student in Elec- 2018. He subsequently did trical Engineering and postdoctoral research at the Computer Science at MIT. His Hebrew University of Jerusalem research interest is in using (2018 2021), working with Prof. machine learning for synthesis Sason Shaik, and at the Massa- planning and for scienti c chusetts Institute of Technology information extraction. (2021 2023), working with Prof. Connor Coley. His research interests\u2026",
+      "keywords": [
+        "chem",
+        "learning",
+        "chemical",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-8",
+      "text": "226 | Chem. Sci., 2023, 14, 226 244 2023 The Author(s). Published by the Royal Society of Chemistry View Article Online",
+      "keywords": [
+        "chem",
+        "article",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-9",
+      "text": "Review Chemical Science This article is licensed under a Creative Commons Attribution 3.0 Unported Licence. Open Access Article. Published on 28 November 2022. Downloaded on 3/28/2026 8:13:37 PM.",
+      "keywords": [
+        "chem",
+        "chemical",
+        "article",
+        "sci"
+      ]
+    },
+    {
+      "chunk_id": "Predictive_chemistry_machine_learning_for_reaction_deployment-_reaction_developm-10",
+      "text": "Fig. 1 Overview of the three main categories of predictive chemistry tasks discussed throughout this review: reaction deployment, develop- ment, and discovery. It is useful to consider the extent to which each task represents an extrapolation from known reactivity to new reactivity.",
+      "keywords": [
+        "reaction",
+        "chem",
+        "which"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:09:19.272760+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

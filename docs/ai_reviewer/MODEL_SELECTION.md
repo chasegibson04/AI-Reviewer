@@ -101,3 +101,19 @@ Mac ARM fallback examples:
 python scripts\run_stage7_max_quality_benchmark.py
 Get-Content audits\stage7_benchmark\summary.json
 ```
+
+## 7. Annotation-Pass Preferences
+
+For manuscript annotation (`review` and `deep-run` output generation), the comment-system passes use:
+- preferred judge/editor model: `gemma4:31b` when listed by local provider
+- fallback: routed review/rewrite model stack from the current run
+
+Passes:
+- sentence claim check
+- style/clarity rewrite pass
+- existing-comment responder
+
+Runtime behavior when `gemma4:31b` is unhealthy:
+- one failed model call can trigger pass-level fail-fast fallback
+- remaining items in that pass run with deterministic/local logic
+- manifests report `fallback_used` and `fail_fast_fallback_triggered` for auditability

@@ -1,0 +1,40 @@
+{
+  "findings": [
+    "High-frequency technical terms: reaction, chatgpt, array, phactor, coupling, org, was, model, acs, design",
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "reaction",
+      "count": 71
+    },
+    {
+      "term": "chatgpt",
+      "count": 47
+    },
+    {
+      "term": "array",
+      "count": 39
+    },
+    {
+      "term": "phactor",
+      "count": 37
+    },
+    {
+      "term": "coupling",
+      "count": 32
+    },
+    {
+      "term": "org",
+      "count": 27
+    },
+    {
+      "term": "was",
+      "count": 25
+    },
+    {
+      "term": "model",
+      "count": 24
+    }
+  ]
+}

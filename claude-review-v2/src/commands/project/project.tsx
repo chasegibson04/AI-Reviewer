@@ -50,9 +50,10 @@ export const call: LocalJSXCommandCall = async (onDone, context, _args) => {
   lines.push('### Next Actions')
   lines.push('1. Run `/diagnose` to verify local backend and bridge health.')
   lines.push('2. Run `/profile` and choose MOE vs big-model style.')
-  lines.push('3. Run `/review` for standard manuscript analysis.')
-  lines.push('4. Run `/deep-run` for staged manuscript review execution.')
-  lines.push('5. Run `/artifacts` to inspect generated output bundles.')
+  lines.push('3. For deep runs, choose reasoning mode: MOE or single-model Gemma 4.')
+  lines.push('4. Run `/review` for standard manuscript analysis.')
+  lines.push('5. Run `/deep-run` for staged manuscript review execution.')
+  lines.push('6. Run `/artifacts` to inspect generated output bundles.')
 
   onDone(lines.join('\n'), { display: 'system' })
   return null

@@ -1,0 +1,39 @@
+{
+  "findings": [
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "b4c",
+      "count": 3
+    },
+    {
+      "term": "txb",
+      "count": 3
+    },
+    {
+      "term": "yss",
+      "count": 3
+    },
+    {
+      "term": "gqd",
+      "count": 3
+    },
+    {
+      "term": "sapr",
+      "count": 3
+    },
+    {
+      "term": "b-c",
+      "count": 2
+    },
+    {
+      "term": "gdt",
+      "count": 2
+    },
+    {
+      "term": "n7r",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,963 @@
+{
+  "schema_version": "color_palette_v1",
+  "source_pdf": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/manuscript/designing-chemical-reaction-arrays-using-phactor-and-chatgpt.pdf",
+  "extraction_mode": "rendered_pages",
+  "note": "Representative colors extracted from rendered PDF pages. This is not raw PDF object color parsing.",
+  "config": {
+    "dpi": 120,
+    "max_page_pixels": 350000,
+    "quantized_colors_per_page": 48,
+    "merge_distance": 16.0,
+    "family_match_distance": 30.0,
+    "min_pixel_fraction": 0.0005,
+    "min_pixel_count": 48,
+    "suppress_near_white": true,
+    "suppress_near_black": true,
+    "suppress_neutral_gray": true,
+    "white_threshold": 242,
+    "black_threshold": 18,
+    "gray_chroma_threshold": 12,
+    "create_debug_montage": true
+  },
+  "summary": {
+    "page_count": 7,
+    "sampled_pixels": 2447795,
+    "representative_colors": 38,
+    "filtered_colors": 22,
+    "viridis_like": 2,
+    "plasma_like": 1
+  },
+  "page_sampling": [
+    {
+      "page": 1,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 48
+    },
+    {
+      "page": 2,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 47
+    },
+    {
+      "page": 3,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 47
+    },
+    {
+      "page": 4,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 47
+    },
+    {
+      "page": 5,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 48
+    },
+    {
+      "page": 6,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 48
+    },
+    {
+      "page": 7,
+      "sampled_size": [
+        515,
+        679
+      ],
+      "sampled_pixels": 349685,
+      "unique_quantized_colors": 48
+    }
+  ],
+  "colors": [
+    {
+      "hex": "#FFFFFF",
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "pixel_count": 1791179,
+      "pixel_fraction": 0.731752,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 219.3262,
+      "match_confidence": 0.0,
+      "merge_sources": 48,
+      "base_filter_reasons": [
+        "near_white",
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#F1F2F3",
+      "rgb": [
+        241,
+        242,
+        243
+      ],
+      "pixel_count": 111950,
+      "pixel_fraction": 0.045735,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 204.1421,
+      "match_confidence": 0.0,
+      "merge_sources": 24,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#E1E1E0",
+      "rgb": [
+        225,
+        225,
+        224
+      ],
+      "pixel_count": 61061,
+      "pixel_fraction": 0.024945,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 177.4317,
+      "match_confidence": 0.0,
+      "merge_sources": 17,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#CBCCCC",
+      "rgb": [
+        203,
+        204,
+        204
+      ],
+      "pixel_count": 52641,
+      "pixel_fraction": 0.021505,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 147.9561,
+      "match_confidence": 0.0,
+      "merge_sources": 15,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#BBBCBB",
+      "rgb": [
+        187,
+        188,
+        187
+      ],
+      "pixel_count": 52185,
+      "pixel_fraction": 0.021319,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 126.7833,
+      "match_confidence": 0.0,
+      "merge_sources": 12,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#9D9F9E",
+      "rgb": [
+        157,
+        159,
+        158
+      ],
+      "pixel_count": 45565,
+      "pixel_fraction": 0.018615,
+      "page_count": 6,
+      "pages": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 99.1464,
+      "match_confidence": 0.0,
+      "merge_sources": 11,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#737071",
+      "rgb": [
+        115,
+        112,
+        113
+      ],
+      "pixel_count": 41310,
+      "pixel_fraction": 0.016876,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 70.1213,
+      "match_confidence": 0.0,
+      "merge_sources": 7,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#908E8E",
+      "rgb": [
+        144,
+        142,
+        142
+      ],
+      "pixel_count": 38604,
+      "pixel_fraction": 0.015771,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 90.7634,
+      "match_confidence": 0.0,
+      "merge_sources": 10,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#818282",
+      "rgb": [
+        129,
+        130,
+        130
+      ],
+      "pixel_count": 38200,
+      "pixel_fraction": 0.015606,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 84.3919,
+      "match_confidence": 0.0,
+      "merge_sources": 9,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#A9AFAA",
+      "rgb": [
+        169,
+        175,
+        170
+      ],
+      "pixel_count": 37888,
+      "pixel_fraction": 0.015478,
+      "page_count": 7,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 107.0607,
+      "match_confidence": 0.0,
+      "merge_sources": 11,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#000C2E",
+      "rgb": [
+        0,
+        12,
+        46
+      ],
+      "pixel_count": 29810,
+      "pixel_fraction": 0.012178,
+      "page_count": 1,
+      "pages": [
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 78.6702,
+      "match_confidence": 0.0,
+      "merge_sources": 6,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#4C5E60",
+      "rgb": [
+        76,
+        94,
+        96
+      ],
+      "pixel_count": 29020,
+      "pixel_fraction": 0.011856,
+      "page_count": 6,
+      "pages": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 48.1456,
+      "match_confidence": 0.0,
+      "merge_sources": 7,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#D4D6D5",
+      "rgb": [
+        212,
+        214,
+        213
+      ],
+      "pixel_count": 19406,
+      "pixel_fraction": 0.007928,
+      "page_count": 6,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 160.3901,
+      "match_confidence": 0.0,
+      "merge_sources": 7,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#3C3058",
+      "rgb": [
+        60,
+        48,
+        88
+      ],
+      "pixel_count": 6895,
+      "pixel_fraction": 0.002817,
+      "page_count": 2,
+      "pages": [
+        2,
+        3
+      ],
+      "classification": "unmatched",
+      "match_distance": 31.9531,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#6699CB",
+      "rgb": [
+        102,
+        153,
+        203
+      ],
+      "pixel_count": 6800,
+      "pixel_fraction": 0.002778,
+      "page_count": 1,
+      "pages": [
+        6
+      ],
+      "classification": "unmatched",
+      "match_distance": 91.7061,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#A74A77",
+      "rgb": [
+        167,
+        74,
+        119
+      ],
+      "pixel_count": 6298,
+      "pixel_fraction": 0.002573,
+      "page_count": 2,
+      "pages": [
+        3,
+        5
+      ],
+      "classification": "unmatched",
+      "match_distance": 36.1248,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#6FA88B",
+      "rgb": [
+        111,
+        168,
+        139
+      ],
+      "pixel_count": 5365,
+      "pixel_fraction": 0.002192,
+      "page_count": 3,
+      "pages": [
+        3,
+        4,
+        5
+      ],
+      "classification": "unmatched",
+      "match_distance": 53.2729,
+      "match_confidence": 0.0,
+      "merge_sources": 3,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#C64970",
+      "rgb": [
+        198,
+        73,
+        112
+      ],
+      "pixel_count": 5350,
+      "pixel_fraction": 0.002186,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "plasma_like",
+      "match_distance": 8.8318,
+      "match_confidence": 0.8037,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": true
+    },
+    {
+      "hex": "#604A67",
+      "rgb": [
+        96,
+        74,
+        103
+      ],
+      "pixel_count": 5007,
+      "pixel_fraction": 0.002046,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "unmatched",
+      "match_distance": 44.9555,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#696265",
+      "rgb": [
+        105,
+        98,
+        101
+      ],
+      "pixel_count": 4899,
+      "pixel_fraction": 0.002001,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 60.4649,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#3A1A57",
+      "rgb": [
+        58,
+        26,
+        87
+      ],
+      "pixel_count": 4622,
+      "pixel_fraction": 0.001888,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "viridis_like",
+      "match_distance": 23.1084,
+      "match_confidence": 0.4865,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": true
+    },
+    {
+      "hex": "#3A3E72",
+      "rgb": [
+        58,
+        62,
+        114
+      ],
+      "pixel_count": 4331,
+      "pixel_fraction": 0.001769,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "viridis_like",
+      "match_distance": 22.9347,
+      "match_confidence": 0.4903,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": true
+    },
+    {
+      "hex": "#3D3D45",
+      "rgb": [
+        61,
+        61,
+        69
+      ],
+      "pixel_count": 4002,
+      "pixel_fraction": 0.001635,
+      "page_count": 2,
+      "pages": [
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 53.2729,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [
+        "neutral_gray"
+      ],
+      "filtered_out": true
+    },
+    {
+      "hex": "#0D213F",
+      "rgb": [
+        13,
+        33,
+        63
+      ],
+      "pixel_count": 3913,
+      "pixel_fraction": 0.001599,
+      "page_count": 1,
+      "pages": [
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 67.0075,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#B29481",
+      "rgb": [
+        178,
+        148,
+        129
+      ],
+      "pixel_count": 3844,
+      "pixel_fraction": 0.00157,
+      "page_count": 2,
+      "pages": [
+        2,
+        5
+      ],
+      "classification": "unmatched",
+      "match_distance": 74.8532,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#3F3B61",
+      "rgb": [
+        63,
+        59,
+        97
+      ],
+      "pixel_count": 3515,
+      "pixel_fraction": 0.001436,
+      "page_count": 1,
+      "pages": [
+        5
+      ],
+      "classification": "unmatched",
+      "match_distance": 37.0135,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#6A7F84",
+      "rgb": [
+        106,
+        127,
+        132
+      ],
+      "pixel_count": 3117,
+      "pixel_fraction": 0.001273,
+      "page_count": 2,
+      "pages": [
+        2,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 62.562,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#2D333A",
+      "rgb": [
+        45,
+        51,
+        58
+      ],
+      "pixel_count": 3012,
+      "pixel_fraction": 0.00123,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 60.8687,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#5E7C7B",
+      "rgb": [
+        94,
+        124,
+        123
+      ],
+      "pixel_count": 2964,
+      "pixel_fraction": 0.001211,
+      "page_count": 2,
+      "pages": [
+        3,
+        5
+      ],
+      "classification": "unmatched",
+      "match_distance": 53.3479,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#ACBEC4",
+      "rgb": [
+        172,
+        190,
+        196
+      ],
+      "pixel_count": 2953,
+      "pixel_fraction": 0.001206,
+      "page_count": 2,
+      "pages": [
+        6,
+        7
+      ],
+      "classification": "unmatched",
+      "match_distance": 127.8828,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#BAB1A9",
+      "rgb": [
+        186,
+        177,
+        169
+      ],
+      "pixel_count": 2643,
+      "pixel_fraction": 0.00108,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "unmatched",
+      "match_distance": 113.8771,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#B2B681",
+      "rgb": [
+        178,
+        182,
+        129
+      ],
+      "pixel_count": 2609,
+      "pixel_fraction": 0.001066,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 78.3901,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#4C7172",
+      "rgb": [
+        76,
+        113,
+        114
+      ],
+      "pixel_count": 2426,
+      "pixel_fraction": 0.000991,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "unmatched",
+      "match_distance": 39.7744,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#C6C8BB",
+      "rgb": [
+        198,
+        200,
+        187
+      ],
+      "pixel_count": 2230,
+      "pixel_fraction": 0.000911,
+      "page_count": 1,
+      "pages": [
+        4
+      ],
+      "classification": "unmatched",
+      "match_distance": 131.2288,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#C2B19A",
+      "rgb": [
+        194,
+        177,
+        154
+      ],
+      "pixel_count": 1442,
+      "pixel_fraction": 0.000589,
+      "page_count": 2,
+      "pages": [
+        2,
+        3
+      ],
+      "classification": "unmatched",
+      "match_distance": 102.279,
+      "match_confidence": 0.0,
+      "merge_sources": 2,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#8DA99F",
+      "rgb": [
+        141,
+        169,
+        159
+      ],
+      "pixel_count": 1345,
+      "pixel_fraction": 0.000549,
+      "page_count": 1,
+      "pages": [
+        2
+      ],
+      "classification": "unmatched",
+      "match_distance": 84.7408,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#C0CEDA",
+      "rgb": [
+        192,
+        206,
+        218
+      ],
+      "pixel_count": 1293,
+      "pixel_fraction": 0.000528,
+      "page_count": 1,
+      "pages": [
+        6
+      ],
+      "classification": "unmatched",
+      "match_distance": 154.7708,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    },
+    {
+      "hex": "#90959D",
+      "rgb": [
+        144,
+        149,
+        157
+      ],
+      "pixel_count": 1264,
+      "pixel_fraction": 0.000516,
+      "page_count": 1,
+      "pages": [
+        1
+      ],
+      "classification": "unmatched",
+      "match_distance": 94.0851,
+      "match_confidence": 0.0,
+      "merge_sources": 1,
+      "base_filter_reasons": [],
+      "filtered_out": false
+    }
+  ]
+}

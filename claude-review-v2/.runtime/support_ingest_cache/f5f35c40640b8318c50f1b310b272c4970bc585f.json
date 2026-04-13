@@ -1,0 +1,182 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aac6153.pdf",
+    "size_bytes": 418889,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "6b046222222ae4b897fd414ea2d47aa34bf4d94c"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aac6153.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "ORGANIC CHEMISTRY drug gefitinib to morpholine via the isolated",
+    "doi": "10.1126/science.aac6153",
+    "year": "2026",
+    "authors": []
+  },
+  "matching_hints": {
+    "normalized_title": "organic chemistry drug gefitinib morpholine isolated",
+    "title_tokens": [
+      "organic",
+      "chemistry",
+      "drug",
+      "gefitinib",
+      "morpholine",
+      "isolated"
+    ],
+    "author_tokens": [
+      "organic",
+      "chemistry",
+      "fig",
+      "pharmaceutical",
+      "cod",
+      "the"
+    ],
+    "year": "2026",
+    "doi_variants": [
+      "10.1126/science.aac6153"
+    ],
+    "source_name_tokens": [
+      "science"
+    ]
+  },
+  "abstract": "R ES E A RC H\n\nORGANIC CHEMISTRY drug gefitinib to morpholine via the isolated\n complex 1 (Fig. 1C), which was prepared by re-\n acting gefitinib with the easily accessible Pd(0)\nPharmaceutical diversification precursor [(tBuXPhos)Pd]2(COD) (26) at room\n temperature. An extensive survey of ligands,\n solvents, and bases revealed tBuXPhos with the\nvia palladium oxidative phosphazene base P2-Et (9\u201311) as the optimal\n ligand-base combination for this coupling (27). addition complexes The desired product 2 was formed in 83% yield\n in just 2 hours at room temperature by using\n t\nMycah R.",
+  "key_claims": [
+    "designed the experiments; Our data suggest that the use of OACs will 10.",
+    "increase the success rate of cross-coupling re- 12.",
+    "synthetic methods that increase the speed and 18."
+  ],
+  "methods_summary": "cycles are competent ligands for transition metal the use of an OAC as the substrate obviates the Following these encouraging initial results, we catalysts (7) and thus often function as competitive requirement for multiple rounds of catalyst turn- tested the generality of the O In addition, whereas the complex, drug-\u2026",
+  "quantitative_findings": [
+    "R ES E A RC H ORGANIC CHEMISTRY drug gefitinib to morpholine via the isolated complex 1 (Fig.",
+    "1C), which was prepared by re- acting gefitinib with the easily accessible Pd(0) Pharmaceutical diversification precursor [(tBuXPhos)Pd]2(COD) (26) at room temperature.",
+    "An extensive survey of ligands, solvents, and bases revealed tBuXPhos with the via palladium oxidative phosphazene base P2-Et (9 11) as the optimal ligand-base combination for this coupling (27)."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "science",
+    "reactions",
+    "reaction",
+    "complex",
+    "oac",
+    "fig",
+    "cross-coupling",
+    "oacs",
+    "chem",
+    "catalytic",
+    "product",
+    "tbuxphos"
+  ],
+  "citation_anchors": [
+    "10.1126/science.aac6153",
+    "2026",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "science.aac6153-2",
+      "text": "ORGANIC CHEMISTRY drug gefitinib to morpholine via the isolated complex 1 (Fig. 1C), which was prepared by re- acting gefitinib with the easily accessible Pd(0) Pharmaceutical diversification precursor [(tBuXPhos)Pd]2(COD) (26) at room temperature. An extensive survey of ligands, solvents, and bases revealed tBuXPhos with the via palladium oxidative phosphazene base P2-Et (9 11) as the optimal ligand-base combination for this coupling (27). addition complexes The desired product 2 was formed in 83% yield in just 2 hours at room temperature by using t Mycah R. Uehling1,2, Ryan P. King2, Shane W. Krska1, BuXPhos with P2-Et in tetrahydrofuran (THF) as solvent, whereas the analogous catalytic re- Tim Cernak1,3*, Stephen L. Buchwald2* action using 5 mole\u2026",
+      "keywords": [
+        "complex",
+        "fig",
+        "chem",
+        "catalytic",
+        "product"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-3",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 effectively at concentrations as low as 0.01 M, complexes (OACs) derived from drugs or drug-like aryl halides as substrates. In most cases, potentially facilitating automated (9, 28, 29) or cross-coupling reactions using OACs proceed under milder conditions and with higher success microfluidic synthesis (30, 31). than the analogous catalytic reactions. OACs exhibit remarkable stability, maintaining their The stability of 1 was tested by storing it in a reactivity after months of benchtop storage under ambient conditions. We demonstrated the vial on the benchtop under an atmosphere of air. utility of OACs in a variety of experiments including automated nanom\u2026",
+      "keywords": [
+        "science",
+        "reactions",
+        "reaction",
+        "complex",
+        "oac"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-4",
+      "text": "P yields whether a solution of the complex was alladium-catalyzed carbon-carbon (1) and alyst regeneration steps. Because a successful freshly prepared or aged for 18 hours prior to re- carbon-heteroatom (2, 3) bond-forming re- reaction outcome requires the efficient opera- action setup. In contrast to most catalytic C N actions have had a major impact on the tion of each of these steps, interference from cross-coupling reactions, reactions of 1 could also practice of organic synthesis and have be- a highly functionalized molecule with any one be performed under an atmosphere of air with come mainstays of modern drug discovery step could, in principle, disrupt the entire desired only slightly lower efficiency (27). Similarly, the (4, 5). To date, mo\u2026",
+      "keywords": [
+        "reactions",
+        "reaction",
+        "complex",
+        "cross-coupling",
+        "catalytic"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-5",
+      "text": "Uehling et al., Science 363, 405 408 (2019) 25 January 2019 1 of 4 R ES E A RC H | R E PO R T",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-6",
+      "text": "Fig. 1. Robust cross-coupling of A L product formation B Aryl-Pd(II) complexes of drugs drug-like molecules using Pd-based X Pd independent of X catalyst turnover oxidative addition complexes (OACs). OAC (A) Use of isolated OACs circumvents oxidative addition complex (OAC) many challenges associated with oxidative nucleophile NuH addition association achieving successful cross-coupling of L complex substrates. (B) OACs are stable, drug Pd LPd 0 readily handled, and economical at X discovery scale. (C and D) The complexes catalyst NuH + (tBuXPhos)Pd gefitinib (1) (C) and activation HX Pd L (tBuXPhos)Pd rivaroxaban (3) (D) X smoothly couple with morpholine (L)Pdn deprotonation stable to moisture and storage in air to give 2 and 4, respectively, wherea\u2026",
+      "keywords": [
+        "complex",
+        "oac",
+        "fig",
+        "cross-coupling",
+        "oacs"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-7",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 F F BuXPhos Pd G3, P2-Et, THF, rt, 18 hours. C tBuXPhos O HN Pd HN O O HN N N O Cl N O O N N conditions 2 MeO N MeO N 1 OAC* cat gefitinib(Pd)CltBuXPhos 83% 0%",
+      "keywords": [
+        "science",
+        "oac",
+        "tbuxphos"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-8",
+      "text": "D O O NH HN O N O S conditions O N N 4 OAC* cat 3 O O 80% 2% rivaroxaban(Pd)CltBuXPhos (X-ray)",
+      "keywords": [
+        "oac",
+        "tbuxphos"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-9",
+      "text": "complication that substrates or products underwent G3 and related Pd(II) complexes enhances the performed with the same 384 nucleophiles, prod- apparent decomposition reactions that were at- applicability of the OAC strategy, because many ucts were observed in 39 instances (>10% con- tributed to the L Pd(0) species generated from air- and moisture-stable Pd complexes are com- version observed in one reaction; Fig. 3). the OAC during the product release step. In such mercially available. However, this approach re- During a medicinal chemistry campaign, it is cases (5 7, 11, 12, Fig. 2), this decomposition quires the use of an excess of base to form Pd(0). desirable to have modular control over target could be mitigated by adding a sacrificial aryl Ad\u2026",
+      "keywords": [
+        "reactions",
+        "reaction",
+        "complex",
+        "oac",
+        "fig"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-10",
+      "text": "Uehling et al., Science 363, 405 408 (2019) 25 January 2019 2 of 4 R ES E A RC H | R E PO R T",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.aac6153-11",
+      "text": "LPd(0) L NR(R')H R legend yield X Pd N CQSAR 61-100% THF P2-Et, THF, ID 41-60% X R' rt, 1-3 h OAC cat. 11-40% Drugs or drug oxidative addition complex (OAC) 0-10% precursors isolated or prepared in situ",
+      "keywords": [
+        "complex",
+        "oac"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:16:14.800001+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "fix": "Add the missing section elements in the manuscript front matter.",
+    "source": "heuristic_fallback",
+    "body": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods Fix: Add the missing section elements in the manuscript front matter."
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "No conventional in-text citation markers detected.",
+    "fix": "Add explicit citation markers near evidence-backed claims.",
+    "source": "heuristic_fallback",
+    "body": "No conventional in-text citation markers detected. Fix: Add explicit citation markers near evidence-backed claims."
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility Fix: State exact thresholds, controls, and reproducibility details."
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "\u0001\u0002\u0003\u0004\u0005\u0006\u0004\u0006\u0005 \u0007\b\u0002 \u0004 \u0002 \u000e\u0004\u000f\u0006 \u0010\u0011\u0011 \u0012\u0003 \u0013\u0003\u0004\u0006\u0005 \u0014\b \u000e\u000f\u0011 \u0007\b \u000e\u0016\u0014\u0017 \u0001\u0002\u0003\u0002\u0004 \u0005\u0002\u0006\u0007\b \u000e\u000e \u0002\u000f \u0010\b\u0011\u0012\u0013\u0002\u0014\u0013 \u0002\u000f\u0014 \u0015 \u0016 \u0017\u0018 \u000f\u0002\u0004 \u0007\u0004\u000e\u0002 \u0017\b\u0004\u0003\u0018 \u0001\u0002\u0003\u0004 \u0005\u0002\u0006\u0007\b \b \u0004 \b \u0004 \u0001\u0002\u0001\u0003\u0004 \u0001\u0005\u0004 \u0006\u0007\u0006\u0002\b\u0006\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: \u0001\u0002\u0003\u0004\u0005\u0006\u0004\u0006\u0005 \u0007\b\u0002 \u0004 \u0002 \u000e\u0004\u000f\u0006 \u0010\u0011\u0011 \u0012\u0003 \u0013\u0003\u0004\u0006\u0005 \u0014\b \u000e\u000f\u0011 \u0007\b \u000e\u0016\u0014\u0017 \u0001\u0002\u0003\u0002\u0004 \u0005\u0002\u0006\u0007\b \u000e\u000e \u0002\u000f \u0010\b\u0011\u0012\u0013\u0002\u0014\u0013 \u0002\u000f\u0014 \u0015 \u0016 \u0017\u0018 \u000f\u0002\u0004 \u0007\u0004\u000e\u0002 \u0017\b\u0004\u0003\u0018 \u0001\u0002\u0003\u0004 \u0005\u0002\u0006\u0007\b \b \u0004 \b \u0004 \u0001\u0002\u0001\u0003\u0004 \u0001\u0005\u0004 \u0006\u0007\u0006\u0002\b\u0006\u2026"
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "\u0007\u0017\u001b\u0019 \u0006 \u0010\u0006 5 \u0011\u0006\u0002* \u000e \u0010\u0010 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0018 \u0010\u0002\u0003\u000e \u0018 \u0017\u0004\u000f\u0006& ' \u001a\b\u0007\u001b\\(\b\u001a \u000f \u0006\b \u000f\u0006\u0002\u0011\u000f\u0014\u0014\u0015 \u0003 \u000e \u0007\u000f\u0006 \u0007 \u000f\u0003 \u000e\u0006 \u0007\b \b\u0010\u000f\u0014\u0010 \u000f\u000e\u0018 \u0011 \u0006 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0013\b\u0007 \b \u0014\u000f\u0007 \u0007\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: \u0007\u0017\u001b\u0019 \u0006 \u0010\u0006 5 \u0011\u0006\u0002* \u000e \u0010\u0010 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0018 \u0010\u0002\u0003\u000e \u0018 \u0017\u0004\u000f\u0006& ' \u001a\b\u0007\u001b\\(\b\u001a \u000f \u0006\b \u000f\u0006\u0002\u0011\u000f\u0014\u0014\u0015 \u0003 \u000e \u0007\u000f\u0006 \u0007 \u000f\u0003 \u000e\u0006 \u0007\b \b\u0010\u000f\u0014\u0010 \u000f\u000e\u0018 \u0011 \u0006 \u0007 \u000f\u0011\u0006\u0002\b\u000e \u000f\u0007\u0007\u000f\u0015\u0010 \u0013\b\u0007 \b \u0014\u000f\u0007 \u0007\u2026"
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  }
+]

@@ -1,0 +1,202 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da.pdf",
+    "size_bytes": 919366,
+    "mtime_ns": 1775494122210923202,
+    "sha1_prefix": "0f5f9b2f0e798648e9f4863316663ea2bac6e6a9"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Background: Health insurance claims data offer a unique opportunity to study disease distribution on a large scale.",
+    "doi": "10.1186/s12913-022-08107-x",
+    "year": "2022",
+    "authors": [
+      "Background",
+      "Health"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "background health insurance claims data offer unique opportunity study disease distribution large",
+    "title_tokens": [
+      "background",
+      "health",
+      "insurance",
+      "claims",
+      "data",
+      "offer",
+      "unique",
+      "opportunity",
+      "study",
+      "disease",
+      "distribution",
+      "large",
+      "scale"
+    ],
+    "author_tokens": [
+      "background",
+      "health"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.1186/s12913-022-08107-x"
+    ],
+    "source_name_tokens": [
+      "strategy",
+      "identify",
+      "event",
+      "specific",
+      "hospitalizations",
+      "large",
+      "health",
+      "claims"
+    ]
+  },
+  "abstract": "Background: Health insurance claims data offer a unique opportunity to study disease distribution on a large scale. Challenges arise in the process of accurately analyzing these raw data. One important challenge to overcome is the accurate classification of study outcomes. For example, using claims data, there is no clear way of classifying hospitali- zations due to a specific event. This is because of the inherent disjointedness and lack of context that typically come with raw claims data.",
+  "key_claims": [
+    "State naloxone access laws are associated with an increase in the number of naloxone prescriptions dispensed in retail pharmacies."
+  ],
+  "methods_summary": "Our claims specific COVID-19 related hospitalizations proportion is then compared to nationally reported rates from the Centers for Disease Control by age. If one of the combinations met the crite- demographic information (Age, Sex, first two digits of the ria of -2 to + 14 then the patient was said to have met the pa\u2026",
+  "quantitative_findings": [
+    "BMC Health Services Research (2022) 22:705 https://doi.org/10.1186/s12913-022-08107-x RESEARCH Open Access A strategy to identify event specific hospitalizations in large health claims databases Joshua Lambert1*, Harpal Sandhu2, Emily Kean1, Teenu Xavier1, Aviv Brokman3, Zachary\u2026",
+    "We then tested this framework in a private health insurance claims database (Symphony) with approximately 4 million US adults who tested positive with COVID-19 between March and December 2020.",
+    "Our claims specific COVID-19 related hospitalizations proportion is then compared to nationally reported rates from the Centers for Disease Control by age."
+  ],
+  "limitations": [
+    "An English language limit was applied talization.",
+    "While our attempt to validate struction strategy or a bias in the available claims data.",
+    "Researchers should Even still, these time horizon values are subject to a mis- be transparent about this ambiguity within the limita- understanding of claims data as well as systematic bias in tion s section of their corresponding academic works."
+  ],
+  "terminology_entities": [
+    "data",
+    "event",
+    "claims",
+    "covid-19",
+    "health",
+    "symphony",
+    "our",
+    "cdc",
+    "patient",
+    "patients",
+    "research",
+    "diagnosis"
+  ],
+  "citation_anchors": [
+    "10.1186/s12913-022-08107-x",
+    "2022",
+    "Background",
+    "Health",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-1",
+      "text": "Lambert et al. BMC Health Services Research (2022) 22:705 https://doi.org/10.1186/s12913-022-08107-x",
+      "keywords": [
+        "health",
+        "research"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-3",
+      "text": "A strategy to identify event specific hospitalizations in large health claims databases Joshua Lambert1*, Harpal Sandhu2, Emily Kean1, Teenu Xavier1, Aviv Brokman3, Zachary Steckler3, Lee Park3 and Arnold Stromberg3",
+      "keywords": [
+        "data",
+        "event",
+        "claims",
+        "health"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-4",
+      "text": "Abstract Background: Health insurance claims data offer a unique opportunity to study disease distribution on a large scale. Challenges arise in the process of accurately analyzing these raw data. One important challenge to overcome is the accurate classification of study outcomes. For example, using claims data, there is no clear way of classifying hospitali- zations due to a specific event. This is because of the inherent disjointedness and lack of context that typically come with raw claims data. Methods: In this paper, we propose a framework for classifying hospitalizations due to a specific event. We then tested this framework in a private health insurance claims database (Symphony) with approximately 4 million US adults who tested positive wit\u2026",
+      "keywords": [
+        "data",
+        "event",
+        "claims",
+        "health",
+        "symphony"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-5",
+      "text": "Background of Diseases (ICD)-10, Current Procedural Terminol- Prescription and health insurance claims providers can ogy (CPT), or drug codes are grouped with one another deliver unique patient-level retail pharmacy, diagno- around an event of interest. For example, a hospitaliza- sis, and procedure data. These data can range in size tion CPT code does not link to the diagnosis code that and complexity depending on the provider [1 3]. Suc- caused it, nor does the drug code that was prescribed cessfully using these data in medical research is not because of the event. This disjointness is a major hurdle an easy task and requires some key considerations [1]. for researchers hoping to harness these large claims data Some of this difficulty comes from t\u2026",
+      "keywords": [
+        "data",
+        "event",
+        "claims",
+        "health",
+        "patient"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-6",
+      "text": "The Author(s) 2022. Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directl\u2026",
+      "keywords": [
+        "our"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-7",
+      "text": "includes data on retail pharmacy claims, medical claims, reconstruct the event. For example, Hampp et al. [7] and readmittance claims. used the Symphony Health Solutions PHAST Prescrip- Symphony Health is a leading provider of high-value tion Monthly database to investigate the antidiabetic data for biopharmaceutical manufacturers, healthcare drug use in the US population during a predefined providers, and payers. The company helps clients under- single timeline. Six studies looked at data with one stand disease incidence, prevalence, progression, treat- timeline but multiple follow-ups within a time range ment, and influences along the patient and prescriber [22 27]. Multiple timelines were used by eight of the journeys by connecting and integratin\u2026",
+      "keywords": [
+        "data",
+        "event",
+        "claims",
+        "health",
+        "symphony"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-8",
+      "text": "Fig. 1 Generic event reconstruction diagram (stars indicate example scenario where example patient had a hospitalization 2 days after the event of interest and had one conditional event 3 days after their hospitalization and another conditional event 2 days after their hospitalization)",
+      "keywords": [
+        "event",
+        "patient"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-9",
+      "text": "Results data diagnoses were not ranked as they are in some The COVID-19 research database enables public health claims data, so the COVID diagnosis could have been and policy researchers to use real-world data to bet- any ranked diagnosis for the specific patient (principal, ter understand and combat the COVID-19 pandemic. secondary, ). The time lag and lead were determined In June 2021, via the COVID-19 research database, we as claims do not always mimic the actual timeline that gained access to the Symphony Health Data. the patient experienced. A sensitivity analysis of these endpoints. showed that most of the diagnoses and hospitaliza- Symphony data tions that met our -2 to + 14 criteria actually occurred Our symphony data had approximately 4 mil\u2026",
+      "keywords": [
+        "data",
+        "claims",
+        "covid-19",
+        "health",
+        "symphony"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-10",
+      "text": "Fig. 2 Hospitalization due to COVID-19 diagnosis reconstruction diagram (stars indicate example scenario: patient had a COVID-19 diagnosis, 2 days before they were hospitalized, and had one of the other additional diagnoses 3 days after the hospitalization then that patient would be defined as a patient who was hospitalized due to a COVID-19 diagnosis)",
+      "keywords": [
+        "covid-19",
+        "patient",
+        "diagnosis"
+      ]
+    },
+    {
+      "chunk_id": "A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da-11",
+      "text": "Comparison of proposed methodology and centre of Symphony patients hospitalized due to COVID-19 for disease control and prevention (CDC) estimates was 7.3% which is similar to the estimate of 7.5% by the The CDC provides estimates [35] of the number of symp- CDC. tomatic COVID-19 illness and the aggregate number of The difference observed in the 65 + population is hospitalizations from February 2020 through May 2021. worrisome and warrants serious attention. Consider- Unfortunately, we were unable to attain estimates for ing Medicaid claims data are not included in our Sym- the same time period under investigation in our study phony data, this discrepancy is less surprising. In the (March 1st, 2020, through December 3 1st, 2020). Our United States,\u2026",
+      "keywords": [
+        "data",
+        "event",
+        "claims",
+        "covid-19",
+        "symphony"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:05:57.437523+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

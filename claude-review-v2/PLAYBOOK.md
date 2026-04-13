@@ -41,6 +41,10 @@ bash scripts/smoke_fallback.sh
 
 ## 6. Internal validation fixtures
 
-Use in-folder fixtures:
-- `fixtures/manuscripts/gan_diffusion.pdf`
-- `fixtures/manuscripts/s44160-023-00351-1.pdf`
+For this effort, do not treat in-folder fixtures as authoritative validation.
+
+Approved real-validation projects only:
+- `20260325163524_test-existingphactorpaper`
+- `20260327051312_miniaturization_d2b`
+
+Local fixtures may still exist for lightweight bridge/unit tests, but they are not sufficient proof for manuscript-review quality, ingest/cache behavior, or citation-verification quality in this track.

@@ -1,0 +1,216 @@
+{
+  "routing_trace": {
+    "profile": "one_big_model",
+    "transport": "local_mcp_bridge",
+    "model_target": "gemma4:31b",
+    "reasoning_mode_requested": "gemma_single",
+    "reasoning_mode_effective": "gemma_single",
+    "degraded": false,
+    "fallback_reason": "",
+    "support_ingest_model": "gemma4:31b",
+    "citation_verification_model": "gemma4:31b",
+    "support_ingest_cache_root": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.runtime/support_ingest_cache",
+    "stage_model_map": [
+      {
+        "stage": "supporting_paper_ingest",
+        "model": "",
+        "status": "skipped",
+        "error": "missing manuscript path",
+        "finding_count": 0
+      },
+      {
+        "stage": "citation_verification",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 3
+      },
+      {
+        "stage": "structural_review",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "high_level_review",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "hostile_review",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "methods_verification",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "line_by_line_edits",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "style_alignment",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 4
+      },
+      {
+        "stage": "reconciliation",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 3
+      },
+      {
+        "stage": "final_arbitration",
+        "model": "gemma4:31b",
+        "status": "ok",
+        "error": "",
+        "finding_count": 3
+      }
+    ],
+    "stages": [
+      "supporting_paper_ingest",
+      "citation_verification",
+      "structural_review",
+      "high_level_review",
+      "hostile_review",
+      "methods_verification",
+      "line_by_line_edits",
+      "style_alignment",
+      "reconciliation",
+      "final_arbitration"
+    ]
+  },
+  "model_plan": {
+    "requested_mode": "gemma_single",
+    "effective_mode": "gemma_single",
+    "degraded": false,
+    "fallback_reason": "",
+    "stage_models": {
+      "structural_review": "gemma4:31b",
+      "high_level_review": "gemma4:31b",
+      "hostile_review": "gemma4:31b",
+      "methods_verification": "gemma4:31b",
+      "line_by_line_edits": "gemma4:31b",
+      "style_alignment": "gemma4:31b",
+      "reconciliation": "gemma4:31b",
+      "final_arbitration": "gemma4:31b"
+    },
+    "notes": [],
+    "available_models": [
+      "gemma4:31b",
+      "qwen3-coder:30b",
+      "qwen2.5:7b-instruct",
+      "bge-m3:latest",
+      "qwen2.5vl:7b",
+      "qwen3-vl:8b",
+      "qwen3:32b",
+      "qwen3:14b",
+      "gemma3:27b",
+      "phi4-reasoning:plus",
+      "mistral-small3.2:latest",
+      "deepseek-coder-v2:latest",
+      "mistral-small3.1:24b",
+      "mxbai-embed-large:latest",
+      "qwen3:8b",
+      "phi4-reasoning:latest"
+    ],
+    "primary_model": "gemma4:31b",
+    "support_ingest_model": "gemma4:31b",
+    "citation_verification_model": "gemma4:31b"
+  },
+  "stage_records": [
+    {
+      "stage": "supporting_paper_ingest",
+      "model": "",
+      "status": "skipped",
+      "error": "missing manuscript path",
+      "finding_count": 0
+    },
+    {
+      "stage": "citation_verification",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 3
+    },
+    {
+      "stage": "structural_review",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "high_level_review",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "hostile_review",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "methods_verification",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "line_by_line_edits",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "style_alignment",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 4
+    },
+    {
+      "stage": "reconciliation",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 3
+    },
+    {
+      "stage": "final_arbitration",
+      "model": "gemma4:31b",
+      "status": "ok",
+      "error": "",
+      "finding_count": 3
+    }
+  ],
+  "comment_count": 14,
+  "comment_sample": [
+    "The Methods section lacks a description of exclusion criteria. Fix: Explicitly state the criteria used for excluding data points or samples.",
+    "The Results section lacks quantitative data to support the yield gain claim. Fix: Include specific numerical values and statistical significance tests in the Results.",
+    "The 18 percent yield gain claim in the abstract is not supported by the cited reference [1]. Fix: Revise the abstract to align the yield claim with the specific results of the current study.",
+    "The Results section reports improved yield and variance without providing quantitative data or p-values.",
+    "The 18 percent yield gain is extrapolated from a reference that only tested one condition. Fix: Provide primary experimental data to support the yield claim instead of relying on [1]."
+  ]
+}

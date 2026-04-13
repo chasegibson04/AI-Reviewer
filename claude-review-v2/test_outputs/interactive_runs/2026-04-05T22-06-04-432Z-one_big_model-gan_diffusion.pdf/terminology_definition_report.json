@@ -1,0 +1,68 @@
+{
+  "findings": [
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "ll8",
+      "count": 2
+    },
+    {
+      "term": "yuv",
+      "count": 2
+    },
+    {
+      "term": "wtq",
+      "count": 1
+    },
+    {
+      "term": "jsyv",
+      "count": 1
+    },
+    {
+      "term": "ypt2",
+      "count": 1
+    },
+    {
+      "term": "xfrdo",
+      "count": 1
+    },
+    {
+      "term": "frm",
+      "count": 1
+    },
+    {
+      "term": "x_j8rtz",
+      "count": 1
+    },
+    {
+      "term": "qqv",
+      "count": 1
+    },
+    {
+      "term": "h_0f",
+      "count": 1
+    },
+    {
+      "term": "txa",
+      "count": 1
+    },
+    {
+      "term": "nvb",
+      "count": 1
+    },
+    {
+      "term": "zcp",
+      "count": 1
+    },
+    {
+      "term": "b1t",
+      "count": 1
+    },
+    {
+      "term": "bl3-u",
+      "count": 1
+    }
+  ],
+  "acronym_count": 204
+}

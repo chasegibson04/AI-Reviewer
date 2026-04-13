@@ -1,0 +1,183 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.1259203.pdf",
+    "size_bytes": 843261,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "df8209247b1c967d66ddb26c4e4758d508319ee6"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.1259203.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "10. R. Baradaran, J. M. Berrisford, G. S. Minhas, L. A. Sazanov, ORGANIC CHEMISTRY",
+    "doi": "10.1126/science.1259859",
+    "year": "2013",
+    "authors": [
+      "Baradaran",
+      "Berrisford",
+      "Minhas",
+      "Sazanov"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "baradaran berrisford minhas sazanov organic chemistry",
+    "title_tokens": [
+      "baradaran",
+      "berrisford",
+      "minhas",
+      "sazanov",
+      "organic",
+      "chemistry"
+    ],
+    "author_tokens": [
+      "baradaran",
+      "berrisford",
+      "minhas",
+      "sazanov"
+    ],
+    "year": "2013",
+    "doi_variants": [
+      "10.1126/science.1259859"
+    ],
+    "source_name_tokens": [
+      "science"
+    ]
+  },
+  "abstract": "R ES E A RC H | R ES E A R C H A R T I C L E S\n\n10. R. Baradaran, J. M.",
+  "key_claims": [
+    "Optimization of continuous variables (for exam- solvents and their incompatibility with the strong ple, the stoichiometry of reagents) is another po- bases typically used in low-temperature C-N cou- Implementation of nanomole screening tential path to increase product formation\u2026"
+  ],
+  "methods_summary": "synthesis of such compounds are invariably in rating general analytical approaches to assay re- 111, 6988 6993 (2014). 1, A and B, as a test case, this work eval- tions of 24 to 45 in a single miniaturized 1536- ysis even further, we combined four rows of reac- Downloaded from https://www.science.org at University of\u2026",
+  "quantitative_findings": [
+    "R ES E A RC H | R ES E A R C H A R T I C L E S 10.",
+    "Sazanov, ORGANIC CHEMISTRY Nature 494, 443 448 (2013).",
+    "11."
+  ],
+  "limitations": [
+    "REPORTS In biomedical research, chemical synthesis should not limit access to any molecule that is designed to answer a biological question."
+  ],
+  "terminology_entities": [
+    "reaction",
+    "science",
+    "conditions",
+    "synthesis",
+    "chemistry",
+    "reactions",
+    "chem",
+    "are",
+    "fig",
+    "was",
+    "scale",
+    "merck"
+  ],
+  "citation_anchors": [
+    "10.1126/science.1259859",
+    "2013",
+    "Baradaran",
+    "Berrisford",
+    "Minhas",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "science.1259203-2",
+      "text": "10. R. Baradaran, J. M. Berrisford, G. S. Minhas, L. A. Sazanov, ORGANIC CHEMISTRY Nature 494, 443 448 (2013). 11. R. G. Efremov, L. A. Sazanov, Nature 476, 414 420 (2011). 12. C. C. Page, C. C. Moser, X. Chen, P. L. Dutton, Nature 402, 47 52 (1999). Nanomole-scale high-throughput 13. C. Hunte et al., Nature 435, 1197 1202 (2005). 14. E. Screpanti, C. Hunte, J. Struct. Biol. 159, 261 267 (2007). chemistry for the synthesis of 15. N. J. Hu, S. Iwata, A. D. Cameron, D. Drew, Nature 478, 408 411 (2011). 16. V. K. Moparthi et al., Biochim. Biophys. Acta 1837, 178 185 complex molecules (2014). 17. K. R. Vinothkumar, J. Zhu, J. Hirst, Nature 515, 80 84 Alexander Buitrago Santanilla,1 Erik L. Regalado,1 Tony Pereira,2 Michael Shevlin,1 (2014). Kevin Batema\u2026",
+      "keywords": [
+        "synthesis",
+        "chemistry",
+        "chem",
+        "scale"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-3",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 1575 1581 (2006). 21. N. Kashani-Poor, K. Zwicker, S. Kerscher, U. Brandt, J. Biol. automation platform enabling high-throughput experimentation for synthetic route scouting Chem. 276, 24082 24087 (2001). to identify conditions for preparative reaction scale-up would be a transformative advance. 22. H. J rnvall et al., Biochemistry 34, 6003 6013 (1995). 23. A. Abdrakhmanova, K. Zwicker, S. Kerscher, Because automated, miniaturized chemistry is difficult to carry out in the presence of solids V. Zickermann, U. Brandt, Biochim. Biophys. Acta or volatile organic solvents, most of the synthetic toolkit cannot be readily miniaturized. Using 1757, 1676 1682 (2006\u2026",
+      "keywords": [
+        "reaction",
+        "science",
+        "conditions",
+        "chemistry",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-4",
+      "text": "H 27. H. Angerer et al., Biochim. Biophys. Acta 1817, 1776 1784 (2012). igh-throughput experimentation (HTE) key reaction variables (12, 13). Such studies re- 28. J. G. Okun, P. L mmen, U. Brandt, J. Biol. Chem. 274, chemistry tools have been used to aid in quire at least milligram (micromole) quantities 2625 2630 (1999). 29. M. A. Tocilescu et al., Biochim. Biophys. Acta 1797, 625 632 the discovery of new reactions (1 6) and in of substrate per reaction a prohibitively large (2010). the scale-up optimization of known reac- amount in early drug discovery, where new mol- 30. M. A. Tocilescu, U. Fendel, K. Zwicker, S. Kerscher, tions (7 9), both areas where substrates ecules are prepared for the first time. Consequent- U. Brandt, J. Biol. Chem. 282, 2\u2026",
+      "keywords": [
+        "reaction",
+        "chemistry",
+        "reactions",
+        "chem",
+        "are"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-5",
+      "text": "SCIENCE sciencemag.org 2 JANUARY 2015 VOL 347 ISSUE 6217 49 R ES E A RC H | R E S EA R C H A R T I C LE S",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-6",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-7",
+      "text": "Fig. 1. Nanomole-scale reaction screening. (A) High-complexity electrophilic productive conditions were located for an additional 21 of the 96 products cores 1 to 8 from the Merck compound collection. (B) High-polarity nucleo- (yellow squares) (tables S6 and S8). (D) Reaction mixtures that are fully solu- philic building blocks 9 to 20. (C) Route scouting to identify successful reaction ble in high-boiling solvents can be dosed with high-precision nanoliter robotics. conditions for previously failed chemistry can be accomplished using nanomole- Room-temperature reactions require no stirring and minimal sealing. (E) High- scale reaction screening with minimal consumption of precious substrate performance LC-MS MISER analysis allows for rapid label-fr\u2026",
+      "keywords": [
+        "reaction",
+        "conditions",
+        "chemistry",
+        "reactions",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-8",
+      "text": "50 2 JANUARY 2015 VOL 347 ISSUE 6217 sciencemag.org SCIENCE R ES E A RC H | R ES E A R C H A R T I C L E S",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-9",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-10",
+      "text": "Fig. 2. A high-throughput nanomole-scale chemistry evaluation using actions analyzed by MISER. Thirty-two electrophile-nucleophile combinations that rapid MISER and mixed-MISER LC-MS. (A) Heat map showing data from failed under previous best conditions were investigated under 48 catalyst-base 1536 nanomole-scale reactions analyzed by UPLC (total analysis time combinations. Best conditions for each combination were repeated on a 50-mmol ~52 hours). Sixteen diverse N/C/O/P/S nucleophiles were screened against 96 scale and assigned a PASS (Fig. 1C, after screening) if a >95% purity sample catalyst-base combinations to find room-temperature coupling conditions to was obtained. (C) MISER chromatographic output (MISERgram) for 48 catalyst- 3-bromopyridine\u2026",
+      "keywords": [
+        "reaction",
+        "conditions",
+        "chemistry",
+        "reactions",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "science.1259203-11",
+      "text": "SCIENCE sciencemag.org 2 JANUARY 2015 VOL 347 ISSUE 6217 51 R ES E A RC H | R E S EA R C H A R T I C LE S",
+      "keywords": [
+        "science"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:15:34.742861+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

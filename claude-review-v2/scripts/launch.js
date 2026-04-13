@@ -7,15 +7,19 @@ import { spawnSync } from 'node:child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = join(__dirname, '..')
+const repoRoot = join(projectRoot, '..')
+const legacyGuidedLauncher = join(repoRoot, 'launchers', 'launch_ai_reviewer.sh')
 const runtimeConfigHome = join(projectRoot, '.runtime', '.claude')
 const runtimeGlobalConfigFile = join(runtimeConfigHome, '.claude.json')
 const srcRoot = join(projectRoot, 'src')
 const distCli = join(projectRoot, 'dist', 'cli.mjs')
 const userArgs = process.argv.slice(2)
-const hasBareFlag = userArgs.includes('--bare')
-const hasNoBareFlag = userArgs.includes('--no-bare')
+const wantsLaunchPlan = userArgs.includes('--print-launch-plan')
+const userArgsWithoutLaunchPlan = userArgs.filter(arg => arg !== '--print-launch-plan')
+const hasBareFlag = userArgsWithoutLaunchPlan.includes('--bare')
+const hasNoBareFlag = userArgsWithoutLaunchPlan.includes('--no-bare')
 const passthroughArgs =
-  hasBareFlag || hasNoBareFlag ? userArgs : ['--bare', ...userArgs]
+  hasBareFlag || hasNoBareFlag ? userArgsWithoutLaunchPlan : ['--bare', ...userArgsWithoutLaunchPlan]
 
 function newestMtimeRecursive(rootPath) {
   let newest = 0
@@ -141,6 +145,16 @@ function launchLineRepl() {
   return runCommand(process.execPath, [join(projectRoot, 'scripts', 'line-repl.js')])
 }
 
+function hasLegacyGuidedLauncher() {
+  return existsSync(legacyGuidedLauncher)
+}
+
+function launchLegacyGuidedWorkflow() {
+  // Delegate to the existing AI-Reviewer guided workflow so users get
+  // the exact project/workflow/profile/model menu and native run outputs.
+  return runCommand('/bin/bash', [legacyGuidedLauncher, repoRoot])
+}
+
 function buildAndLaunch() {
   const buildStatus = runCommand('bun', ['run', 'build'])
   if (buildStatus !== 0) {
@@ -165,7 +179,36 @@ function buildAndLaunch() {
 const distHealth = getDistHealth()
 ensureRuntimeConfigHome()
 
-const shouldUseLineRepl = userArgs.length === 0
+const shouldUseLegacyGuidedWorkflow =
+  userArgsWithoutLaunchPlan.length === 0 &&
+  process.env.CLAUDE_REVIEW_ALLOW_LEGACY_GUIDED === '1' &&
+  process.env.CLAUDE_REVIEW_USE_INTERNAL_LINE_REPL !== '1' &&
+  hasLegacyGuidedLauncher()
+
+const shouldUseLineRepl = userArgsWithoutLaunchPlan.length === 0 && !shouldUseLegacyGuidedWorkflow
+
+if (wantsLaunchPlan) {
+  const launchTarget = shouldUseLegacyGuidedWorkflow
+    ? 'legacy_guided_workflow'
+    : shouldUseLineRepl
+      ? 'line_repl'
+      : 'dist_cli'
+  const payload = {
+    launchTarget,
+    projectRoot,
+    distCliExists: distHealth.exists,
+    distStale: distHealth.stale,
+    distKnownBroken: distHealth.hasKnownBrokenBundleSignature,
+    legacyGuidedAvailable: hasLegacyGuidedLauncher(),
+    legacyGuidedEnabled: process.env.CLAUDE_REVIEW_ALLOW_LEGACY_GUIDED === '1',
+  }
+  console.log(JSON.stringify(payload, null, 2))
+  process.exit(0)
+}
+
+if (shouldUseLegacyGuidedWorkflow) {
+  process.exit(launchLegacyGuidedWorkflow())
+}
 
 if (!distHealth.exists || distHealth.stale || distHealth.hasKnownBrokenBundleSignature) {
   if (!hasBun()) {

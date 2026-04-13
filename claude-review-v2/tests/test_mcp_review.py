@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 
+BRIDGE_CALL_TIMEOUT_SECONDS = 420
+
 
 class BridgeClient:
     def __init__(self, process: asyncio.subprocess.Process):
@@ -23,7 +25,7 @@ class BridgeClient:
         await self.process.stdin.drain()
 
         assert self.process.stdout is not None
-        raw = await asyncio.wait_for(self.process.stdout.readline(), timeout=20)
+        raw = await asyncio.wait_for(self.process.stdout.readline(), timeout=BRIDGE_CALL_TIMEOUT_SECONDS)
         assert raw, "bridge returned no response"
         response = json.loads(raw.decode())
         assert response.get("id") == req_id
@@ -87,21 +89,58 @@ async def _run_bridge_test():
         )
         assert parse_payload["full_content_length"] > 1000
         assert "content" in parse_payload
+        parsed_content = str(parse_payload["content"])
+        if len(parsed_content) > 14000:
+            parsed_content = (
+                parsed_content[:9000]
+                + "\n\n[...pytest deep-review payload truncated for runtime stability...]\n\n"
+                + parsed_content[-3000:]
+            )
 
         section_payload = await client.call_tool(
-            "map_sections", {"content": parse_payload["content"]}
+            "map_sections", {"content": parsed_content}
         )
         assert section_payload.get("section_count", 0) >= 1
 
         methods_payload = await client.call_tool(
-            "analyze_methods", {"content": parse_payload["content"]}
+            "analyze_methods", {"content": parsed_content}
         )
         assert "skepticism_score" in methods_payload
 
+        model_diag_payload = await client.call_tool(
+            "diagnose_model", {"model": "gemma4:31b"}
+        )
+        assert "short_prompt" in model_diag_payload
+        assert "medium_prompt" in model_diag_payload
+        assert "json_prompt" in model_diag_payload
+        assert "ingest_prompt" in model_diag_payload
+        assert "citation_prompt" in model_diag_payload
+        assert "long_review_prompt" in model_diag_payload
+
         edits_payload = await client.call_tool(
-            "generate_line_edits", {"content": parse_payload["content"]}
+            "generate_line_edits", {"content": parsed_content}
         )
         assert isinstance(edits_payload.get("line_edits"), list)
+
+        deep_payload = await client.call_tool(
+            "generate_deep_review",
+            {
+                "content": parsed_content,
+                "profile": "local_moe",
+                "reasoning_mode": "moe",
+                "model_target": "local_moe",
+                "section_map": section_payload["section_map"],
+                "manuscript_path": str(
+                    (project_root / "fixtures" / "manuscripts" / "gan_diffusion.pdf").resolve()
+                ),
+            },
+        )
+        assert "comments" in deep_payload
+        assert "routing_trace" in deep_payload
+        assert "model_plan" in deep_payload
+        reports = deep_payload.get("reports", {})
+        assert "support_ingest_report" in reports
+        assert "citation_verification_ledger" in reports
 
         output_dir = project_root / "test_outputs" / "pytest_bridge_run_a"
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -110,10 +149,8 @@ async def _run_bridge_test():
             {
                 "review_data": {
                     "profile": "balanced_local",
-                    "comments": [
-                        "Methods section should clarify sampling strategy.",
-                        "Discussion overstates causality for observed correlation.",
-                    ],
+                    "comments": deep_payload.get("comments", []),
+                    "comment_details": deep_payload.get("comment_details", []),
                     "section_map": section_payload["section_map"],
                     "terminology_definition_report": {
                         "defined_terms": ["GAN", "diffusion"],

@@ -1,0 +1,11 @@
+{
+  "findings": [
+    "Terminology appears broadly consistent; no obvious drift detected in heuristic pass."
+  ],
+  "top_terms": [
+    {
+      "term": "b4c",
+      "count": 2
+    }
+  ]
+}

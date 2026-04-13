@@ -13,7 +13,7 @@ const stateDir = join(projectRoot, '.runtime')
 const stateFile = join(stateDir, 'interactive_state.json')
 const bridgeScript = join(projectRoot, 'src', 'bridge', 'python', 'review_mcp_server.py')
 const runRoot = join(projectRoot, 'test_outputs', 'interactive_runs')
-const blockedProjectSnippets = ['pampa', 'horseshoe']
+const blockedProjectSnippets = ['pampa', 'horseshoe', 'test-d2b']
 
 const profileCatalog = [
   { id: 'balanced_local', label: 'Balanced Local (stable local path)' },
@@ -21,7 +21,14 @@ const profileCatalog = [
   { id: 'local_moe', label: 'Local MOE (staged routing)' },
   { id: 'one_big_model', label: 'One Big Model (Gemma4 preferred)' },
   { id: 'full_manuscript_final_pass', label: 'Full Manuscript Final Pass (Gemma4 preferred)' },
+  { id: 'gemma4_26b', label: 'Gemma 4 26B (direct)' },
+  { id: 'gemma4_31b', label: 'Gemma 4 31B (direct)' },
   { id: 'offline_strict', label: 'Offline Strict' },
+]
+
+const deepModeCatalog = [
+  { id: 'moe', label: 'MOE (multi-model specialists)' },
+  { id: 'gemma_single', label: 'Single-model Gemma 4' },
 ]
 
 function isBlockedName(name) {
@@ -44,6 +51,7 @@ function defaultState() {
   return {
     activeProjectDir,
     activeProfile: 'local_moe',
+    activeDeepMode: 'moe',
     lastRunDir: null,
   }
 }
@@ -82,14 +90,59 @@ function modelInventory() {
   return { ok: true, models }
 }
 
-function pickModel(profileId, models) {
-  const has = name => models.includes(name)
-  if (profileId === 'one_big_model' || profileId === 'full_manuscript_final_pass') {
-    if (has('gemma4:26b')) return 'gemma4:26b'
-    if (has('gemma4:31b')) return 'gemma4:31b'
+function hasModelPrefix(models, prefix) {
+  const normalized = String(prefix || '').toLowerCase()
+  return models.some(model => String(model || '').toLowerCase().startsWith(normalized))
+}
+
+function firstModelByPrefix(models, prefixes) {
+  for (const prefix of prefixes) {
+    const normalized = String(prefix || '').toLowerCase()
+    const found = models.find(model => String(model || '').toLowerCase().startsWith(normalized))
+    if (found) return found
   }
-  if (profileId === 'balanced_local') return has('llama3.1:8b') ? 'llama3.1:8b' : (models[0] || 'unknown')
-  if (profileId === 'deep_local') return has('qwen2.5-coder:32b') ? 'qwen2.5-coder:32b' : (models[0] || 'unknown')
+  return null
+}
+
+function canUsePython(binary, requirePaletteDeps = false) {
+  if (!binary) return false
+  const probe = requirePaletteDeps
+    ? 'import importlib.util, sys; mods=[\"pdf2image\",\"PIL\",\"reportlab\"]; sys.exit(0 if all(importlib.util.find_spec(m) for m in mods) else 1)'
+    : 'import sys; sys.exit(0)'
+  const res = spawnSync(binary, ['-c', probe], { encoding: 'utf8' })
+  return (res.status ?? 1) === 0
+}
+
+function pickPythonBinary() {
+  const candidates = [
+    process.env.CLAUDE_REVIEW_PYTHON,
+    'python3',
+    'python',
+  ].filter(Boolean)
+
+  for (const candidate of candidates) {
+    if (canUsePython(candidate, true)) return candidate
+  }
+  for (const candidate of candidates) {
+    if (canUsePython(candidate, false)) return candidate
+  }
+  return 'python3'
+}
+
+function pickModel(profileId, models) {
+  const has = name => hasModelPrefix(models, name)
+  if (profileId === 'one_big_model' || profileId === 'full_manuscript_final_pass') {
+    if (has('gemma4:26b')) return firstModelByPrefix(models, ['gemma4:26b'])
+    if (has('gemma4:31b')) return firstModelByPrefix(models, ['gemma4:31b'])
+  }
+  if (profileId === 'gemma4_26b') {
+    return firstModelByPrefix(models, ['gemma4:26b']) || 'gemma4:26b'
+  }
+  if (profileId === 'gemma4_31b') {
+    return firstModelByPrefix(models, ['gemma4:31b']) || 'gemma4:31b'
+  }
+  if (profileId === 'balanced_local') return firstModelByPrefix(models, ['llama3.1:8b']) || (models[0] || 'unknown')
+  if (profileId === 'deep_local') return firstModelByPrefix(models, ['qwen2.5-coder:32b']) || (models[0] || 'unknown')
   if (profileId === 'local_moe') return 'local_moe'
   if (profileId === 'offline_strict') return models[0] || 'offline'
   return models[0] || 'unknown'
@@ -102,11 +155,12 @@ class BridgeClient {
     this.rl = null
     this.nextId = 1
     this.pending = new Map()
+    this.pythonBin = pickPythonBinary()
   }
 
   async start() {
     if (this.proc) return
-    this.proc = spawn('python3', [bridgeScript], {
+    this.proc = spawn(this.pythonBin, [bridgeScript], {
       cwd: projectRoot,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: process.env,
@@ -173,7 +227,13 @@ class BridgeClient {
 }
 
 function ask(rl, text) {
-  return new Promise(resolveAnswer => rl.question(text, answer => resolveAnswer(answer.trim())))
+  return new Promise(resolveAnswer => {
+    try {
+      rl.question(text, answer => resolveAnswer(answer.trim()))
+    } catch {
+      resolveAnswer(null)
+    }
+  })
 }
 
 function splitCommand(line) {
@@ -202,12 +262,74 @@ async function chooseManuscript(client, cwd) {
   return manuscripts[0]?.path || null
 }
 
-async function runReviewFlow(client, state, manuscriptPath, mode) {
+async function choosePdfManuscript(client, cwd) {
+  const discovered = await client.callTool('discover_manuscript', { cwd })
+  const manuscripts = Array.isArray(discovered.manuscripts) ? discovered.manuscripts : []
+  const pdfs = manuscripts.filter(item => String(item?.path || '').toLowerCase().endsWith('.pdf'))
+  if (pdfs.length === 0) return null
+  return pdfs[0]?.path || null
+}
+
+function profileSuggestsGemmaSingle(profileId) {
+  return [
+    'one_big_model',
+    'full_manuscript_final_pass',
+    'gemma4_26b',
+    'gemma4_31b',
+  ].includes(profileId)
+}
+
+function resolveInitialDeepMode(state) {
+  if (profileSuggestsGemmaSingle(state.activeProfile)) return 'gemma_single'
+  return state.activeDeepMode === 'gemma_single' ? 'gemma_single' : 'moe'
+}
+
+async function chooseDeepRunMode(rl, state, args) {
+  const modeFlagIndex = args.findIndex(arg => arg === '--mode')
+  if (modeFlagIndex >= 0) {
+    const modeValue = String(args[modeFlagIndex + 1] || '').trim().toLowerCase()
+    if (modeValue === 'moe') {
+      args.splice(modeFlagIndex, 2)
+      state.activeDeepMode = 'moe'
+      saveState(state)
+      return 'moe'
+    }
+    if (modeValue === 'gemma' || modeValue === 'gemma_single' || modeValue === 'single') {
+      args.splice(modeFlagIndex, 2)
+      state.activeDeepMode = 'gemma_single'
+      saveState(state)
+      return 'gemma_single'
+    }
+  }
+
+  const suggested = resolveInitialDeepMode(state)
+  console.log('Deep run reasoning mode:')
+  deepModeCatalog.forEach((option, idx) => {
+    const marker = option.id === suggested ? ' (recommended)' : ''
+    console.log(` ${idx + 1}. ${option.label}${marker}`)
+  })
+  const answer = await ask(
+    rl,
+    `Choose mode [1/2, Enter=${suggested === 'moe' ? '1' : '2'}]: `,
+  )
+  const choice = answer.trim()
+  let selected = suggested
+  if (choice === '1' || choice.toLowerCase() === 'moe') selected = 'moe'
+  if (choice === '2' || choice.toLowerCase() === 'gemma') selected = 'gemma_single'
+  state.activeDeepMode = selected
+  saveState(state)
+  return selected
+}
+
+async function runReviewFlow(client, state, manuscriptPath, mode, reasoningMode = 'moe') {
   const path = resolve(manuscriptPath)
   const isDocx = path.toLowerCase().endsWith('.docx')
   const parseTool = isDocx ? 'parse_docx' : 'parse_pdf'
   const started = new Date().toISOString().replace(/[:.]/g, '-')
-  const runDir = join(runRoot, `${started}-${state.activeProfile}-${basename(path).replace(/[^a-zA-Z0-9._-]/g, '_')}`)
+  const runDir = join(
+    runRoot,
+    `${started}-${state.activeProfile}-${reasoningMode}-${basename(path).replace(/[^a-zA-Z0-9._-]/g, '_')}`,
+  )
 
   console.log(`• Parsing manuscript with ${parseTool}...`)
   const parsed = await client.callTool(parseTool, { file_path: path })
@@ -218,41 +340,75 @@ async function runReviewFlow(client, state, manuscriptPath, mode) {
     headings: parsed.metadata?.headings || [],
   })
 
-  console.log('• Running analysis passes...')
+  console.log('• Running analysis + model-backed stage routing...')
   const digest = await client.callTool('digest_manuscript', { content: parsed.content || '' })
-  const terminology = await client.callTool('analyze_terminology', { content: parsed.content || '' })
-  const coherence = await client.callTool('analyze_coherence', { content: parsed.content || '' })
-  const methods = await client.callTool('analyze_methods', { content: parsed.content || '' })
-  const figuresTables = await client.callTool('analyze_figures_tables', { content: parsed.content || '' })
-  const citations = await client.callTool('analyze_citations', { content: parsed.content || '' })
-  const format = await client.callTool('analyze_journal_format', { content: parsed.content || '' })
-  const lineEdits = await client.callTool('generate_line_edits', { content: parsed.content || '' })
-
-  const findings = collectFindings(terminology, coherence, methods, figuresTables, citations, format)
   console.log('• Arbitrating consolidated review...')
-  const arbitration = await client.callTool('arbitrate_review', {
-    findings,
-    profile: state.activeProfile,
-  })
-
   const inventory = modelInventory()
   const modelTarget = pickModel(state.activeProfile, inventory.models)
+  let requestedReasoningMode = reasoningMode
+  let effectiveReasoningMode = reasoningMode
+  let preflightFallbackReason = ''
+  let gemmaProbe = null
+
+  if (reasoningMode === 'gemma_single') {
+    console.log(`• Gemma preflight probe on ${modelTarget}...`)
+    gemmaProbe = await client.callTool('diagnose_model', { model: modelTarget })
+    if (!gemmaProbe.usable) {
+      preflightFallbackReason = `Requested Gemma single-model mode degraded: ${modelTarget} probe failed.`
+      effectiveReasoningMode = 'moe'
+      console.log(`  ⚠ ${preflightFallbackReason}`)
+    } else {
+      console.log('  ✓ Gemma probe passed short/medium/JSON checks.')
+    }
+  }
+
+  const deepReview = await client.callTool('generate_deep_review', {
+    content: parsed.content || '',
+    profile: state.activeProfile,
+    reasoning_mode: effectiveReasoningMode,
+    model_target: modelTarget,
+    section_map: sectionMap.section_map || {},
+    manuscript_path: path,
+    allow_abstract_fallback: true,
+  })
+
+  const findings = Array.isArray(deepReview.comment_details)
+    ? deepReview.comment_details.map(item => item.issue).filter(Boolean)
+    : []
+  const arbitration = await client.callTool('arbitrate_review', { findings, profile: state.activeProfile })
+  const reports = deepReview.reports || {}
+  const routingTrace = deepReview.routing_trace || {}
+  const modelPlan = deepReview.model_plan || {}
+  const finalModelTarget = routingTrace.model_target || modelPlan.primary_model || modelTarget
+
   const reviewData = {
     profile: state.activeProfile,
     mode,
-    model_target: modelTarget,
+    model_target: finalModelTarget,
+    reasoning_mode_requested: requestedReasoningMode,
+    reasoning_mode_effective: routingTrace.reasoning_mode_effective || modelPlan.effective_mode || effectiveReasoningMode,
+    degraded: Boolean(preflightFallbackReason) || Boolean(routingTrace.degraded || modelPlan.degraded),
+    fallback_reason: preflightFallbackReason || routingTrace.fallback_reason || modelPlan.fallback_reason || '',
     manuscript_path: path,
-    comments: findings,
+    comments: deepReview.comments || findings,
+    comment_details: deepReview.comment_details || [],
     digest,
     section_map: sectionMap.section_map || {},
-    terminology_definition_report: terminology,
-    coherence_transition_report: coherence,
-    methods_report: methods,
-    figure_table_reference_report: figuresTables,
-    citation_verification_ledger: citations,
-    format_compliance_report: format,
-    manuscript_suggested_changes_manifest: lineEdits,
+    terminology_definition_report: reports.terminology || {},
+    coherence_transition_report: reports.coherence || {},
+    methods_report: reports.methods || {},
+    figure_table_reference_report: reports.figures_tables || {},
+    support_ingest_report: reports.support_ingest_report || {},
+    support_usage_ledger: reports.support_usage_ledger || {},
+    support_ingest_cache_index: reports.support_ingest_cache_preview || [],
+    assertion_ledger: reports.assertion_ledger || {},
+    claim_verification_summary: reports.claim_verification_summary || {},
+    citation_verification_ledger: reports.citation_verification_ledger || reports.citations || {},
+    format_compliance_report: reports.journal_format || {},
+    suggested_changes: deepReview.suggested_changes || [],
     arbitration,
+    routing_trace: routingTrace,
+    gemma_probe: gemmaProbe || {},
   }
 
   mkdirSync(runDir, { recursive: true })
@@ -265,8 +421,23 @@ async function runReviewFlow(client, state, manuscriptPath, mode) {
   state.lastRunDir = runDir
   saveState(state)
 
-  const quality = findings.length >= 8 ? 'strong' : findings.length >= 4 ? 'moderate' : 'weak'
-  console.log(`✓ Review completed. findings=${findings.length}, quality=${quality}, valid=${validation.valid ? 'yes' : 'no'}`)
+  const comments = Array.isArray(deepReview.comments) ? deepReview.comments : []
+  const quality = comments.length >= 8 ? 'strong' : comments.length >= 4 ? 'moderate' : 'weak'
+  const supportIngest = reports.support_ingest_report || {}
+  const citationLedger = reports.citation_verification_ledger || {}
+  console.log(`✓ Review completed. comments=${comments.length}, quality=${quality}, valid=${validation.valid ? 'yes' : 'no'}`)
+  console.log(
+    `  Mode requested=${requestedReasoningMode}, effective=${reviewData.reasoning_mode_effective}, model_target=${finalModelTarget}`,
+  )
+  console.log(
+    `  Support ingest: available=${supportIngest.available_support_docs ?? 0}, ingested=${supportIngest.ingested_docs ?? 0}, cache_reused=${supportIngest.cache_reused_docs ?? 0}`,
+  )
+  console.log(
+    `  Citation checks: mentions=${citationLedger.mention_count ?? 0}, entries=${Array.isArray(citationLedger.entries) ? citationLedger.entries.length : 0}, model=${citationLedger.model || 'unknown'}`,
+  )
+  if (reviewData.fallback_reason) {
+    console.log(`  Fallback: ${reviewData.fallback_reason}`)
+  }
   console.log(`  Run dir: ${runDir}`)
 }
 
@@ -275,8 +446,10 @@ function printHelp() {
   console.log('  /wizard                           Guided flow: project -> profile -> review')
   console.log('  /project [index|name]             List or select active project')
   console.log('  /profile [index|name]             List or select profile')
+  console.log('  /deep-mode [moe|gemma]            Set default deep-run reasoning mode')
   console.log('  /review [path]                    Run standard review on manuscript')
   console.log('  /deep-run [path]                  Run deep review on manuscript')
+  console.log('  /color-palette [pdf]             Extract representative PDF colors + viridis/plasma filter')
   console.log('  /artifacts [run-id-or-path]       Validate and summarize artifacts')
   console.log('  /doctor                           Local backend/models readiness')
   console.log('  /diagnose                         Tool surface + active state')
@@ -295,6 +468,7 @@ async function main() {
   console.log('OpenClaude-style command loop for manuscript review.')
   console.log(`Active project: ${displayPath(state.activeProjectDir)}`)
   console.log(`Active profile: ${state.activeProfile}`)
+  console.log(`Default deep mode: ${state.activeDeepMode}`)
   printHelp()
   console.log('')
 
@@ -303,6 +477,7 @@ async function main() {
   try {
     while (true) {
       const line = await ask(rl, 'claude-review> ')
+      if (line === null) break
       if (!line) continue
       const { command, args } = splitCommand(line)
 
@@ -360,7 +535,7 @@ async function main() {
             const inv = modelInventory()
             console.log(`Models detected: ${inv.ok ? inv.models.length : 0}`)
             if (inv.ok) {
-              console.log(`Gemma4 availability: 26b=${inv.models.includes('gemma4:26b')}, 31b=${inv.models.includes('gemma4:31b')}`)
+              console.log(`Gemma4 availability: 26b=${hasModelPrefix(inv.models, 'gemma4:26b')}, 31b=${hasModelPrefix(inv.models, 'gemma4:31b')}`)
             }
             continue
           }
@@ -382,14 +557,46 @@ async function main() {
           continue
         }
 
+        if (command === '/deep-mode') {
+          if (args.length === 0) {
+            console.log(`Default deep mode: ${state.activeDeepMode}`)
+            deepModeCatalog.forEach((option, idx) => {
+              const marker = option.id === state.activeDeepMode ? '*' : ' '
+              console.log(` ${marker} ${idx + 1}. ${option.id} - ${option.label}`)
+            })
+            continue
+          }
+          const value = args.join(' ').trim().toLowerCase()
+          if (value === '1' || value === 'moe') {
+            state.activeDeepMode = 'moe'
+          } else if (value === '2' || value === 'gemma' || value === 'gemma_single' || value === 'single') {
+            state.activeDeepMode = 'gemma_single'
+          } else {
+            console.log('Unknown deep mode. Use `/deep-mode moe` or `/deep-mode gemma`.')
+            continue
+          }
+          saveState(state)
+          console.log(`Default deep mode set: ${state.activeDeepMode}`)
+          continue
+        }
+
         if (command === '/doctor') {
           const inspect = await client.callTool('inspect_project', { cwd: state.activeProjectDir })
           const inv = modelInventory()
+          const gemmaCandidate = firstModelByPrefix(inv.models, ['gemma4:26b', 'gemma4:31b']) || 'gemma4:26b'
           console.log(`Project: ${displayPath(state.activeProjectDir)}`)
           console.log(`Manuscripts: ${inspect.manuscript_count}`)
           console.log(`Ollama reachable: ${inspect.ollama_running}`)
           console.log(`Local models detected: ${inv.ok ? inv.models.length : 0}`)
-          console.log(`Gemma4:26b=${inv.ok && inv.models.includes('gemma4:26b')}, Gemma4:31b=${inv.ok && inv.models.includes('gemma4:31b')}`)
+          console.log(`Gemma4:26b=${inv.ok && hasModelPrefix(inv.models, 'gemma4:26b')}, Gemma4:31b=${inv.ok && hasModelPrefix(inv.models, 'gemma4:31b')}`)
+          console.log(`Default deep mode: ${state.activeDeepMode}`)
+          if (inv.ok && state.activeDeepMode === 'gemma_single') {
+            const probe = await client.callTool('diagnose_model', { model: gemmaCandidate })
+            console.log(`Gemma probe (${gemmaCandidate}) usable: ${probe.usable}`)
+            console.log(
+              `  short=${probe.short_prompt?.status}, medium=${probe.medium_prompt?.status}, json=${probe.json_prompt?.status}, ingest=${probe.ingest_prompt?.status}, citation=${probe.citation_prompt?.status}, long=${probe.long_review_prompt?.status}`,
+            )
+          }
           continue
         }
 
@@ -398,6 +605,7 @@ async function main() {
           console.log(`Tool count: ${tools.length}`)
           console.log(`Active project: ${displayPath(state.activeProjectDir)}`)
           console.log(`Active profile: ${state.activeProfile}`)
+          console.log(`Default deep mode: ${state.activeDeepMode}`)
           console.log(`Last run: ${state.lastRunDir ? relative(projectRoot, state.lastRunDir) : '(none)'}`)
           continue
         }
@@ -445,17 +653,53 @@ async function main() {
             console.log('No manuscript found. Add a .pdf or .docx in the active project.')
             continue
           }
-          await runReviewFlow(client, state, chosen, 'guided_review')
+          const runType = await ask(rl, 'Run type [1=standard, 2=deep, Enter=1]> ')
+          if (runType.trim() === '2' || runType.trim().toLowerCase() === 'deep') {
+            const selectedDeepMode = await chooseDeepRunMode(rl, state, [])
+            await runReviewFlow(client, state, chosen, 'guided_deep_review', selectedDeepMode)
+          } else {
+            await runReviewFlow(client, state, chosen, 'guided_review', resolveInitialDeepMode(state))
+          }
           continue
         }
 
         if (command === '/review' || command === '/deep-run') {
-          const manuscriptPath = args.length > 0 ? resolve(args.join(' ')) : await chooseManuscript(client, state.activeProjectDir)
+          const runArgs = [...args]
+          let selectedDeepMode = resolveInitialDeepMode(state)
+          if (command === '/deep-run') {
+            selectedDeepMode = await chooseDeepRunMode(rl, state, runArgs)
+          }
+          const manuscriptPath =
+            runArgs.length > 0 ? resolve(runArgs.join(' ')) : await chooseManuscript(client, state.activeProjectDir)
           if (!manuscriptPath) {
             console.log('No manuscript detected. Provide a file path: /review path/to/file.pdf')
             continue
           }
-          await runReviewFlow(client, state, manuscriptPath, command === '/deep-run' ? 'deep_review' : 'standard_review')
+          await runReviewFlow(
+            client,
+            state,
+            manuscriptPath,
+            command === '/deep-run' ? 'deep_review' : 'standard_review',
+            selectedDeepMode,
+          )
+          continue
+        }
+
+        if (command === '/color-palette') {
+          const pdfPath =
+            args.length > 0 ? resolve(args.join(' ')) : await choosePdfManuscript(client, state.activeProjectDir)
+          if (!pdfPath) {
+            console.log('No PDF detected. Provide a file path: /color-palette path/to/file.pdf')
+            continue
+          }
+          console.log('• Rendering PDF pages and extracting representative colors...')
+          const palette = await client.callTool('extract_color_palette', { pdf_path: pdfPath })
+          const summary = palette.summary || {}
+          console.log(
+            `✓ Palette audit completed. colors=${summary.representative_colors ?? 0}, filtered=${summary.filtered_colors ?? 0}, viridis=${summary.viridis_like ?? 0}, plasma=${summary.plasma_like ?? 0}`,
+          )
+          console.log(`  Output dir: ${palette.output_dir}`)
+          console.log(`  Report PDF: ${palette.artifact_paths?.color_palette_report_pdf || '(missing)'}`)
           continue
         }
 
@@ -468,9 +712,12 @@ async function main() {
           const snapshot = await client.callTool('replay_run', { run_id: runId, cwd: projectRoot })
           const runDir = snapshot.run_dir || runId
           const validation = await client.callTool('validate_outputs', { output_dir: runDir })
+          const missing = Array.isArray(validation.missing)
+            ? validation.missing
+            : (Array.isArray(validation.missing_artifacts) ? validation.missing_artifacts : [])
           console.log(`Run: ${runDir}`)
           console.log(`Valid: ${validation.valid}`)
-          console.log(`Missing artifacts: ${(validation.missing_artifacts || []).length}`)
+          console.log(`Missing artifacts: ${missing.length}`)
           continue
         }
 

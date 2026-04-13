@@ -1,0 +1,11 @@
+[
+  {
+    "id": "comment-1",
+    "stage": "unknown",
+    "severity": "medium",
+    "issue": "Add explicit baseline description in Methods.",
+    "fix": "",
+    "source": "unknown",
+    "body": "Add explicit baseline description in Methods."
+  }
+]

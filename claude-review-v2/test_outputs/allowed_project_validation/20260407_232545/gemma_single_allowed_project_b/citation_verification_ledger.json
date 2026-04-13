@@ -1,0 +1,406 @@
+{
+  "status": "line_by_line",
+  "entries": [
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "6 7 8 9 10",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-6"
+      ],
+      "reference_raw": "Shen, Y. et al. Automation and computer-assisted planning for Chem. Int. Ed. 58, 7987 7991 (2019). chemical synthesis. Nat. Rev. Methods Prim. 1, 23 (2021). 29. Hendershot, D. C. & Sarafin, A. Safe chemical reaction scale up.",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "The sentence describes specific experimental conditions (solvent systems) from a chemistry paper, but the provided evidence basis is an abstract for a different paper regarding a machine learning model called GraphRXN.",
+      "fix": "Provide the full text or the specific results section of the Nature Synthesis article (Volume 2, November 2023, pp. 1082 1091) to verify the solvent systems used."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "6 7 8 9 10",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-7"
+      ],
+      "reference_raw": "Shim, E. et al. Predicting reaction conditions from limited data Chem. Health Saf. 12, 29 35 (2005). through active transfer learning. Chem. Sci. 13, 6655 6668 (2022). 30. Logsdon, D. L. et al. High-throughput screening of reductive",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "6 7 8 9 10",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-8"
+      ],
+      "reference_raw": "Mahjour, B., Shen, Y. & Cernak, T. Ultrahigh-throughput amination reactions using desorption electrospray ionization experimentation for information-rich chemical synthesis. Acc. mass spectrometry. Org. Process Res. Dev. 24, 1647 1657 (2020). Chem. Res. 54, 2\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "The provided evidence basis (the abstract) does not mention solvent systems or the specific number of solvent systems interrogated. While the sentence fragment appears to be from a different part of the paper (likely th",
+      "fix": "The provided evidence is an abstract and does not contain details about the solvent systems used; please provide the full text or the specific section discussing experimental cond"
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "6 7 8 9 10",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-9"
+      ],
+      "reference_raw": "Moore, G. M. Cramming more components onto integrated experiment arrays for reaction discovery. Preprint at ChemRxiv circuits. Electronics 38, 114 (1965). https://doi.org/10.26434/chemrxiv-2022-hcnng (2022).",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "The sentence is a fragment describing solvent systems used in a chemical reaction, whereas the provided reference text is an abstract for 'phactor ', a software tool for HTE. The abstract does not mention specific solve",
+      "fix": "The sentence cannot be supported by the provided reference; a different source describing the specific chemical methodology is required."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "6 7 8 9 10",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-10"
+      ],
+      "reference_raw": "Krska, S. W., DiRocco, D. A., Dreher, S. D. & Shevlin, M. The 32. Buitrago Santanilla, A., Christensen, M., Campeau, L. C., Davies, evolution of chemical high-throughput experimentation to I. W. & Dreher, S. D. P2Et phosphazene: a mild, functional group addre\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "The sentence is a fragment ('We interrogated three solvent systems that contained') and the provided evidence basis (the abstract excerpt) only discusses the general use of high-throughput experimentation, providing no",
+      "fix": "The provided text is an incomplete sentence and the evidence excerpt is irrelevant; please provide the full text of the article's results or methods section."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "12 13 14",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-12"
+      ],
+      "reference_raw": "Cernak, T. et al. Microscale high-throughput experimentation preparation of new palladium precatalysts for C-C and C-N as an enabling technology in drug discovery: application cross-coupling reactions. Chem. Sci. 4, 916 920 (2013). in the discovery of (piperi\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "12 13 14",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-13"
+      ],
+      "reference_raw": "Uehling, M. R., King, R. P., Krska, S. W., Cernak, T. & Buchwald, S. L. 35. Kutchukian, P. S. et al. Chemistry informer libraries: Organic chemistry: pharmaceutical diversification via palladium a chemoinformatics enabled approach to evaluate oxidative additi\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 59,
+      "sentence": "We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1083 Article https://doi.org/10.1038/s44160-023-00351-1 a Boronates Me\u2026",
+      "marker": "12 13 14",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-14"
+      ],
+      "reference_raw": "Gesmundo, N. J. et al. Nanoscale synthesis and affinity ranking. 2604 2613 (2016). Nature 557, 228 232 (2018). 36. Dreher, S. D. & Krska, S. W. Chemistry informer libraries:",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 70,
+      "sentence": "Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.1038/s44160-023-00351-1 Table 1 | Coupling of Informer Library halides to 3-boronopyridine\u2026",
+      "marker": "(23)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-23"
+      ],
+      "reference_raw": "Gioiello, A., Piccinno, A., Lozza, A. M. & Cerra, B. The medicinal 43. Neidigh, K. A., Avery, M. A., Williamson, J. S. & Bhattacharyya, S. chemistry in the era of machines and automation: recent Facile preparation of N-methyl secondary amines by titanium(IV)\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 88,
+      "sentence": "AcOH 100 50 100 50 Conc.",
+      "marker": "100 50 100 50",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "model": "gemma4:31b"
+    },
+    {
+      "sentence_index": 90,
+      "sentence": "3 | Nanoscale reaction optimization for the reductive amination of staurosporine (36) with eight aldehydes, eight ketones and 48 reaction conditions.",
+      "marker": "(36)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "model": "gemma4:31b"
+    },
+    {
+      "sentence_index": 96,
+      "sentence": "more traditional reaction scale, a variety of high-complexity halides Having explored many reaction conditions on few substrates, we from an Informer Library35 were coupled to 3-b\u2026",
+      "marker": "(23)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-23"
+      ],
+      "reference_raw": "Gioiello, A., Piccinno, A., Lozza, A. M. & Cerra, B. The medicinal 43. Neidigh, K. A., Avery, M. A., Williamson, J. S. & Bhattacharyya, S. chemistry in the era of machines and automation: recent Facile preparation of N-methyl secondary amines by titanium(IV)\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 142,
+      "sentence": "5 | Two-step nanoscale synthesis of MK2-inhibitor analogues (56) and c, Selected examples 70 73 repeated on 40 mol scale (see Supplementary (57) via N-alkylation followed by Boc-d\u2026",
+      "marker": "(56)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "model": "gemma4:31b"
+    },
+    {
+      "sentence_index": 142,
+      "sentence": "5 | Two-step nanoscale synthesis of MK2-inhibitor analogues (56) and c, Selected examples 70 73 repeated on 40 mol scale (see Supplementary (57) via N-alkylation followed by Boc-d\u2026",
+      "marker": "(57)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "model": "gemma4:31b"
+    },
+    {
+      "sentence_index": 152,
+      "sentence": "While trifluoroacetic acid (TFA) was also a viable so care should be used in handling these solutions.) The partnering of Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1\u2026",
+      "marker": "(23)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-23"
+      ],
+      "reference_raw": "Gioiello, A., Piccinno, A., Lozza, A. M. & Cerra, B. The medicinal 43. Neidigh, K. A., Avery, M. A., Williamson, J. S. & Bhattacharyya, S. chemistry in the era of machines and automation: recent Facile preparation of N-methyl secondary amines by titanium(IV)\u2026",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 165,
+      "sentence": "This report show- staurosporine (36) cases key principles required to pursue reactions on the nanoscale Staurosporine 36 (23 mg, 0.05 mmol, 1 equiv.) was weighed into a 1-dram eff\u2026",
+      "marker": "(36)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "model": "gemma4:31b"
+    },
+    {
+      "sentence_index": 1,
+      "sentence": "nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentati\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 4,
+      "sentence": "Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, N-alkylation, N-Boc (tert-butyloxycarbonyl) deprotection and Suzuk\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 26,
+      "sentence": "e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082 Article https://doi.org/10.1038/s44160-023-00351-1 Amide coupling O Other reactions O OH\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 91,
+      "sentence": "See Supplementary Section 5.1 for full list of aldehydes and ketones.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 98,
+      "sentence": "4a; see Supplementary Section 5.2 for struc- yield or greater using XPhos with aqueous K3PO4 in 3:1 DMSO:water.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 104,
+      "sentence": "of products (45 50 and S1) varied from 38% to 89%, with some of the Reductive amination is another of the most popular transfor- lower yields attributed to observed instabilities\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 112,
+      "sentence": "While completed the synthesis of analogues of three drug molecules on a reductive amination has been a popular choice for library synthesis larger 0.30 mmol scale (51 53) (Fig.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 119,
+      "sentence": "We demonstrate here a simple entry to multistep of 36 with eight aldehydes and eight ketones (see Supplementary Sec- nanoscale synthesis in the form of a selective N-alkylation an\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 123,
+      "sentence": "We found 54 and 55 with 12 primary, secondary, allyl and benzyl halides in the on average that between three and five equivalents of AcOH and two presence of four organic and orga\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 126,
+      "sentence": "The which staurosporine was observed to be more soluble than in DMAc.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 139,
+      "sentence": "A representative example of aldehydes is shown (see Supplementary Section 5.2 Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1087 Article https://doi.org/10.1038/s44160-0\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 150,
+      "sentence": "we wanted to avoid the use of volatile acids like TFA and selected H2SO4 Following a survey of acids, we found that quenching reactions with as a non-volatile alternative.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    }
+  ],
+  "total_entries_before_truncation": 28,
+  "entries_truncated": false,
+  "reference_count": 26,
+  "mention_count": 10,
+  "model": "gemma4:31b",
+  "model_usable": true,
+  "allow_abstract_fallback": true
+}

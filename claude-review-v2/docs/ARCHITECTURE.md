@@ -8,6 +8,7 @@ Primary ownership:
 
 - Interactive terminal UX and slash command loop.
 - Guided workflow orchestration (`/wizard`, `/project`, `/profile`, `/review`, `/deep-run`).
+- Utility command surfaces such as `/color-palette`.
 - Deep-run mode choice prompt (MOE vs single-model Gemma 4).
 - Runtime summaries shown to users.
 - Dispatch of bridge tool calls.
@@ -29,6 +30,7 @@ Primary ownership:
 - Support-paper ingest, structured cache, and cache index output.
 - Citation verification (line/sentence-local checks with reference mapping).
 - Artifact rendering and run validation.
+- Rendered-page PDF color-palette audit and report generation.
 - Replay/diff helpers.
 
 Key path:
@@ -40,6 +42,7 @@ Bridge notes:
 - Transport: stdio JSON-RPC compatible with MCP-style methods.
 - Methods used: `initialize`, `tools/list`, `tools/call`.
 - Tool results returned as JSON payload text.
+- Standalone utilities that need local file processing, like the PDF color-palette audit, should live here so the shell stays thin.
 
 ## Startup and Launch Flow
 
@@ -93,6 +96,7 @@ Citation verification pipeline:
 - maps mention markers to reference entries
 - checks support records per sentence-level claim
 - supports abstract-only fallback mode when full source unavailable
+- may use OpenAlex metadata/abstract lookup when full source text is unavailable and fallback is enabled
 - emits `citation_verification_ledger.json` and `claim_verification_summary.json`
 
 ## Artifact Contract (High-Value Files)
@@ -107,6 +111,24 @@ Citation verification pipeline:
 - `citation_verification_ledger.json`
 - `validation_report.json`
 
+## Utility Artifact Contract: PDF Color Palette
+
+The color-palette utility writes its own artifact bundle under a local output root such as `test_outputs/color_palette_audits/...`.
+
+- `color_palette_full.json`
+- `color_palette_filtered.json`
+- `color_palette_full.csv`
+- `color_palette_filtered.csv`
+- `color_palette_page_usage.json`
+- `color_palette_report.pdf`
+- `color_palette_debug_montage.png`
+
+Important honesty note:
+
+- this utility extracts representative colors from rendered PDF pages
+- it does not claim perfect recovery of raw PDF drawing-state colors
+- viridis/plasma matching is heuristic and distance-based
+
 ## Diagnostics and Honesty Model
 
 The architecture is designed to surface degraded behavior explicitly:
@@ -115,3 +137,8 @@ The architecture is designed to surface degraded behavior explicitly:
 - stage fallback events (`fallback_error`, `heuristic_only`)
 - aggregated fallback reasons in run summary/routing trace
 - doctor/diagnose model lane status (short, medium, JSON, ingest, citation, long)
+
+Validation note:
+
+- allowed remote metadata lookups for abstract-only citation fallback should appear in `network_event_log.jsonl`
+- these should be distinguished from disallowed remote execution paths in `validation_report.json`

@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from ai_reviewer.output_verifier import verify_deep_run, verify_evaluation_run, verify_review_run
 
@@ -42,27 +43,85 @@ def test_verify_review_run_fails_missing_bundle(tmp_path: Path):
 
 def test_verify_deep_run_passes(tmp_path: Path):
     run = tmp_path / "deep"
-    for rel in (
-        "run_metadata.json",
-        "final_deep_review_report.json",
-        "final_deep_review_report.md",
-        "final_deep_review_report.txt",
-        "final_deep_review_report.docx",
-        "surrogate_manuscript_from_pdf_with_comments.docx",
-        "manuscript_comment_manifest.json",
-        "docx_comment_manifest.json",
-        "source_mode.json",
-        "commented_docx_validation.json",
-        "surrogate_manuscript_from_pdf_with_suggested_changes.docx",
-        "manuscript_suggested_changes_manifest.json",
-        "suggested_changes_validation.json",
-        "stage_07_reconciliation.json",
-        "deep_run_plan.json",
-        "debug.log",
-    ):
-        _write(run / rel, "x")
+    _write(
+        run / "run_metadata.json",
+        json.dumps(
+            {
+                "status": "success",
+                "warnings_count": 0,
+                "stage_status": {"stage_01_ingest": "ok", "stage_12_reconciliation": "ok"},
+            }
+        ),
+    )
+    _write(
+        run / "final_deep_review_report.json",
+        json.dumps(
+            {
+                "warnings": [],
+                "final": {
+                    "consolidated_weaknesses": ["Issue A"],
+                    "priority_actions": ["Action A"],
+                },
+            }
+        ),
+    )
+    _write(
+        run / "final_deep_review_report.md",
+        "# Final\n\n## stage_status\nok\n\n## warnings\nnone\n\n## final\n" + ("detail " * 150),
+    )
+    _write(run / "final_deep_review_report.txt", "ok")
+    _write(run / "final_deep_review_report.docx", "ok")
+    _write(run / "surrogate_manuscript_from_pdf_with_comments.docx", "ok")
+    manifest = {
+        "comments_added": 2,
+        "comment_targets": [{"section_hint": "results"}, {"section_hint": "methods"}],
+        "new_ai_reviewer_comments_added_count": 2,
+        "suggested_changes_manifest": {"suggestion_count": 1},
+    }
+    _write(run / "manuscript_comment_manifest.json", json.dumps(manifest))
+    _write(run / "docx_comment_manifest.json", json.dumps(manifest))
+    _write(run / "source_mode.json", json.dumps({"mode": "original_docx"}))
+    _write(
+        run / "commented_docx_validation.json",
+        json.dumps({"comments_attached": True, "silent_noop_suspected": False, "new_ai_reviewer_comments_added_count": 2}),
+    )
+    _write(run / "surrogate_manuscript_from_pdf_with_suggested_changes.docx", "ok")
+    _write(run / "manuscript_suggested_changes_manifest.json", json.dumps({"suggestion_count": 1}))
+    _write(run / "suggested_changes_validation.json", json.dumps({"ok": True}))
+    _write(run / "stage_11_reconciliation.json", json.dumps({"ok": True}))
+    _write(run / "deep_run_plan.json", json.dumps({"routing_mode": "local_moe"}))
+    _write(run / "debug.log", "all good")
     result = verify_deep_run(run)
     assert result.ok
+
+
+def test_verify_deep_run_flags_hidden_empty_response(tmp_path: Path):
+    run = tmp_path / "deep_bad"
+    _write(
+        run / "run_metadata.json",
+        json.dumps({"status": "success", "warnings_count": 0, "stage_status": {"stage_01_ingest": "ok"}}),
+    )
+    _write(run / "final_deep_review_report.json", json.dumps({"warnings": [], "final": {"consolidated_weaknesses": ["a"]}}))
+    _write(run / "final_deep_review_report.md", "# x\n\n## stage_status\nx\n\n## warnings\nx\n\n## final\n" + ("detail " * 150))
+    _write(run / "final_deep_review_report.txt", "x")
+    _write(run / "final_deep_review_report.docx", "x")
+    _write(run / "surrogate_manuscript_from_pdf_with_comments.docx", "x")
+    _write(run / "surrogate_manuscript_from_pdf_with_suggested_changes.docx", "x")
+    _write(run / "source_mode.json", "{}")
+    _write(run / "manuscript_suggested_changes_manifest.json", "{}")
+    _write(run / "suggested_changes_validation.json", "{}")
+    _write(run / "stage_11_reconciliation.json", "{}")
+    _write(run / "deep_run_plan.json", "{}")
+    _write(run / "manuscript_comment_manifest.json", json.dumps({"comments_added": 1, "comment_targets": [{"x": 1}], "new_ai_reviewer_comments_added_count": 1}))
+    _write(run / "docx_comment_manifest.json", json.dumps({"comments_added": 1, "comment_targets": [{"x": 1}], "new_ai_reviewer_comments_added_count": 1}))
+    _write(
+        run / "commented_docx_validation.json",
+        json.dumps({"comments_attached": True, "silent_noop_suspected": False, "new_ai_reviewer_comments_added_count": 1}),
+    )
+    _write(run / "debug.log", "chat_attempt_failed code=empty_response")
+    result = verify_deep_run(run)
+    assert not result.ok
+    assert any("EMPTY_RESPONSE" in issue for issue in result.issues)
 
 
 def test_verify_evaluation_run_passes(tmp_path: Path):

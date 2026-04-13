@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-04-07T19:54:17.562323+00:00",
+  "models": {
+    "gemma4:26b": {
+      "model": "gemma4:26b",
+      "short_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "sample": ""
+      },
+      "medium_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "sample": ""
+      },
+      "json_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "ingest_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "citation_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "usable": false,
+      "usable_for_ingest": false,
+      "usable_for_citation_verification": false
+    },
+    "gemma4:31b": {
+      "model": "gemma4:31b",
+      "short_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "sample": ""
+      },
+      "medium_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "sample": ""
+      },
+      "json_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "ingest_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "citation_prompt": {
+        "status": "fail:OLLAMA_UNREACHABLE",
+        "attempt": null,
+        "parsed": {}
+      },
+      "usable": false,
+      "usable_for_ingest": false,
+      "usable_for_citation_verification": false
+    }
+  }
+}

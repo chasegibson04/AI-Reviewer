@@ -21,6 +21,7 @@ Primary implementation:
 - model routing transparency and fallback tracing
 - support-paper ingest and cache management
 - line/sentence-level citation verification against references
+- rendered-page PDF color-palette extraction and report generation
 - visible comment composition + manifest metadata export
 - suggested change generation
 - run artifact rendering and validation
@@ -36,6 +37,36 @@ Primary implementation:
 6. run stage prompts across stage model map
 7. compose concise visible comments + rich manifests
 8. write run artifacts and validation outputs
+
+## Color-Palette Audit Flow
+
+Tool:
+
+- `extract_color_palette`
+
+Flow:
+
+1. validate PDF path and blocked-project policy
+2. render PDF pages to images
+3. downsample and quantize per page
+4. merge near-duplicate colors into representative swatches
+5. classify representative colors as `viridis_like`, `plasma_like`, or `unmatched`
+6. write JSON/CSV/PDF artifacts under an in-subproject output root
+
+Output contract:
+
+- `color_palette_full.json`
+- `color_palette_filtered.json`
+- `color_palette_full.csv`
+- `color_palette_filtered.csv`
+- `color_palette_page_usage.json`
+- `color_palette_report.pdf`
+- `color_palette_debug_montage.png`
+
+Honesty note:
+
+- extraction is based on rendered page pixels
+- it is intentionally practical and inspectable, not perfect raw PDF object analysis
 
 ## Model Plan Semantics
 
@@ -107,5 +138,6 @@ Bridge blocks known disallowed project snippets in path segments:
 
 - `pampa`
 - `horseshoe`
+- `test-d2b`
 
 This is enforced before manuscript operations proceed.

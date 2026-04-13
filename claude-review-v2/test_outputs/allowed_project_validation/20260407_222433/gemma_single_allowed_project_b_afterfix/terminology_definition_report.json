@@ -1,0 +1,40 @@
+{
+  "findings": [
+    "High-frequency technical terms: reaction, reactions, was, synthesis, chemical, dmso, conditions, chem, reductive, equiv",
+    "Acronym reuse detected; verify first-use definitions are present and consistent."
+  ],
+  "top_terms": [
+    {
+      "term": "reaction",
+      "count": 68
+    },
+    {
+      "term": "reactions",
+      "count": 49
+    },
+    {
+      "term": "was",
+      "count": 47
+    },
+    {
+      "term": "synthesis",
+      "count": 41
+    },
+    {
+      "term": "chemical",
+      "count": 29
+    },
+    {
+      "term": "dmso",
+      "count": 29
+    },
+    {
+      "term": "conditions",
+      "count": 24
+    },
+    {
+      "term": "chem",
+      "count": 24
+    }
+  ]
+}

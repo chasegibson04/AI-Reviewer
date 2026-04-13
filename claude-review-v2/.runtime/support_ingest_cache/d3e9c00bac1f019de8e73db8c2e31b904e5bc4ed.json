@@ -1,0 +1,165 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s43586-021-00022-5.pdf",
+    "size_bytes": 4035083,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "18d6ffc295c14bc06e20b5b12a8a78c52999e752"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s43586-021-00022-5.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "that protect our crops, the materials that make life convenient are becoming increasingly",
+    "doi": "10.1039/C5SC03350K",
+    "year": "1948",
+    "authors": []
+  },
+  "matching_hints": {
+    "normalized_title": "that protect crops materials make life convenient becoming increasingly",
+    "title_tokens": [
+      "that",
+      "protect",
+      "crops",
+      "materials",
+      "make",
+      "life",
+      "convenient",
+      "becoming",
+      "increasingly"
+    ],
+    "author_tokens": [
+      "primer",
+      "yuning",
+      "julia",
+      "borowski",
+      "melissa",
+      "richmond"
+    ],
+    "year": "1948",
+    "doi_variants": [
+      "10.1039/c5sc03350k"
+    ],
+    "source_name_tokens": []
+  },
+  "abstract": "PRIMER\n \u00ad\u00ad utomation and computer-\u200bassisted\n A\n planning for chemical synthesis\n Yuning Shen1,4, Julia E. Borowski 2,4, Melissa A. Hardy3,4, Richmond Sarpong3 \u2709,\n Abigail G. Doyle 2 \u2709 and Tim Cernak 1 \u2709\n Abstract | The molecules of today \u2014 the medicines that cure diseases, the agrochemicals\n that protect our crops, the materials that make life convenient \u2014 are becoming increasingly\n sophisticated thanks to advancements in chemical synthesis.",
+  "key_claims": [
+    "This to an exponential increase in the number of precursor Descriptions of chemical process requires a module that disconnects the target compounds that must be analysed30.",
+    "Provided as a information- based descriptors provide a more gen- increase reaction throughput or increase user autonomy percentage, representing the eral and easily accessible means of storing chemical (Fig.",
+    "Software in an auto- automated engineering solutions are available but may mated workflow falls into one of three categories: soft- significantly increase a project s complexity and budget.",
+    "The restriction was implemented that only minated in both excellent software to inspire chemists 70 h of bench work would be allowed to develop the NAture RevIews | MetHOdS PRimeRS | Article citation I D: ( 2 0 2 1 ) 1 : 2 3 11 0123456789();: Primer a b Me Me Me Me Me 1 HO Me $0\u2026"
+  ],
+  "methods_summary": "d Automated synthesis Therefore, rather than concrete rules for retrosynthe- sis, the heuristics or guidelines that were first codified Reaction Experiment Data in Logic and Heuristics Applied to Synthetic Analysis design operation analysis (LHASA) are favoured31. NAture RevIews | MetHOdS PRimeRS | Article citation I\u2026",
+  "quantitative_findings": [
+    "PRIMER utomation and computer- assisted A planning for chemical synthesis Yuning Shen1,4, Julia E.",
+    "Borowski 2,4, Melissa A.",
+    "Hardy3,4, Richmond Sarpong3 , Abigail G."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "reaction",
+    "data",
+    "synthesis",
+    "are",
+    "can",
+    "model",
+    "chem",
+    "chemical",
+    "prediction",
+    "automated",
+    "such",
+    "retrosynthetic"
+  ],
+  "citation_anchors": [
+    "10.1039/C5SC03350K",
+    "1948",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "s43586-021-00022-5-1",
+      "text": "PRIMER utomation and computer- assisted A planning for chemical synthesis Yuning Shen1,4, Julia E. Borowski 2,4, Melissa A. Hardy3,4, Richmond Sarpong3 , Abigail G. Doyle 2 and Tim Cernak 1 Abstract | The molecules of today the medicines that cure diseases, the agrochemicals that protect our crops, the materials that make life convenient are becoming increasingly sophisticated thanks to advancements in chemical synthesis. As tools for synthesis improve, molecular architects can be bold and creative in the way they design and produce molecules. Several emerging tools at the interface of chemical synthesis and data science have come to the forefront in recent years, including algorithms for retrosynthesis and reaction prediction, and robotics for auto\u2026",
+      "keywords": [
+        "reaction",
+        "data",
+        "synthesis",
+        "are",
+        "can"
+      ]
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-2",
+      "text": "In 1948, Claude Shannon reported that information automation hardware and software have advanced and can be encoded and transferred as ones and zeros1, algorithms for chemical synthesis have been refined, which launched the field of information theory and set paving the way for an exciting future where molecules 1 Department of Medicinal the stage for the merger of data science and chemical can be automatically designed, synthesized and tested. Chemistry, University of synthesis. Within two decades, information theory had Building upon seven decades of discovery since the sem- Michigan, Ann Arbor, become ingrained in organic chemistry, as evidenced inal report on information theory, there is still ample MI, USA. by the translation of retrosynthetic\u2026",
+      "keywords": [
+        "data",
+        "synthesis",
+        "are",
+        "can",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-3",
+      "text": "NAture RevIews | MetHOdS PRimeRS | Article citation I D: ( 2 0 2 1 ) 1 : 2 3 1",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-5",
+      "text": "Linear free energy string8 (Fig. 1). The SMILES string is a concise and themes capture a majority of the recent activity of the relationships accessible format that enables the rapid transmission field, and each theme is discussed in terms of techniques Linear relationships between of chemical structures into and out of the computer. for experimentation, the types of results obtained and the free energy of activation Nonetheless, the SMILES notation has limitations modern applications, followed by some overall consid- or free energy change of for example, the output can be dependent upon how erations and the outlook for the field. For additional a reaction induced by a substituent of a molecule and the input structure is drawn, which can be amended\u2026",
+      "keywords": [
+        "reaction",
+        "can",
+        "chem",
+        "chemical"
+      ]
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-6",
+      "text": "2 | Article citation ID: (2021) 1:23 www.nature.com/nrmp",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-8",
+      "text": "International Chemical world s best Go players33. The logical and creative nature computational power41 44. Although these methods are Identifier of organic synthesis has made it attractive as a higher common in state- of- the- art detailed synthesis planners, (InChI). A fixed- length, computational bar to clear. there is significant computational cost in extracting 27- character line notation rule or template libraries; additionally, such libraries that is designed to allow easy searches of chemical High- level logic- based programs. High- level logic- inherently demote or exclude rare reactions with sparse compounds. These are based retrosynthetic programs (Fig. 2a) are designed to literature examples. derived from the full length apply a particul\u2026",
+      "keywords": [
+        "reaction",
+        "synthesis",
+        "are",
+        "can",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-9",
+      "text": "NAture RevIews | MetHOdS PRimeRS | Article citation I D: ( 2 0 2 1 ) 1 : 2 3 3",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-12",
+      "text": "Selection of heuristic Review of Human input Synthetic plan heuristic solutions HO",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-14",
+      "text": "N Me b HO Retrosynthetic logic Detailed planners Target morphine (4)",
+      "keywords": [
+        "retrosynthetic"
+      ]
+    },
+    {
+      "chunk_id": "s43586-021-00022-5-15",
+      "text": "Review of Route ranking Synthetic plan potential pathways",
+      "keywords": []
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:14:54.664537+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

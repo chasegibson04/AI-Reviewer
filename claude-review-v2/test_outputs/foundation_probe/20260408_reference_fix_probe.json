@@ -1,0 +1,215 @@
+{
+  "run_summary": {},
+  "citation_summary": {
+    "claim_count": 3,
+    "claims_checked": 15,
+    "likely_overstated": 0,
+    "unsupported_or_unclear": 3,
+    "missing_citation": 12,
+    "status": "line_by_line",
+    "status_counts": {
+      "abstract_only": 2,
+      "unverifiable": 1,
+      "missing_citation": 12
+    }
+  },
+  "citation_ledger_head": [
+    {
+      "sentence_index": 52,
+      "sentence": "coupling between 2-methylbenzoic acid (1) and p-toluidine Amide Coupling on Complex Molecule Sitagliptin.",
+      "marker": "(1)",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-1"
+      ],
+      "reference_raw": "Mahjour, B.; Shen, Y.; Cernak, T. Ultrahigh-throughput",
+      "support_source_path": "",
+      "support_match_score": 1.4,
+      "support_match_basis": [
+        "title:2"
+      ],
+      "source_resolution": "abstract_only",
+      "model": "gemma4:31b",
+      "rationale": "The evidence excerpt describes a software tool called phactor for high-throughput experimentation. It does not mention 2-methylbenzoic acid, p-toluidine, or the synthesis of Sitagliptin.",
+      "fix": "Remove the claim or provide a reference that specifically details the amide coupling of 2-methylbenzoic acid and p-toluidine in the context of Sitagliptin synthesis."
+    },
+    {
+      "sentence_index": 53,
+      "sentence": "(2) to form amide 3 (Figure 2).",
+      "marker": "(2)",
+      "status": "unverifiable",
+      "confidence": "low",
+      "evidence_basis": "none",
+      "reference_ids": [
+        "ref-2"
+      ],
+      "reference_raw": "Gesmundo, N. J.; Sauvagnat, B.; Curran, P. J.; Richards, M. P.; and-1-methylpyrazole complexes and their catalytic activity toward Andrews, C. L.; Dandliker, P. J.; Cernak, T. Nanoscale synthesis and C N coupling of aryl chlorides. RSC Adv. 2016, 6, 24484 244\u2026",
+      "support_source_path": "",
+      "support_match_score": 0.0,
+      "support_match_basis": [],
+      "source_resolution": "none",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Provide accessible source text or tighten this claim to verifiable evidence."
+    },
+    {
+      "sentence_index": 55,
+      "sentence": "In the same dialog, we asked ChatGPT to refer to the previous question but to instead optimize the amide coupling between sitagliptin (4) and carboxylic acid 2 to form amide 5 (Fi\u2026",
+      "marker": "(4)",
+      "status": "abstract_only",
+      "confidence": "medium",
+      "evidence_basis": "abstract_only",
+      "reference_ids": [
+        "ref-4"
+      ],
+      "reference_raw": "Lin, S.; Dikler, S.; Blincoe, W. D.; Ferguson, R. D.; Sheridan, R.",
+      "support_source_path": "",
+      "support_match_score": 0.0,
+      "support_match_basis": [],
+      "source_resolution": "abstract_only",
+      "model": "gemma4:31b",
+      "rationale": "The sentence describes a specific interaction with ChatGPT regarding the synthesis of sitagliptin, whereas the reference entry describes a supervised learning approach for predicting organic reaction products based on p",
+      "fix": "Provide a citation that references the specific study or paper where the ChatGPT interaction and the sitagliptin amide coupling optimization were documented."
+    },
+    {
+      "sentence_index": 8,
+      "sentence": "We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN ANN ARBOR on March 25, 2026 at 16:34:36 (UTC).",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 13,
+      "sentence": "High-throughput experimentation (HTE) is a widely practiced method for the discovery and optimization of reaction conditions in medicinal chemistry campaigns.1 5 Chemists typicall\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 29,
+      "sentence": "Then, we should translate the output from ChatGPT into an input file for the HTE management software 2023 American Chemical Society https://doi.org/10.1021/acs.oprd.3c00186 1510 O\u2026",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 32,
+      "sentence": "2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testing variability in model output can be found in the Supporting Information.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    },
+    {
+      "sentence_index": 40,
+      "sentence": "The top-performing reaction condition was repeated on a 0.2 For each class of reactions (amide, Suzuki, and Buchwald mmol scale to afford 3 in a 94% isolated yield.",
+      "marker": "",
+      "status": "missing_citation",
+      "confidence": "medium",
+      "evidence_basis": "none",
+      "reference_ids": [],
+      "reference_raw": "",
+      "support_source_path": "",
+      "model": "gemma4:31b",
+      "rationale": "",
+      "fix": "Add a citation for this sentence or soften the claim."
+    }
+  ],
+  "support_usage": {
+    "used_sources": [],
+    "unused_sources": [
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/managed/20260329_174704_137524/project1_clean_native.docx",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Autonomous_platforms_for_data-driven_organic_synthesis.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predicting_reaction_conditions_from_limited_data_through_active_transfer_learnin.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Predictive_chemistry_machine_learning_for_reaction_deployment,_reaction_developm.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/d1sc06932b.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/designing-chemical-reaction-arrays-using-phactor-and-chatgpt.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/gym_Provides_Access_to_the_OpenAI_Gym_API.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41467-022-28736-4.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41586-018-0056-8 (3).pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s43586-021-00022-5.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.1259203.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aac6153.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aar6236.pdf",
+      "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis.pdf"
+    ],
+    "status": "line_by_line_linked"
+  },
+  "support_cache_preview": [
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/managed/20260329_174704_137524/project1_clean_native.docx",
+      "title": "designing-chemical-reaction-arrays-using-phactor-and-chatgpt",
+      "doi": "10.1021/acs.oprd.3c00186",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    },
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization.pdf",
+      "title": "Jose Garrido Torres , Sii Hong Lau , Pranay Anchuri , Jason Stevens , Jose Tabora , Jun Li , Alina Borovika , Ryan",
+      "doi": "10.26434/chemrxiv-2022-cljcp",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    },
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_strategy_to_identify_event_specific_hospitalizations_in_large_health_claims_da.pdf",
+      "title": "Background: Health insurance claims data offer a unique opportunity to study disease distribution on a large scale.",
+      "doi": "10.1186/s12913-022-08107-x",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    },
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Autonomous_platforms_for_data-driven_organic_synthesis.pdf",
+      "title": "Achieving autonomous multi-step synthesis of novel molecular structures in",
+      "doi": "10.1038/s41467-022-28736-4",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    },
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/BioGPT_generative_pre-trained_transformer_for_biomedical_text_generation_and_min.pdf",
+      "title": "Microsoft Research AI4Science, Beijing, China, 2 Peking University, Beijing, China and 3 Microsoft Research, Redmond, WA, USA",
+      "doi": "",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    },
+    {
+      "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi.pdf",
+      "title": "PRE-TRANSMETALATION INTERMEDIATES IN THE SUZUKI-MIYAURA REACTION",
+      "doi": "",
+      "cache_status": "reused",
+      "ingest_status": "fallback_heuristic"
+    }
+  ]
+}

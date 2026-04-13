@@ -206,6 +206,10 @@ def test_preannotated_docx_review_adds_new_comments_and_preserves_existing(tmp_p
     assert out["validation"]["meaningful_new_review_state"] is True
     assert out["preannotated_docx_policy"]["preserve_existing_comments"] is True
     assert out["preannotated_docx_policy"]["layer_new_comments_on_top"] is True
+    assert Path(out["style_clarity_manifest_path"]).exists()
+    assert Path(out["comment_response_manifest_path"]).exists()
+    assert Path(out["comment_response_manifest_markdown_path"]).exists()
+    assert out["comment_response_manifest"]["summary"]["existing_comments_detected"] >= 1
 
 
 def test_followup_suggested_changes_append_marker_on_preannotated_docx(tmp_path: Path):

@@ -1,0 +1,13 @@
+{
+  "available_support_docs": 18,
+  "selected_support_docs": 18,
+  "ingested_docs": 18,
+  "cache_reused_docs": 10,
+  "cache_refreshed_docs": 8,
+  "failed_docs": 0,
+  "selection_basis": "local_discovery_near_manuscript",
+  "reasoning_mode": "moe",
+  "model_requested": "gemma4:31b",
+  "model_usable_for_ingest": true,
+  "ingest_mode": "model_assisted"
+}

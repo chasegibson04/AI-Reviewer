@@ -1,0 +1,190 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aar6236.pdf",
+    "size_bytes": 1436352,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "3e677ad6558eee3e0241ebd666f53566d1f3c931"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/science.aar6236.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "RESEARCH ARTICLE SUMMARY nostic approach was first applied to demon-",
+    "doi": "10.1126/science.aar6236",
+    "year": "2026",
+    "authors": []
+  },
+  "matching_hints": {
+    "normalized_title": "research summary nostic approach first applied demon",
+    "title_tokens": [
+      "research",
+      "summary",
+      "nostic",
+      "approach",
+      "first",
+      "applied",
+      "demon"
+    ],
+    "author_tokens": [
+      "glorius",
+      "research",
+      "summary",
+      "maldi-ms",
+      "organic",
+      "chemistry"
+    ],
+    "year": "2026",
+    "doi_variants": [
+      "10.1126/science.aar6236"
+    ],
+    "source_name_tokens": [
+      "science"
+    ]
+  },
+  "abstract": "R ES E A RC H\n\n \u25e5 uHT Glorius fragment additive poisons diag-\n RESEARCH ARTICLE SUMMARY nostic approach was first applied to demon-\n strate that MALDI-MS could provide adequate\n data quality to monitor the formation of a\nORGANIC CHEMISTRY\n single product under a wide variety of different\n synthetic conditions. Four catalytic methods\u2014\nMapping the dark space of chemical Ir/Ni and Ru/Ni dual-metal photoredox catalysis,\n as well as heterogeneous and high-temperature\n\nreactions with extended nanomole Cu and Pd catalysis\u2014with extended nanomole\n chemistry requirements were evaluated for the\n synthesis of a single product in the presence of\nsynthesis and MALDI-TOF MS 383 structurally diverse simple and complex\n potential poisons. Using a normalizing internal\nShishi Lin, Sergei Dikler, William D. Blincoe, Ronald D.",
+  "key_claims": [
+    "Additionally, these data have not research is to increase the understanding of C N that can be logically combined to prepare been collected under controlled experimental coupling reactions by building an experimental nearly any molecule.",
+    "periment in 11 min, with the settings described show peaks that interfere with the product peak).",
+    "(B) Using a single internal standard, the normalized standard that is tailored to each product for MALDI data show poor correlation with UPLC-MS and UPLC-UV metrics.",
+    "Lin et al., Science 361, eaar6236 (2018) 10 August 2018 4 of 7 R ES E A RC H | R E S EA R C H A R T I C LE permitted us to identify general structural en- the normalized MALDI experiment show essen- Although lists of potential poisons for specific tities that correlate with reac\u2026"
+  ],
+  "methods_summary": "However, a pervasive, long- RATIONALE: We report a nanomole-scale rect binning of hits and misses (defined as standing bias toward reporting successful screening protocol that can be used to execute >50% product signal knockdown) up to 95% results means that the shortcomings of Attempts to use Understanding the practi\u2026",
+  "quantitative_findings": [
+    "Four catalytic methods Mapping the dark space of chemical Ir/Ni and Ru/Ni dual-metal photoredox catalysis, as well as heterogeneous and high-temperature reactions with extended nanomole Cu and Pd catalysis with extended nanomole chemistry requirements were evaluated for the synt\u2026",
+    "DiRocco, Huaming Sheng*, Read the full article optimized operating pa- Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 Christopher J.",
+    "rameters, MALDI-MS pro- org/10.1126/ vided good correlation science.aar6236 with existing ultra per- .................................................."
+  ],
+  "limitations": [
+    "However, a pervasive, long- RATIONALE: We report a nanomole-scale rect binning of hits and misses (defined as standing bias toward reporting successful screening protocol that can be used to execute >50% product signal knockdown) up to 95% results means that the shortcomings of\u2026",
+    "A simplest-partner test was em- structural elements that limit different synthetic trometry (MALDI-TOF MS), enabling analysis ployed, in which 192 aryl bromides and 192 methods.",
+    "Large- of structurally diverse analogs as well as a long-standing bias toward reporting successful scale reactivity surveys have thus far been lim- tremendous number of experiments."
+  ],
+  "terminology_entities": [
+    "reaction",
+    "maldi",
+    "science",
+    "doi",
+    "data",
+    "can",
+    "pmid",
+    "are",
+    "synthetic",
+    "reactions",
+    "chemistry",
+    "screening"
+  ],
+  "citation_anchors": [
+    "10.1126/science.aar6236",
+    "2026",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "science.aar6236-2",
+      "text": "uHT Glorius fragment additive poisons diag- RESEARCH ARTICLE SUMMARY nostic approach was first applied to demon- strate that MALDI-MS could provide adequate data quality to monitor the formation of a ORGANIC CHEMISTRY single product under a wide variety of different synthetic conditions. Four catalytic methods Mapping the dark space of chemical Ir/Ni and Ru/Ni dual-metal photoredox catalysis, as well as heterogeneous and high-temperature",
+      "keywords": [
+        "maldi",
+        "data",
+        "synthetic",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-3",
+      "text": "reactions with extended nanomole Cu and Pd catalysis with extended nanomole chemistry requirements were evaluated for the synthesis of a single product in the presence of synthesis and MALDI-TOF MS 383 structurally diverse simple and complex potential poisons. Using a normalizing internal Shishi Lin, Sergei Dikler, William D. Blincoe, Ronald D. Ferguson, standard that was closely ON OUR WEBSITE related to the product and Robert P. Sheridan, Zhengwei Peng, Donald V. Conway, Kerstin Zawatzky, Heather Wang, Tim Cernak, Ian W. Davies, Daniel A. DiRocco, Huaming Sheng*, Read the full article optimized operating pa-",
+      "keywords": [
+        "reaction",
+        "maldi",
+        "reactions",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-4",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 Christopher J. Welch*, Spencer D. Dreher* at http://dx.doi. rameters, MALDI-MS pro- org/10.1126/ vided good correlation science.aar6236 with existing ultra per- .................................................. INTRODUCTION: The invention of new chem- prove to meet the throughput demands of this formance liquid chroma- ical reactions provides new bond construction expansive reaction screening. tography (UPLC) MS approaches (coefficient strategies for improved access to diverse regions of determination R2 up to 0.85), allowing cor- of structural space. However, a pervasive, long- RATIONALE: We report a nanomole-scale rect binning of hits and misses (defined\u2026",
+      "keywords": [
+        "reaction",
+        "maldi",
+        "science",
+        "doi",
+        "reactions"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-5",
+      "text": "CONCLUSION: In the near future, each prob- lematic structural element that is identified through systematic dark-space exploration can be promoted for in-depth examination to pre- cisely define the specific parameters that deter- mine reaction outcome at the atomic and quantum molecular level. Predictive machine learning models will use this focused data to enable synthetic practitioners to select the most appropriate reactions for use in a particular synthetic setting. In addition, functionality that persistently fails across synthetic methods can sharply define important challenges for the in- vention of improved chemical reactions. The list of author affiliations is available in the full article online. Extended nanomole chemistry and MALDI-TOF M\u2026",
+      "keywords": [
+        "reaction",
+        "maldi",
+        "data",
+        "can",
+        "synthetic"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-6",
+      "text": "Lin et al., Science 361, 569 (2018) 10 August 2018 1 of 1 R ES E A RC H",
+      "keywords": [
+        "science"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-7",
+      "text": "failure within large substrate sets, information RESEARCH ARTICLE that is largely missing from current chemistry data sources, representing a notable advance toward broadly effective reaction profiling. ORGANIC CHEMISTRY Extending nanomole synthesis for systematic reaction profiling Mapping the dark space of chemical Our interest in reaction profiling has grown from an internal effort termed the C N Coupling Ini- reactions with extended nanomole tiative, which aims to systematically build tools to completely understand and leverage a given",
+      "keywords": [
+        "reaction",
+        "data",
+        "reactions",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-8",
+      "text": "synthesis and MALDI-TOF MS synthetic transformation. A recent examination of our electronic notebooks (ELNs) shows C N coupling to be a hit-or-miss affair (~10,000 ex- Shishi Lin1, Sergei Dikler2, William D. Blincoe3, Ronald D. Ferguson1, amples, ~35% failure rate) that, despite its po- Robert P. Sheridan4, Zhengwei Peng4, Donald V. Conway5, Kerstin Zawatzky3, tential to render druglike molecules, may be Heather Wang3, Tim Cernak6*, Ian W. Davies7 , Daniel A. DiRocco7, Huaming Sheng3 , underused because of its higher demand for op-",
+      "keywords": [
+        "maldi",
+        "synthetic"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-9",
+      "text": "Downloaded from https://www.science.org at University of Michigan Ann Arbor on March 26, 2026 Christopher J. Welch3 ||, Spencer D. Dreher1 timization than, for example, the Suzuki reaction (~50,000 example, 18% failure). Attempts to use Understanding the practical limitations of chemical reactions is critically important for this ELN dataset for creating predictive models efficiently planning the synthesis of compounds in pharmaceutical, agrochemical, and have been disappointing, as the data are frac- specialty chemical research and development. However, literature reports of the scope of tured, with many different classes of amines that new reactions are often cursory and biased toward successful results, severely limiting would be expected to have\u2026",
+      "keywords": [
+        "reaction",
+        "science",
+        "data",
+        "are",
+        "reactions"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-10",
+      "text": "T dom being repeated. Given this lack of a suit- he field of synthetic organic chemistry has results limits the utility of this information for able dataset, a real and urgent goal of applied spawned a vast array of creative reactions model building. Additionally, these data have not research is to increase the understanding of C N that can be logically combined to prepare been collected under controlled experimental coupling reactions by building an experimental nearly any molecule. However, efficient se- conditions, and most of the substrates are not process suitable for fast reaction mapping. Clearly, lection of the precise reaction sequence that representative of the complexity that arises in this systematic reaction profiling capability will le\u2026",
+      "keywords": [
+        "reaction",
+        "data",
+        "can",
+        "are",
+        "synthetic"
+      ]
+    },
+    {
+      "chunk_id": "science.aar6236-11",
+      "text": "Lin et al., Science 361, eaar6236 (2018) 10 August 2018 1 of 7 R ES E A RC H | R E S EA R C H A R T I C LE",
+      "keywords": [
+        "science"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:16:54.929435+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

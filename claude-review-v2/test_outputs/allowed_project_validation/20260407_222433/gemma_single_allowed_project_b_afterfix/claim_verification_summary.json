@@ -1,0 +1,13 @@
+{
+  "claim_count": 3,
+  "claims_checked": 21,
+  "likely_overstated": 0,
+  "unsupported_or_unclear": 9,
+  "missing_citation": 12,
+  "status": "line_by_line",
+  "status_counts": {
+    "abstract_only": 4,
+    "unverifiable": 5,
+    "missing_citation": 12
+  }
+}

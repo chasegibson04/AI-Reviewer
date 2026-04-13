@@ -1,0 +1,178 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41586-018-0056-8 (3).pdf",
+    "size_bytes": 18624257,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "1f4d4d68f6a46e984af93593ba9c13eaaad4034e"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/s41586-018-0056-8 (3).pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Most drugs are developed through iterative rounds of chemical protein concentration. With this advance, potent protein inhibitors",
+    "doi": "10.1038/s41586-018-0056-8",
+    "year": "2018",
+    "authors": [
+      "Most",
+      "With"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "most drugs developed iterative rounds chemical protein concentration with this advance potent",
+    "title_tokens": [
+      "most",
+      "drugs",
+      "developed",
+      "iterative",
+      "rounds",
+      "chemical",
+      "protein",
+      "concentration",
+      "with",
+      "this",
+      "advance",
+      "potent",
+      "inhibitors"
+    ],
+    "author_tokens": [
+      "most",
+      "with"
+    ],
+    "year": "2018",
+    "doi_variants": [
+      "10.1038/s41586-018-0056-8"
+    ],
+    "source_name_tokens": []
+  },
+  "abstract": "Letter https://doi.org/10.1038/s41586-018-0056-8\n\nNanoscale synthesis and affinity ranking\nNathan J. Gesmundo1,3, B\u00e9reng\u00e8re Sauvagnat2, Patrick J. Curran2, Matthew P. Richards2, Christine L.",
+  "key_claims": [
+    "b, Crude nanoscale reactions were submitted to the ASMS assay, with d, Comparison of results of ASMS affinity ranking from crude reaction affinity ranking determined by reducing the concentration of ERK2 to mixtures generated on a 100-nmol scale with those from purified product\u2026",
+    "Reactions with different workup protocols were submitted dimercaptotriazine (DMT) resin; and c, 50-mmol-scale reactions in to the ASMS assay, with affinity ranking determined by reducing the which the product samples were purified by reverse-phase HPLC before concentration of CH\u2026",
+    "2c beside the heat maps show the mapping of nucleophiles, solvents, catalysts and 43 in Fig.",
+    "8 | Comparison of the results of affinity ranking by reducing the concentration of CHK1 to increase the competition for with IC50 values for inhibition of CHK1 functional activity."
+  ],
+  "methods_summary": "The merger of a method for high-throughput chemical thesized on a traditional scale (about 20 mg) so that bioassay results synthesis with a biochemical assay would facilitate the exploration of of unpurified nanoscale reactions could be compared directly to data this enormous se Miniaturized high-throughput chemical c\u2026",
+  "quantitative_findings": [
+    "Letter https://doi.org/10.1038/s41586-018-0056-8 Nanoscale synthesis and affinity ranking Nathan J.",
+    "Gesmundo1,3, B reng re Sauvagnat2, Patrick J.",
+    "Dandliker2 & Tim Cernak1,4* Most drugs are developed through iterative rounds of chemical protein concentration."
+  ],
+  "limitations": [
+    "These reaction attributes limit the reaction."
+  ],
+  "terminology_entities": [
+    "reaction",
+    "fig",
+    "data",
+    "affinity",
+    "reactions",
+    "chk1",
+    "extended",
+    "conditions",
+    "ic50",
+    "yield",
+    "synthesis",
+    "compounds"
+  ],
+  "citation_anchors": [
+    "10.1038/s41586-018-0056-8",
+    "2018",
+    "Most",
+    "With",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "s41586-018-0056-8-3-2",
+      "text": "Nanoscale synthesis and affinity ranking Nathan J. Gesmundo1,3, B reng re Sauvagnat2, Patrick J. Curran2, Matthew P. Richards2, Christine L. Andrews2, Peter J. Dandliker2 & Tim Cernak1,4*",
+      "keywords": [
+        "affinity",
+        "synthesis"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-3",
+      "text": "Most drugs are developed through iterative rounds of chemical protein concentration. With this advance, potent protein inhibitors synthesis and biochemical testing to optimize the affinity of a may be identified at a nanomole-scale while forgoing time-consuming particular compound for a protein target of therapeutic interest. This reaction purification. process is challenging because candidate molecules must be selected We validated NanoSAR by synthesizing libraries based on three of from a chemical space of more than 1060 drug-like possibilities1, and the most popular transformations used in pharmaceutical research22,23. a single reaction used to synthesize each molecule has more than Each library contains about 20 compounds and each reaction was r\u2026",
+      "keywords": [
+        "reaction",
+        "affinity",
+        "synthesis",
+        "compounds"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-4",
+      "text": "as complex drug-like intermediates can be used. Affinity-selection mass spectrometry (ASMS) is a sensitive bioassay18,19 that relates pro- Traditional Nanoscale ASMS Affinity tein binding to mass detection of a candidate molecule. ASMS was synthesis synthesis Separates ranking chosen to assay crude nanoscale reaction mixtures directly because 1 condition Many conditions compounds Decreasing the ~20 mg ~0.05 mg on the basis protein concentration misleading readouts related to catalysts or other reaction components per reaction per reaction of affinity induces competition can be omitted as long as the molecular masses of the desired prod- ucts and residual reagents can be resolved by high-resolution mass Fig. 1 | Nanoscale synthesis and affinity ranki\u2026",
+      "keywords": [
+        "reaction",
+        "fig",
+        "affinity",
+        "conditions",
+        "synthesis"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-5",
+      "text": "2 2 8 | N A T U RE | V O L 5 5 7 | 1 0 M A Y 2 0 1 8 2018 Macmillan Publishers Limited, part of Springer Nature. All rights reserved. Letter RESEARCH",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-6",
+      "text": "a H Yield (%) [Protein] [ERK2] purified and assayed for inhibition of the function of the kinase N O 0 1",
+      "keywords": [
+        "yield"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-7",
+      "text": "100 ID High Low 1 ( M) HATU, iPr NEt, NMP HATU, iPr NEt, NMP MK226. NanoSAR can readily distinguish potent inhibitors, such 2 2",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-8",
+      "text": "N A1 A2 49% yield 38% yield as 5 (half-maximal inhibitory concentration IC50 = 59 nM), from OH HN A3 impotent inhibitors, such as 6 (IC50 3,400 nM). IC50 values for all",
+      "keywords": [
+        "ic50",
+        "yield"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-9",
+      "text": "Nanoscale synthesis A4 A5 HO O 18 analogues were determined, using purified compounds produced",
+      "keywords": [
+        "synthesis",
+        "compounds"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-10",
+      "text": "Affinity ranking A6 A7 OH on a 50- mol scale, and could be predicted from the NanoSAR data A8 A9 HN HN 1 A10",
+      "keywords": [
+        "data",
+        "affinity"
+      ]
+    },
+    {
+      "chunk_id": "s41586-018-0056-8-3-11",
+      "text": "(Extended Data Fig. 3). Similarly, bromide 7 was used to generate 20 1 A11 A12 Cl distinct inhibitors27 of the kinase CHK1 via C C and C N coupling A13 2 19 reactions 3",
+      "keywords": [
+        "reaction",
+        "fig",
+        "data",
+        "reactions",
+        "chk1"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:12:39.848662+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

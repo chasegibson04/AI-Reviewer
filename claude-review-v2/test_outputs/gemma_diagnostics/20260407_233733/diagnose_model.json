@@ -1,0 +1,76 @@
+{
+  "model": "gemma4:31b",
+  "short_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "sample": "OK_GEMMA_SHORT"
+  },
+  "medium_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "sample": "1. The sample size is small (n=42), potentially limiting statistical power.\n2. The control condition is undefined, preventing an assessment of the experimental baseline.\n3. The absence of confidence intervals precludes e"
+  },
+  "json_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "parsed": {
+      "findings": [
+        "Lack of sample-size rationale"
+      ],
+      "risk_level": "medium"
+    }
+  },
+  "ingest_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "parsed": {
+      "title": "Not provided",
+      "abstract_summary": "Evaluation of a catalytic flow process across 42 runs to determine yield improvement over a baseline.",
+      "key_claims": [
+        "The catalytic flow process increases yield compared to the baseline."
+      ],
+      "methods_summary": "Randomized block design with a control arm; statistical significance set at p < 0.05.",
+      "quantitative_findings": [
+        "18% yield gain over baseline"
+      ],
+      "limitations": []
+    }
+  },
+  "citation_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "parsed": {
+      "status": "too_broad",
+      "confidence": "high",
+      "rationale": "The claim asserts improvement across 'all tested conditions,' but the evidence only specifies results for 'one control condition.'",
+      "fix": "Limit the claim to the specific control condition mentioned in the abstract."
+    }
+  },
+  "long_review_prompt": {
+    "status": "ok",
+    "attempt": 1,
+    "parsed": {
+      "issues": [
+        {
+          "issue": "Lack of explicit detail regarding sampling procedures and data exclusion criteria.",
+          "fix": "Provide a detailed description of the sampling strategy and a transparent log of all excluded data points with justification.",
+          "severity": "High"
+        },
+        {
+          "issue": "Quantitative statements and results are presented without supporting citations or references.",
+          "fix": "Ensure all quantitative claims and baseline comparisons are supported by appropriate citations or internal data references.",
+          "severity": "Medium"
+        },
+        {
+          "issue": "Methodological rigor is undermined by vague descriptions of the control arm and randomized blocks.",
+          "fix": "Explicitly define the control parameters and the specific randomization protocol used for the blocks.",
+          "severity": "Medium"
+        }
+      ]
+    }
+  },
+  "usable": true,
+  "usable_for_ingest": true,
+  "usable_for_citation_verification": true,
+  "usable_for_long_review": true
+}

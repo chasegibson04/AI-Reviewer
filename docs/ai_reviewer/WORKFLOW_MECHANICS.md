@@ -118,6 +118,21 @@ Current behavior:
 - rewrites are verified for fluency, faithfulness, and unsupported additions
 - unsafe rewrites abstain instead of forcing bad local edits
 
+Current annotation pass order:
+1. sentence claim-check pass (sentence IDs, classification, privacy gating, verdict mapping)
+2. style/clarity pass (sentence-local rewrite proposals with usefulness gating)
+3. existing-comment responder pass (DOCX native comments -> response manifest)
+4. dedupe/localization/revision enrichment + final arbitration
+
+Pass-level model behavior:
+- prefer `gemma4:31b` for claim-check/style/comment-responder when available
+- if model responses fail, each pass now triggers fail-fast fallback and continues deterministically for remaining items in that run
+- manifest model blocks record:
+  - `selected_model`
+  - `gemma4_31b_used`
+  - `fallback_used`
+  - `fail_fast_fallback_triggered`
+
 DOCX behavior:
 - existing comments are preserved
 - visible prior suggestion blocks are preserved but removed from analysis text
@@ -128,6 +143,11 @@ Validation artifacts:
 - `commented_docx_validation.json`
 - `manuscript_suggested_changes_manifest.json`
 - `suggested_changes_validation.json`
+- `sentence_claim_check_manifest.json`
+- `style_clarity_manifest.json`
+- `comment_response_manifest.json`
+- `comment_response_manifest.md`
+- `artifact_quality_checks.json`
 - `support_ingest_report.json`
 - `support_usage_ledger.json`
 - `assertion_ledger.json`
@@ -193,6 +213,7 @@ Current behavior:
 - reconciliation may still fall back to deterministic synthesis
 - final arbitration may be skipped if schema-incomplete
 - runs are verified after artifact generation
+- claim/style/comment-responder passes degrade once per run after first model failure (fail-fast), instead of retrying failed calls for every sentence/comment
 
 ## 8. What Is Still Weak
 

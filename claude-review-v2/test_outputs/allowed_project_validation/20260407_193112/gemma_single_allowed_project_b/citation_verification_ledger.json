@@ -1,0 +1,8 @@
+{
+  "findings": [
+    "No conventional in-text citation markers detected.",
+    "No DOI strings detected in manuscript text."
+  ],
+  "citation_marker_count": 0,
+  "doi_count": 0
+}

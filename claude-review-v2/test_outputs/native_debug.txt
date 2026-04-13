@@ -1,0 +1,13 @@
+2026-04-05T21:37:37.096Z [DEBUG] MDM settings load completed in 0ms
+2026-04-05T21:37:37.140Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-04-05T21:37:37.140Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.claude/settings.json
+2026-04-05T21:37:37.140Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.claude/settings.local.json
+2026-04-05T21:37:37.140Z [DEBUG] CA certs: Config fallback - globalEnv keys: , settingsEnv keys: none
+2026-04-05T21:37:37.141Z [DEBUG] [init] configureGlobalMTLS starting
+2026-04-05T21:37:37.141Z [DEBUG] [init] configureGlobalMTLS complete
+2026-04-05T21:37:37.141Z [DEBUG] [init] configureGlobalAgents starting
+2026-04-05T21:37:37.142Z [DEBUG] CA certs: useSystemCA=false, extraCertsPath=undefined
+2026-04-05T21:37:37.142Z [DEBUG] [init] configureGlobalAgents complete
+2026-04-05T21:37:37.178Z [DEBUG] Error log sink initialized
+2026-04-05T21:37:37.181Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-04-05T21:37:37.184Z [DEBUG] [ToolSearch:optimistic] mode=tst, ENABLE_TOOL_SEARCH=undefined, result=true

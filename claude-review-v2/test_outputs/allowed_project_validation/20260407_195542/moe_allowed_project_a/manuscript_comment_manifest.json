@@ -1,0 +1,12 @@
+[
+  "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions.",
+  "Statistical language exists, but control/baseline evidence is weak. Fix: Clarify controls, sample rationale, and statistical assumptions.",
+  "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion.",
+  "Citation marker could not be mapped to a reference entry. Fix: Check numbering/author-year format and ensure this citation appears in References.",
+  "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+  "Average sentence length is high; prose may be hard to follow in dense sections.",
+  "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+  "No DOI strings detected in manuscript text.",
+  "Long sentence",
+  "This evidence-bearing sentence may need an explicit citation."
+]

@@ -1,0 +1,204 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis.pdf",
+    "size_bytes": 4654453,
+    "mtime_ns": 1774547701000000000,
+    "sha1_prefix": "b2fb9d3b7ae86882de08f02664d605ce6051cf63"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Published as part of the Accounts of Chemical Research special issue Data Science Meets Chemistry .",
+    "doi": "10.1021/acs.accounts.1c00119",
+    "year": "2021",
+    "authors": [
+      "Published",
+      "Accounts",
+      "Chemical",
+      "Research",
+      "Data",
+      "Science"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "published part accounts chemical research special issue data science meets chemistry",
+    "title_tokens": [
+      "published",
+      "part",
+      "accounts",
+      "chemical",
+      "research",
+      "special",
+      "issue",
+      "data",
+      "science",
+      "meets",
+      "chemistry"
+    ],
+    "author_tokens": [
+      "published",
+      "accounts",
+      "chemical",
+      "research",
+      "data",
+      "science"
+    ],
+    "year": "2021",
+    "doi_variants": [
+      "10.1021/acs.accounts.1c00119"
+    ],
+    "source_name_tokens": [
+      "ultrahigh",
+      "throughput",
+      "experimentation",
+      "information",
+      "rich",
+      "chemical",
+      "synthesis"
+    ]
+  },
+  "abstract": "pubs.acs.org/accounts Article\n\n Ultrahigh-Throughput Experimentation for Information-Rich\n Chemical Synthesis\n Published as part of the Accounts of Chemical Research special issue \u201cData Science Meets Chemistry\u201d. Babak Mahjour, Yuning Shen, and Tim Cernak*\n\n Cite This: Acc. Chem. Res.",
+  "key_claims": [
+    "ultraHTE in 1536-well plates to increase the information Mahjour, B.; Shen, Y.; Liu, W.; Cernak, T.",
+    "Each reaction we ran contained 0.05 mg of separation of compounds that had high a nity for speci c theoretical product, which is ample material to run multiple in proteins from those that had little or no a nity.3 To increase vitro biochemical assays."
+  ],
+  "methods_summary": "culminated in spirocycle 4,2 while another library array Colleagues there have already reviewed the strategic revealed biaryl electrophiles as viable precursors, resulting in application of HTE in pharmaceutical synthesis.7 There have 5.14 These compounds were critical stepping From this simple experiment we identi ed\u2026",
+  "quantitative_findings": [
+    "2021, 54, 2337 2346 Read Online See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.",
+    "ACCESS Metrics & More Article Recommendations Downloaded via UNIV OF MICHIGAN ANN ARBOR on March 26, 2026 at 17:51:32 (UTC).",
+    "This Account details the miniaturization of synthetic chemistry culminating in ultrahigh- throughput experimentation (ultraHTE), wherein reactions are run in 1 L droplets inside of 1536-well microtiter plates to minimize the use of starting materials while maximizing the output\u2026"
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "reaction",
+    "chemical",
+    "synthesis",
+    "was",
+    "chemistry",
+    "reactions",
+    "chem",
+    "are",
+    "accounts",
+    "conditions",
+    "data",
+    "cernak"
+  ],
+  "citation_anchors": [
+    "10.1021/acs.accounts.1c00119",
+    "2021",
+    "Published",
+    "Accounts",
+    "Chemical",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-2",
+      "text": "Ultrahigh-Throughput Experimentation for Information-Rich Chemical Synthesis Published as part of the Accounts of Chemical Research special issue Data Science Meets Chemistry . Babak Mahjour, Yuning Shen, and Tim Cernak*",
+      "keywords": [
+        "chemical",
+        "synthesis",
+        "chemistry",
+        "chem",
+        "accounts"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-3",
+      "text": "Cite This: Acc. Chem. Res. 2021, 54, 2337 2346 Read Online See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.",
+      "keywords": [
+        "chem",
+        "are"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-4",
+      "text": "ACCESS Metrics & More Article Recommendations Downloaded via UNIV OF MICHIGAN ANN ARBOR on March 26, 2026 at 17:51:32 (UTC).",
+      "keywords": []
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-5",
+      "text": "CONSPECTUS: The incorporation of data science is revolutio- nizing organic chemistry. It is becoming increasingly possible to predict reaction outcomes with accuracy, computationally plan new retrosynthetic routes to complex molecules, and design molecules with sophisticated functions. Critical to these develop- ments has been statistical analysis of reaction data, for instance with machine learning, yet there is very little reaction data available upon which to build models. Reaction data can be mined from the literature, but experimental data tends to be reported in a text format that is di cult for computers to read. Compounding the issue, literature data are heavily biased toward productive reactions, and few negative reaction data points are re\u2026",
+      "keywords": [
+        "reaction",
+        "chemistry",
+        "reactions",
+        "chem",
+        "are"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-6",
+      "text": "KEY REFERENCES Buitrago Santanilla, A.; Regalado, E. L.; Pereira, T.; Shevlin, M.; Bateman, K.; Campeau, L. C.; Schneeweis, Received: February 18, 2021 J.; Berritt, S.; Shi, Z. C.; Nantermet, P.; Liu, Y.; Helmy, Published: April 23, 2021 R.; Welch, C. J.; Vachal, P.; Davies, I. W.; Cernak, T.; Dreher, S. D. Nanomole-scale high-throughput chem- istry for the synthesis of complex molecules. Science 2015, 347, 49 53.1 This report described the f irst use of",
+      "keywords": [
+        "synthesis",
+        "chem",
+        "cernak"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-7",
+      "text": "2021 American Chemical Society https://doi.org/10.1021/acs.accounts.1c00119 2337 Acc. Chem. Res. 2021, 54, 2337 2346 Accounts of Chemical Research pubs.acs.org/accounts Article",
+      "keywords": [
+        "chemical",
+        "chem",
+        "accounts"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-8",
+      "text": "Figure 1. (a) HTE was used to develop reaction conditions for a key SNAr coupling. (b) A rst survey of four solvents and six bases revealed several productive conditions for the coupling of 1 and 2 to form 3. Among the best conditions from this screen, the use of NaHCO3 in NMP was revealed as the most robust set of conditions through subsequent parallel synthesis studies (not shown). (c) Registration of compounds with the 2- aminopyridine motif on the DGAT1 program accelerated after the day that the screen was run (red line). (d) The availability of these reaction conditions enabled hit expansion on a series of DGAT1 inhibitors, culminating in key compounds such as 3 7.",
+      "keywords": [
+        "reaction",
+        "synthesis",
+        "was",
+        "conditions"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-9",
+      "text": "ultraHTE in 1536-well plates to increase the information Mahjour, B.; Shen, Y.; Liu, W.; Cernak, T. A map of the density in reaction arrays. amine carboxylic acid coupling system. Nature 2020, Cernak, T.; Gesmundo, N. J.; Dykstra, K.; Yu, Y.; Wu, 580, 71 75.4 This paper details the enumeration of Z.; Shi, Z. C.; Vachal, P.; Sperbeck, D.; He, S.; Murphy, chemical transformations and the link between reactions B. A.; Sonatore, L.; Williams, S.; Madeira, M.; Verras, A.; and properties. Reiter, M.; Lee, C. H.; Cu , J.; Sherer, E. C.; Kuethe, J.; Goble, S.; Perrotto, N.; Pinto, S.; Shen, D. M.; Nargund, R.; Balkovec, J.; DeVita, R. J.; Dreher, S. D. Microscale INTRODUCTION Moore s law projected that computer power would accelerate High-Throughput Experim\u2026",
+      "keywords": [
+        "reaction",
+        "chemical",
+        "reactions",
+        "chem",
+        "cernak"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-10",
+      "text": "implications of such a development for establishing an compounds that collectively advanced the 2-piperidinylpyr- interface of chemical synthesis and data science. A signi cant idine series. For instance, one parallel synthesis campaign portion of this work was performed at Merck & Co., Inc. culminated in spirocycle 4,2 while another library array Colleagues there have already reviewed the strategic revealed biaryl electrophiles as viable precursors, resulting in application of HTE in pharmaceutical synthesis.7 There have 5.14 These compounds were critical stepping stones in the been a number of other reviews of HTE as well.8 12 This development of advanced compounds 615 and 7 (Figure 1d).16 Account speci cally covers reaction miniaturization to gen\u2026",
+      "keywords": [
+        "reaction",
+        "chemical",
+        "synthesis",
+        "was",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "ultrahigh-throughput-experimentation-for-information-rich-chemical-synthesis-11",
+      "text": "arrays were key to enabling the exploration of C H catalyzed reactions. This was particularly important to us functionalization on complex molecules, where typically because our reaction miniaturization e orts were concurrent substrate amounts were limited and product decomposition with our studies in LSF, where air-sensitive transition metal and undesired side reactions were common. catalysts were commonly used. Many classic organic reactions Our application of HTE in medicinal chemistry was like amide coupling, reductive amination, or sulfonamide consistently challenged by the availability of precious starting formation with amines and sulfonyl chlorides are bread-and- materials. On the front lines of drug discovery, substrates have butter reactio\u2026",
+      "keywords": [
+        "reaction",
+        "was",
+        "chemistry",
+        "reactions",
+        "chem"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:17:34.999227+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

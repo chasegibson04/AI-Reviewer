@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-04-07T19:31:12.550189+00:00",
+  "status": "completed",
+  "profile": "local_moe",
+  "mode": "deep_review",
+  "reasoning_mode_requested": "moe",
+  "reasoning_mode_effective": "moe",
+  "degraded": false,
+  "fallback_reason": "",
+  "model_target": "local_moe",
+  "stage_model_map": [
+    {
+      "stage": "structural_review",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "high_level_review",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "hostile_review",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "methods_verification",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "line_by_line_edits",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "style_alignment",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 2
+    },
+    {
+      "stage": "reconciliation",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    },
+    {
+      "stage": "final_arbitration",
+      "model": "local_moe",
+      "status": "fallback_error",
+      "error": "OLLAMA_UNREACHABLE",
+      "finding_count": 1
+    }
+  ],
+  "comment_count": 7,
+  "suggested_change_count": 10,
+  "artifact_version": "v2-review-bridge"
+}

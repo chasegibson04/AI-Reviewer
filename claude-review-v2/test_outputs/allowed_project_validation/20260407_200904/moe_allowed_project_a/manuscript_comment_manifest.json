@@ -1,0 +1,13 @@
+[
+  "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions.",
+  "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion.",
+  "Missing explicit transition markers for: however, therefore, in contrast, consequently",
+  "Introduction detected without a clear Methods heading.",
+  "Core manuscript sections found by heuristic checks.",
+  "No conventional in-text citation markers detected.",
+  "Long sentence",
+  "This sentence may need a citation: We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN",
+  "This sentence may need a citation: High-throughput experimentation (HTE) is a widely practiced method for the discovery and op",
+  "This sentence may need a citation: Then, we should translate the output from ChatGPT into an input file for the HTE management",
+  "This sentence may need a citation: 2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testin"
+]

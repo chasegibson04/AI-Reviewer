@@ -1,0 +1,73 @@
+{
+  "schema_version": "support_ingest_v1",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/tmp_cache_invalidation_case/materials/citations/support1.pdf",
+    "size_bytes": 134,
+    "mtime_ns": 1775591460403105651,
+    "sha1_prefix": "e01dbaf4d5c5d77e9b76d52cdd7fd1bf496c0514"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/tmp_cache_invalidation_case/materials/citations/support1.pdf",
+    "parse_engine": "pdf-byte-fallback",
+    "warnings": [
+      "Using heuristic byte-level PDF fallback parser; install pypdf for better extraction."
+    ]
+  },
+  "identity": {
+    "title": "Abstract Updated study shows 30 percent gain under improved controls.",
+    "doi": "10.1000/test1",
+    "year": "",
+    "authors": [
+      "Abstract",
+      "Updated"
+    ]
+  },
+  "abstract": "Updated study shows 30 percent gain under improved controls. Methods randomized control n=84 doi 10.1000/test1",
+  "key_claims": [],
+  "methods_summary": "Methods randomized control n=84 doi 10.1000/test1",
+  "quantitative_findings": [
+    "Abstract Updated study shows 30 percent gain under improved controls.",
+    "Methods randomized control n=84 doi 10.1000/test1"
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "abstract",
+    "updated",
+    "study",
+    "shows",
+    "percent",
+    "gain",
+    "under",
+    "improved",
+    "controls",
+    "randomized",
+    "control",
+    "doi"
+  ],
+  "citation_anchors": [
+    "10.1000/test1",
+    "Abstract",
+    "Updated"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "support1-1",
+      "text": "Abstract Updated study shows 30 percent gain under improved controls. Methods randomized control n=84 doi 10.1000/test1",
+      "keywords": [
+        "abstract",
+        "updated",
+        "study",
+        "shows",
+        "percent"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-07T19:51:00.404764+00:00",
+    "model_requested": "gemma4:26b",
+    "model_mode": "heuristic_only",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "model_not_used"
+  }
+}

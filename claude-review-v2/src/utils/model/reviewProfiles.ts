@@ -65,6 +65,18 @@ const PROFILE_OPTIONS: ReviewProfileOption[] = [
     description: 'Aggregated full-manuscript final judgment pass',
   },
   {
+    alias: 'gemma4_26b',
+    label: 'Gemma 4 26B (Direct)',
+    style: 'big',
+    description: 'Single-model direct profile pinned to gemma4:26b',
+  },
+  {
+    alias: 'gemma4_31b',
+    label: 'Gemma 4 31B (Direct)',
+    style: 'big',
+    description: 'Single-model direct profile pinned to gemma4:31b',
+  },
+  {
     alias: 'quick_local',
     label: 'Quick Local',
     style: 'quick',

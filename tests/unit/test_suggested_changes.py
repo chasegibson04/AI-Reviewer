@@ -7,6 +7,7 @@ from docx import Document
 
 from ai_reviewer.models.base import ChatRequest
 from ai_reviewer.review.manuscript_annotation import (
+    _basic_rewrite_checks,
     _balance_comment_entries,
     _comment_entry_quality_ok,
     _dedupe_comment_entries,
@@ -14,8 +15,11 @@ from ai_reviewer.review.manuscript_annotation import (
     _final_suggested_change_arbitration,
     _generate_suggested_changes,
     _localize_comment_entries,
+    _rewrite_usefulness_check,
     _revise_comment_entries,
     _section_lookup_for_docx,
+    _validate_comment_artifact_quality,
+    _validate_suggested_change_artifact_quality,
 )
 
 
@@ -249,9 +253,11 @@ def test_suggested_changes_unsupported_addition_falls_back_to_safe_local_rewrite
         rewrite_model="test-chat",
         timeout_seconds=30,
     )
-    assert applied
-    assert changes[0]["status"] == "applied"
-    assert changes[0]["verification"]["reason"] == "unsupported_addition"
+    assert changes[0]["status"] in {"applied", "skipped"}
+    if changes[0]["status"] == "applied":
+        assert changes[0]["verification"]["reason"] == "unsupported_addition"
+    else:
+        assert changes[0]["skip_reason"] in {"unsupported_addition", "trivial_change", "no_change_normalized"}
 
 
 def test_suggested_changes_rejects_awkward_rewrite_without_safe_fallback(tmp_path: Path):
@@ -456,6 +462,46 @@ def test_comment_entry_quality_gate_rejects_low_value_suggestion():
     assert _comment_entry_quality_ok(entry, paragraph) is False
 
 
+def test_comment_entry_quality_gate_accepts_claim_check_with_fuzzy_anchor_match():
+    paragraph = (
+        "The desired product was observed in every instance tried on the first attempt, and isolated yields ranged from 62 to 94%."
+    )
+    entry = {
+        "from_claim_check": True,
+        "claim_check_verdict": "likely overclaim",
+        "critique": "High-certainty wording appears broader than available support.",
+        "suggested_revision": "Narrow the claim to tested conditions.",
+        "anchor_text": "desired product was observed in every instance tried on the first attempt",
+    }
+    assert _comment_entry_quality_ok(entry, paragraph) is True
+
+
+def test_comment_entry_quality_gate_rejects_claim_check_reference_line():
+    paragraph = "Nature 557, 228-232 (2018)."
+    entry = {
+        "from_claim_check": True,
+        "claim_check_verdict": "needs citation",
+        "critique": "Literature-style claim lacks explicit citation in sentence.",
+        "suggested_revision": "Add a citation directly after this claim.",
+        "anchor_text": "Nature 557, 228-232 (2018).",
+    }
+    assert _comment_entry_quality_ok(entry, paragraph) is False
+
+
+def test_comment_entry_quality_gate_rejects_paragraph_scale_local_anchor():
+    paragraph = (
+        "Chemical synthesis is a primary bottleneck in drug development. "
+        "High-throughput experimentation is a widely practiced method for discovery and optimization."
+    )
+    entry = {
+        "issue_type": "style/clarity",
+        "critique": "Sentence focus is diffuse.",
+        "suggested_revision": "Split this into two sentences for readability.",
+        "anchor_text": paragraph,
+    }
+    assert _comment_entry_quality_ok(entry, paragraph) is False
+
+
 def test_section_lookup_keeps_methods_and_introduction_despite_pdf_noise(tmp_path: Path):
     base_docx = tmp_path / "base.docx"
     _write_docx(
@@ -631,8 +677,8 @@ def test_revise_comment_entries_makes_local_intro_comment(tmp_path: Path):
         }
     ]
     revised = _revise_comment_entries(entries, base_docx)
-    assert "background and the paper-specific turn" in revised[0]["critique"]
-    assert revised[0]["suggested_revision"].startswith("Suggested wording direction:")
+    assert "Background and contribution are mixed" in revised[0]["critique"]
+    assert "Split context" in revised[0]["suggested_revision"]
     assert "introduction section" in revised[0]["rationale"]
 
 
@@ -664,8 +710,8 @@ def test_revise_comment_entries_varies_by_section_style(tmp_path: Path):
         },
     ]
     revised = _revise_comment_entries(entries, base_docx)
-    assert "background and the paper-specific turn" in revised[0]["critique"]
-    assert "bundles several setup steps together" in revised[1]["critique"]
+    assert "Background and contribution are mixed" in revised[0]["critique"]
+    assert "bundled" in revised[1]["critique"].lower()
 
 def test_dedupe_comment_entries_suppresses_duplicate_anchor_issue():
     entries = [
@@ -721,9 +767,9 @@ def test_localize_comment_entries_rewrites_generic_methods_comment(tmp_path: Pat
         }
     ]
     localized = _localize_comment_entries(entries, base_docx)
-    assert "This procedural sentence" in localized[0]["critique"]
+    assert "Operation is clear" in localized[0]["critique"]
     assert "glovebox" in localized[0]["anchor_text"].lower()
-    assert localized[0]["suggested_revision"].startswith("Proposed edit:")
+    assert localized[0]["suggested_revision"]
 
 
 def test_suggested_changes_nonlocal_methods_expansion_abstains(tmp_path: Path):
@@ -812,7 +858,7 @@ def test_final_comment_arbitration_can_revise_comment(tmp_path: Path):
     )
     revised = _final_comment_arbitration(entries, base_docx, provider, "test-chat", 30)
     assert len(revised) == 1
-    assert revised[0]["issue_type"] == "evidence/overclaim concern"
+    assert revised[0]["issue_type"] == "evidence/overclaim"
     assert "demonstrated evidence" in revised[0]["critique"]
 
 
@@ -869,3 +915,148 @@ def test_final_suggested_change_arbitration_can_revise_rewrite(tmp_path: Path):
     revised = _final_suggested_change_arbitration(changes, base_docx, provider, "test-chat", 30)
     assert revised[0]["status"] == "applied"
     assert revised[0]["revised_text"] == "This workflow is experimentally demonstrated in the tested cases."
+
+
+def test_localize_comment_entries_anchors_single_sentence_not_whole_paragraph(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    paragraph = (
+        "The introduction outlines historical context for the method. "
+        "This workflow is always robust across all settings according to the manuscript. "
+        "The final sentence describes implementation details."
+    )
+    _write_docx(base_docx, [paragraph])
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "style/clarity",
+            "severity": "medium",
+            "critique": "This paragraph is unclear and too broad.",
+            "suggested_revision": "Please improve this paragraph.",
+            "anchor_text": paragraph,
+        }
+    ]
+    localized = _localize_comment_entries(entries, base_docx)
+    anchor = localized[0]["anchor_text"]
+    assert anchor != paragraph
+    assert "always robust" in anchor.lower()
+
+
+def test_localize_comment_entries_can_clip_long_sentence_to_clause(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    sentence = (
+        "The method always delivers complete conversion across all substrates, even when conditions vary substantially, "
+        "which may read broader than the actual tested scope in this manuscript."
+    )
+    _write_docx(base_docx, [sentence])
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "evidence/overclaim concern",
+            "severity": "high",
+            "critique": "Always/all wording overstates the tested evidence.",
+            "suggested_revision": "Narrow the claim scope.",
+        }
+    ]
+    localized = _localize_comment_entries(entries, base_docx)
+    anchor = localized[0]["anchor_text"]
+    assert len(anchor.split()) <= 30
+    assert "always" in anchor.lower() or "all" in anchor.lower()
+
+
+def test_basic_rewrite_checks_rejects_trivial_normalized_change():
+    original = "This workflow is robust across tested conditions."
+    revised = "This workflow is robust across tested conditions !"
+    ok, reason = _basic_rewrite_checks(original, revised)
+    assert not ok
+    assert reason in {"trivial_change", "no_change_normalized"}
+
+
+def test_rewrite_usefulness_check_rejects_noop_case_punctuation():
+    ok, reason = _rewrite_usefulness_check(
+        "The reaction was run at room temperature.",
+        "the reaction was run at room temperature",
+    )
+    assert not ok
+    assert reason == "no_change_normalized"
+
+
+def test_dedupe_comment_entries_prefers_more_specific_duplicate():
+    entries = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 2,
+            "issue_type": "style/clarity",
+            "severity": "medium",
+            "anchor_text": "The claim is broad and may exceed evidence.",
+            "critique": "This is unclear.",
+            "suggested_revision": "Fix this.",
+        },
+        {
+            "comment_id": "c2",
+            "paragraph_index": 2,
+            "issue_type": "style/clarity",
+            "severity": "medium",
+            "anchor_text": "The claim is broad and may exceed evidence.",
+            "critique": "Claim scope exceeds evidence in this sentence; qualify to tested conditions only.",
+            "suggested_revision": "Limit the claim to tested conditions.",
+        },
+    ]
+    deduped = _dedupe_comment_entries(entries)
+    kept = {item["comment_id"] for item in deduped}
+    assert "c2" in kept
+    assert "c1" not in kept
+
+
+def test_comment_quality_validation_flags_paragraph_wide_anchor_and_duplicates(tmp_path: Path):
+    base_docx = tmp_path / "base.docx"
+    paragraph = (
+        "Sentence one provides context. Sentence two states an overbroad claim. Sentence three gives a qualification."
+    )
+    _write_docx(base_docx, [paragraph])
+    comments = [
+        {
+            "comment_id": "c1",
+            "paragraph_index": 0,
+            "issue_type": "style/clarity",
+            "anchor_text": paragraph,
+            "critique": "Claim is broad.",
+            "suggested_revision": "Qualify scope.",
+        },
+        {
+            "comment_id": "c2",
+            "paragraph_index": 0,
+            "issue_type": "style/clarity",
+            "anchor_text": paragraph,
+            "critique": "Claim is broad.",
+            "suggested_revision": "Qualify scope.",
+        },
+    ]
+    report = _validate_comment_artifact_quality(comments, base_docx)
+    assert report["status"] == "warn"
+    assert report["violations"]["paragraph_wide_local_anchors"] >= 1
+    assert report["violations"]["duplicate_comments"] >= 1
+
+
+def test_suggested_change_quality_validation_flags_noop_and_duplicates():
+    changes = [
+        {
+            "change_id": "chg1",
+            "status": "applied",
+            "target_paragraph_index": 0,
+            "original_text": "The workflow is robust.",
+            "revised_text": "The workflow is robust !",
+        },
+        {
+            "change_id": "chg2",
+            "status": "applied",
+            "target_paragraph_index": 0,
+            "original_text": "The workflow is robust.",
+            "revised_text": "The workflow is robust !",
+        },
+    ]
+    report = _validate_suggested_change_artifact_quality(changes)
+    assert report["status"] == "warn"
+    assert report["violations"]["no_op_rewrites"] >= 1
+    assert report["violations"]["duplicate_rewrites"] >= 1

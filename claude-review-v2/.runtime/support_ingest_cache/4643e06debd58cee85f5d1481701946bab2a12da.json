@@ -1,0 +1,193 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and.pdf",
+    "size_bytes": 1508793,
+    "mtime_ns": 1774729076000000000,
+    "sha1_prefix": "23c78956a14d2315da342ca410da1fddac11e791"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "EDGE ARTICLE View Journal | View Issue",
+    "doi": "10.1039/c5sc04751j",
+    "year": "2016",
+    "authors": [
+      "View",
+      "Journal",
+      "View",
+      "Issue"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "edge view issue",
+    "title_tokens": [
+      "edge",
+      "view",
+      "issue"
+    ],
+    "author_tokens": [
+      "view",
+      "journal",
+      "view",
+      "issue"
+    ],
+    "year": "2016",
+    "doi_variants": [
+      "10.1039/c5sc04751j"
+    ],
+    "source_name_tokens": [
+      "chemistry",
+      "informer",
+      "libraries",
+      "chemoinformatics",
+      "enabled",
+      "approach",
+      "evaluate"
+    ]
+  },
+  "abstract": "Chemical\n Science\n This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence. View Article Online\n EDGE ARTICLE View Journal | View Issue\n\n Chemistry informer libraries: a chemoinformatics\n enabled approach to evaluate and advance\nOpen Access Article. Published on 26 January 2016. Downloaded on 3/28/2026 8:17:56 PM.",
+  "key_claims": [
+    "We examined whether the informer library Pd C N coupling diagnostic might also be applied to optimize this method to Over the past two decades C N coupling of aryl (pseudo)halides increase its scope.",
+    "These studies show that the simplest, most experimentally catalyst in DMF solvent with Cs2CO3 base, gave two hits (entry accessible fragment-based method may signi cantly under- 10).",
+    "This method measures both the decrease in need to isolate and characterize products in order to quantify product formation, indicating reaction inhibition, and the reaction yields.",
+    "However, this limitation may not remain for decrease in the amount of the fragment itself remaining at the long.31 In this case, one could then assemble and test the end of reaction, indicating decomposition pathways."
+  ],
+  "methods_summary": "This makes the evaluation and choice of a synthetic method di cult. We have validated this DOI: 10.1039/c5sc04751j method using palladium- and copper-catalyzed reactions, including Suzuki Miyaura, cyanation and www.rsc.org/chemicalscience Buchwald Hartwig amination.",
+  "quantitative_findings": [
+    "Chemical Science This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+    "Published on 26 January 2016.",
+    "Downloaded on 3/28/2026 8:17:56 PM."
+  ],
+  "limitations": [
+    "Although the reasons for dioxane at 80 C resulted in 5 compounds being prepared (entry this are not clear, future work on cyanation methods should 4)."
+  ],
+  "terminology_entities": [
+    "informer",
+    "chem",
+    "reaction",
+    "library",
+    "coupling",
+    "article",
+    "chemistry",
+    "suzuki",
+    "fig",
+    "miyaura",
+    "products",
+    "chemical"
+  ],
+  "citation_anchors": [
+    "10.1039/c5sc04751j",
+    "2016",
+    "View",
+    "Journal"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-1",
+      "text": "Chemical Science This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+      "keywords": [
+        "chem",
+        "article",
+        "chemical"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-2",
+      "text": "View Article Online EDGE ARTICLE View Journal | View Issue",
+      "keywords": [
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-3",
+      "text": "Chemistry informer libraries: a chemoinformatics enabled approach to evaluate and advance Open Access Article. Published on 26 January 2016. Downloaded on 3/28/2026 8:17:56 PM.",
+      "keywords": [
+        "informer",
+        "chem",
+        "article",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-4",
+      "text": "Cite this: Chem. Sci., 2016, 7, 2604 synthetic methods Peter S. Kutchukian,a James F. Dropinski,b Kevin D. Dykstra,c Bing Li,c Daniel A. DiRocco,b Eric C. Streckfuss,c Louis-Charles Campeau,b Tim Cernak,c Petr Vachal,c Ian W. Davies,b Shane W. Krska*c and Spencer D. Dreher*b",
+      "keywords": [
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-5",
+      "text": "Major new advances in synthetic chemistry methods are typically reported using simple, non-standardized reaction substrates, and reaction failures are rarely documented. This makes the evaluation and choice of a synthetic method di cult. We report a standardized complex molecule diagnostic approach using collections of relevant drug-like molecules which we call chemistry informer libraries. With this approach, all chemistry results, successes and failures, can be documented to compare and evolve Received 9th December 2015 Accepted 15th January 2016 synthetic methods. To aid in the visualization of chemistry results in drug-like physicochemical space we have used an informatics methodology termed principal component analysis. We have validated this D\u2026",
+      "keywords": [
+        "informer",
+        "chem",
+        "reaction",
+        "chemistry",
+        "chemical"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-6",
+      "text": "di erent synthetic methods. In this work, we have created two Introduction substrate collections that are relevant to pharmaceutical Organic synthesis continues to advance at a rapid pace, giving research, which we have termed chemistry informer libraries, to rise to new synthetic methods that enable transformations that evaluate this standardized diagnostic approach.2 Using these would have been unthinkable only a few years ago. These new libraries, consisting of medium-complexity aryl pinacol boro- methods hold promise of applications across a diverse range of nates and high-complexity aryl halides, we have conducted endeavours, from natural product synthesis to pharmaceuticals a systematic study comparing the relative success rates of and materia\u2026",
+      "keywords": [
+        "informer",
+        "chem",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-7",
+      "text": "2604 | Chem. Sci., 2016, 7, 2604 2613 This journal is The Royal Society of Chemistry 2016 View Article Online",
+      "keywords": [
+        "chem",
+        "article",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-9",
+      "text": "atoms and rotatable bonds compared to the literature compounds. We highlight the seminal Suzuki Miyaura coupling paper8 (Fig. 2A, red) to demonstrate that more recent Suzuki Miyaura coupling methodology papers,9 as well as the This article is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported Licence.",
+      "keywords": [
+        "coupling",
+        "article",
+        "suzuki",
+        "fig",
+        "miyaura"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-10",
+      "text": "leading Buchwald Hartwig C N coupling publications and the more recently reported aryl boronate cyanation reaction (all in blue), occupy a broader coverage of pharmaceutically relevant chemical space. Seen in this context, our goal in creating the chemistry informer libraries was to assemble compound test sets that could claim an even higher complexity and broader Open Access Article. Published on 26 January 2016. Downloaded on 3/28/2026 8:17:56 PM.",
+      "keywords": [
+        "informer",
+        "chem",
+        "reaction",
+        "coupling",
+        "article"
+      ]
+    },
+    {
+      "chunk_id": "Chemistry_informer_libraries_a_chemoinformatics_enabled_approach_to_evaluate_and-11",
+      "text": "coverage of drug-likeness as demonstrated using PCA. Beyond this, we aspired to use chemoinformatics tools such as PCA to gain deeper insight into the reactivity patterns that would result from utilization of informer libraries with di erent synthetic Fig. 1 Synthetic chemistry diagnostic approaches. Standard literature methods, and use this knowledge to improve the applicability of reports typically demonstrate simple, high-performing substrates; the modern synthetic methods to drug synthesis. Glorius robustness test probes the e ects of potentially interfering molecular fragments on chemistry performance, and in this work we Aryl and heteroaryl pinacol boronate informer library examine how standardized collections of full, complex molecules can be\u2026",
+      "keywords": [
+        "informer",
+        "chem",
+        "library",
+        "chemistry",
+        "fig"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:23:54.365873+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

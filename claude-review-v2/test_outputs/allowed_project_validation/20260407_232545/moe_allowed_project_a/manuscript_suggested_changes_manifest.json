@@ -1,0 +1,82 @@
+[
+  {
+    "id": "suggested-change-1",
+    "target": "body",
+    "original": "Citation marker (1) could not be mapped for this sentence: coupling between 2-methylbenzoic acid (1) and p-toluidine Amide Coupling on Complex Molecul",
+    "suggested": "Check numbering/author-year format and ensure this citation appears in References.",
+    "stage": "citation_verification",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-2",
+    "target": "body",
+    "original": "This sentence may need a citation: We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-3",
+    "target": "body",
+    "original": "This sentence may need a citation: High-throughput experimentation (HTE) is a widely practiced method for the discovery and op",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-4",
+    "target": "body",
+    "original": "This sentence may need a citation: Then, we should translate the output from ChatGPT into an input file for the HTE management",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-5",
+    "target": "body",
+    "original": "This sentence may need a citation: 2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testin",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-6",
+    "target": "body",
+    "original": "This sentence may need a citation: The top-performing reaction condition was repeated on a 0.2 For each class of reactions (am",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-7",
+    "target": "body",
+    "original": "The introduction lacks a clear statement of the study's objective.",
+    "suggested": "Add a concise objective statement in the introduction.",
+    "stage": "structural_review",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-8",
+    "target": "body",
+    "original": "The results section is incomplete and lacks detailed experimental outcomes.",
+    "suggested": "Expand the results section with comprehensive data and analysis.",
+    "stage": "structural_review",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-9",
+    "target": "body",
+    "original": "The workflow description is fragmented and lacks a logical flow.",
+    "suggested": "Organize the workflow into a coherent sequence with clear subsections.",
+    "stage": "structural_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-10",
+    "target": "body",
+    "original": "The manuscript lacks a discussion section to interpret the results and implications.",
+    "suggested": "Include a discussion section to analyze the significance of the findings.",
+    "stage": "structural_review",
+    "severity": "high"
+  }
+]

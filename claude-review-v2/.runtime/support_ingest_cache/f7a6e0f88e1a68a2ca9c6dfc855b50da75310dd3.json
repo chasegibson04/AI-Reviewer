@@ -1,0 +1,133 @@
+{
+  "schema_version": "support_ingest_v1",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/fixtures/manuscripts/s44160-023-00351-1.pdf",
+    "size_bytes": 1910239,
+    "mtime_ns": 1775261888702383561,
+    "sha1_prefix": "f82f66dc140cdb336c3aac4bc98ae98ab036cced"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/fixtures/manuscripts/s44160-023-00351-1.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Article https://doi.org/10.1038/s44160-023-00351-1",
+    "doi": "10.1038/s44160-023-00351-1",
+    "year": "2022",
+    "authors": [
+      "Article"
+    ]
+  },
+  "abstract": "nature synthesis\n\nArticle https://doi.org/10.1038/s44160-023-00351-1\n\nMiniaturization of popular reactions\nfrom the medicinal chemists\u2019 toolbox for\nultrahigh-throughput experimentation\n\nReceived: 17 August 2022 Nathan Gesmundo 1,4, Kevin Dykstra2, James L. Douthwaite 3,\n Yu-Ting Kao 3, Ruheng Zhao 3, Babak Mahjour 3, Ron Ferguson2,\nAccepted: 22 May 2023\n Spencer Dreher2, B\u00e9reng\u00e8re Sauvagnat1,5, Josep Saur\u00ed1,6 & Tim Cernak 1,3,7\n\nPublished online: 22 June 2023\n\n Check for updates Miniaturization is a tactic employed in many technologies to accelerate\n discovery through parallelized data collection. The miniaturization of\n chemical synthesis to the limits of chemoanalytical and bioanalytical\n detection could accelerate drug discovery by increasing the amount of\n experimental data collected per milligram of material consumed. Here we\n demonstrate the miniaturization of popular reactions used in drug discovery\n such as reductive amination, N-alkylation, N-Boc (tert-butyloxycarbonyl)\n deprotection and Suzuki coupling for utilization in 1.2 \u00b5l reaction droplets.",
+  "key_claims": [
+    "This report show- staurosporine (36) cases key principles required to pursue reactions on the nanoscale Staurosporine 36 (23 mg, 0.05 mmol, 1 equiv.) was weighed into a 1-dram effectively by performing homogeneous reactions, in high-boiling vial equipped with a magnetic stir bar."
+  ],
+  "methods_summary": "Our development of a Suzuki coupling protocol can be handled without substantial evaporation during experiment for ultraHTE was inspired by prior reports detailing the nanoscale setup. BTMG 1:3 H2O:DMSO 1:3 H2O:DMSO 1:3 H2O:DMSO 1:3 H2O:DMSO 16 Halide 17 18 d 100 Catalysts 100 Bases 100 Cosolvents 19 Assay yield Assay\u2026",
+  "quantitative_findings": [
+    "nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentation Received: 17 August 2022 Nathan Gesmundo 1,4, Kevin Dykstra2, James L.",
+    "Douthwaite 3, Yu-Ting Kao 3, Ruheng Zhao 3, Babak Mahjour 3, Ron Ferguson2, Accepted: 22 May 2023 Spencer Dreher2, B reng re Sauvagnat1,5, Josep Saur 1,6 & Tim Cernak 1,3,7 Published online: 22 June 2023 Check for updates Miniaturization is a tactic employed in many technologies\u2026",
+    "Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, N-alkylation, N-Boc (tert-butyloxycarbonyl) deprotection and Suzuki coupling for utilization in 1.2 l reaction droplets."
+  ],
+  "limitations": [
+    "(We caution that concentrated solutions sulfuric acid smoothly effected deprotection giving MK2-inhibitor of sulfuric acid will corrode components of the SPT mosquito robot analogues 56 and 57."
+  ],
+  "terminology_entities": [
+    "reaction",
+    "reactions",
+    "was",
+    "synthesis",
+    "chemical",
+    "dmso",
+    "conditions",
+    "chem",
+    "reductive",
+    "equiv",
+    "amination",
+    "chemistry"
+  ],
+  "citation_anchors": [
+    "10.1038/s44160-023-00351-1",
+    "2022",
+    "Article"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "s44160-023-00351-1-2",
+      "text": "Article https://doi.org/10.1038/s44160-023-00351-1",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-3",
+      "text": "Miniaturization of popular reactions from the medicinal chemists toolbox for ultrahigh-throughput experimentation",
+      "keywords": [
+        "reaction",
+        "reactions",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-4",
+      "text": "Received: 17 August 2022 Nathan Gesmundo 1,4, Kevin Dykstra2, James L. Douthwaite 3, Yu-Ting Kao 3, Ruheng Zhao 3, Babak Mahjour 3, Ron Ferguson2, Accepted: 22 May 2023 Spencer Dreher2, B reng re Sauvagnat1,5, Josep Saur 1,6 & Tim Cernak 1,3,7",
+      "keywords": []
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-6",
+      "text": "Check for updates Miniaturization is a tactic employed in many technologies to accelerate discovery through parallelized data collection. The miniaturization of chemical synthesis to the limits of chemoanalytical and bioanalytical detection could accelerate drug discovery by increasing the amount of experimental data collected per milligram of material consumed. Here we demonstrate the miniaturization of popular reactions used in drug discovery such as reductive amination, N-alkylation, N-Boc (tert-butyloxycarbonyl) deprotection and Suzuki coupling for utilization in 1.2 l reaction droplets. Reaction methods were evolved to perform in high-boiling solvents at room temperature, enabling the diversification of precious starting materials, such as the\u2026",
+      "keywords": [
+        "reaction",
+        "reactions",
+        "synthesis",
+        "chemical",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-7",
+      "text": "Chemical space exploration in drug discovery generally requires Inspired by Moore s Law of transistor miniaturization9, label-free access to many molecules with diverse physicochemical properties1 3. reaction miniaturization has emerged as a technology with consid- The recent ability to computationally predict chemical properties erable promise to enable studies of the seemingly infinite chemical and biochemical function with increasing accuracy has shifted the and reaction condition space. With reaction miniaturization10 12, less bottleneck of drug design to chemical synthesis4. In fact, chemical starting material is needed to produce more reaction data, and the transformations determine product structure, so reactions them- acquisition of each exp\u2026",
+      "keywords": [
+        "reaction",
+        "reactions",
+        "synthesis",
+        "chemical",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-8",
+      "text": "Merck & Co., Inc., Boston, MA, USA. 2Merck & Co., Inc., Kenilworth, NJ, USA. 3Department of Medicinal Chemistry, University of Michigan, Ann Arbor, 1",
+      "keywords": [
+        "chem",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-9",
+      "text": "MI, USA. 4Present address: AbbVie, North Chicago, IL, USA. 5Present address: Broad Institute of MIT and Harvard, Center for the Development of Therapeutics, Cambridge, MA, USA. 6Present address: Institut Qu mic de Sarri , Barcelona, Spain. 7Present address: Department of Medicinal Chemistry, University of Michigan, Ann Arbor, MI, USA. e-mail: tcernak@med.umich.edu",
+      "keywords": [
+        "chem",
+        "chemistry"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-10",
+      "text": "Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082 Article https://doi.org/10.1038/s44160-023-00351-1",
+      "keywords": [
+        "synthesis"
+      ]
+    },
+    {
+      "chunk_id": "s44160-023-00351-1-15",
+      "text": "Amine electrophile coupling Aryl nucleophile coupling (SN Ar)",
+      "keywords": []
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-07T22:46:45.809002+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

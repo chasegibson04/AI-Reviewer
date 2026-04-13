@@ -1,0 +1,142 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi.pdf",
+    "size_bytes": 27702297,
+    "mtime_ns": 1775507037496768292,
+    "sha1_prefix": "f73bf688b124a4875c5c63d1b706cff383fdc58a"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/other/Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "PRE-TRANSMETALATION INTERMEDIATES IN THE SUZUKI-MIYAURA REACTION",
+    "doi": "",
+    "year": "2017",
+    "authors": []
+  },
+  "matching_hints": {
+    "normalized_title": "transmetalation intermediates suzuki miyaura reaction",
+    "title_tokens": [
+      "transmetalation",
+      "intermediates",
+      "suzuki",
+      "miyaura",
+      "reaction"
+    ],
+    "author_tokens": [
+      "pre-transmetalation",
+      "intermediates",
+      "the",
+      "suzuki-miyaura",
+      "reaction",
+      "revealed"
+    ],
+    "year": "2017",
+    "doi_variants": [],
+    "source_name_tokens": [
+      "transmetalation",
+      "intermediates",
+      "suzuki",
+      "miyaura",
+      "reaction",
+      "revealed"
+    ]
+  },
+  "abstract": "PRE-TRANSMETALATION INTERMEDIATES IN THE SUZUKI-MIYAURA REACTION\n REVEALED: THE MISSING LINK\n\n BY\n\n ANDY ALEXANDER THOMAS\n\n DISSERTATION\n\n Submitted in partial fulfillment of the requirements\n for the degree of Doctor of Philosophy in Chemistry\n in the Graduate College of the\n University of Illinois at Urbana-Champaign, 2017\n\n Urbana, Illinois\n\nDoctoral Committee:\n\n Professor Scott E. Denmark\n Professor Martin D. Burke\n Assistant Professor David Sarlah\n Professor Thomas B. Rauchfuss\n ABSTRACT\n The Suzuki-Miyaura reaction is currently the most practiced cross-coupling reaction due to its\nbroad applicability, low toxicity of the metal (B), and the wide variety of commercially available\nboronic acid substrates.",
+  "key_claims": [
+    "Oxidative addition step The oxidative addition of organohalides or triflates is the first step for all palladium catalyzed reactions as well as the Heck process.12 Many investigations have been conducted on the mechanisms for the oxidative addition step of alkenyl and aryl halid\u2026",
+    "Consequently, DFT computational studies have provided insights that suggest Path A is responsible for the formation of pre-transmetalation intermediates.",
+    "1 - = + + The enthalpic ( H 243.15 = 15.98 0.79 kcal/mol) and entropic ( S 243.15 = 0.0069 0.0032 kcal/mol) values obtained were strikingly similar to computationally derived parameters strongly suggest that complex 88 has rearranged to 86 prior to transmetalation (Table 5).",
+    "Comparing the rates of the i-Pr3P complex 105 in (10:1) THF/CH3OH revealed that the Ph3P complex was 4.8 times faster, which is a very similar magnitude increase in rate (krel was 2.27) for the reactions in pure THF (i.e."
+  ],
+  "methods_summary": "Scheme 10 CH 3 CH 3 D 2O / CD 3NO 2 O O + CH 3OD H 3C CH 3 16:1 H 3C k = (3.43 0.03) x 10 2 s 1 In practical terms, an RI-NMR experiment involves charging a substrate, typically the more sensitive compound, in an NMR tube spinning in the probe of NMR spectrometer. If pre-transmetalation intermediates 15 could be gener\u2026",
+  "quantitative_findings": [
+    "PRE-TRANSMETALATION INTERMEDIATES IN THE SUZUKI-MIYAURA REACTION REVEALED: THE MISSING LINK BY ANDY ALEXANDER THOMAS DISSERTATION Submitted in partial fulfillment of the requirements for the degree of Doctor of Philosophy in Chemistry in the Graduate College of the University of\u2026",
+    "Despite the popularity of the Suzuki-Miyaura reaction, the precise manner in which the organic fragment is transferred from boron to palladium has remained elusive for over 30 years.",
+    "Specifically, these studies establish the identity of two different intermediates containing Pd O B linkages, a tricoordinate (6-B-3) boronic acid complex and a tetracoordinate (8-B-4) boronate complex, both of which undergo transmetalation leading to the cross-coupling product."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "was",
+    "i-pr3p",
+    "ppm",
+    "equiv",
+    "nmr",
+    "complex",
+    "thf-d8",
+    "thf",
+    "followed",
+    "spectrum",
+    "tube",
+    "run"
+  ],
+  "citation_anchors": [
+    "2017"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-1",
+      "text": "PRE-TRANSMETALATION INTERMEDIATES IN THE SUZUKI-MIYAURA REACTION REVEALED: THE MISSING LINK",
+      "keywords": []
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-5",
+      "text": "Submitted in partial fulfillment of the requirements for the degree of Doctor of Philosophy in Chemistry in the Graduate College of the University of Illinois at Urbana-Champaign, 2017",
+      "keywords": []
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-8",
+      "text": "Professor Scott E. Denmark Professor Martin D. Burke Assistant Professor David Sarlah Professor Thomas B. Rauchfuss ABSTRACT The Suzuki-Miyaura reaction is currently the most practiced cross-coupling reaction due to its broad applicability, low toxicity of the metal (B), and the wide variety of commercially available boronic acid substrates. Despite the popularity of the Suzuki-Miyaura reaction, the precise manner in which the organic fragment is transferred from boron to palladium has remained elusive for over 30 years. The work described in this dissertation has focused on identifying such species by low temperature rapid injection NMR spectroscopy. For the first time, we were able to detect and characterize the first pre-transmetalation intermedi\u2026",
+      "keywords": [
+        "nmr"
+      ]
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-9",
+      "text": "ii The work described in the dissertation is dedicated to Professor Dr. Scott E. Denmark whose genius, patience and generous support have made my years in Illinois, chemically and personally, a most enriching and inspiring experience.",
+      "keywords": []
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-11",
+      "text": "I would like to start by thanking Professor Scott Denmark for all of his guidance and encouragement during this 5-year odyssey of a project. I would also like to thank my family for all of their support through the years. If not for their encouragement I would not be where I am today. I would also like to thank Professor Craig Ogle, Professor Michael Murphy and Dr. Steven Bertz for preparing me for graduate school if not for their initial guidance I would have never made it this far. I would like to thank many members of the Denmark group who I have spent most of my time with over the past 5 years in and outside of lab. I would like to especially thank Tim Chang and Larry Wolf for their initial guidance at UIUC in helping me learn the ropes. Also my\u2026",
+      "keywords": []
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-13",
+      "text": "CHAPTER 1: Introduction ......................................................................................................... 1 1.1 Palladium Catalyzed Cross-Coupling Reactions ................................................ 1 1.2 The Mechanism of Cross-Coupling .................................................................... 2 1.3 Rapid Injection NMR........................................................................................ 14 1.4 Project Goals ..................................................................................................... 16",
+      "keywords": [
+        "nmr"
+      ]
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-14",
+      "text": "CHAPTER 2: Structure Elucidation and Independent Synthesis of Pd-O-B Linkages in the Suzuki-Miyaura Cross-Coupling Reaction ............................. 17 2.1 Introduction and Background ........................................................................... 17 2.2 Objectives ......................................................................................................... 18 2.3 Results and Discussion ..................................................................................... 19 2.4 Conclusions ....................................................................................................... 51",
+      "keywords": []
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-15",
+      "text": "CHAPTER 3: Kinetic and Computational Characterization of Pre-transmetalation Intermediates in the Suzuki-Miyaura Reaction with Aryl Boronic Acids ........................................................................................... 53 3.1 Introduction and Background ........................................................................... 53 3.2 Objectives ......................................................................................................... 54 3.3 Results and Discussion ..................................................................................... 55 3.4 Computational Analysis of the Reaction Profile for Complexes Containing Pd-O-B Linkages............................................................................\u2026",
+      "keywords": [
+        "complex"
+      ]
+    },
+    {
+      "chunk_id": "Pre-transmetalation_intermediates_in_the_Suzuki-Miyaura_reaction_revealed_The_mi-16",
+      "text": "CHAPTER 4: Identification and Characterization of Pd-O-B Linkages with Arylboronate Esters .................................................................................. 75 4.1 Introduction ....................................................................................................... 75 4.2 Background ....................................................................................................... 77 4.3 Objectives ......................................................................................................... 81 4.4 Results and Discussion ..................................................................................... 82 4.5 Kinetic Analysis of Aryl Group Transfer from Pd-O-B Complexes ................ 95 4.6 Comput\u2026",
+      "keywords": [
+        "complex"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:24:35.879898+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

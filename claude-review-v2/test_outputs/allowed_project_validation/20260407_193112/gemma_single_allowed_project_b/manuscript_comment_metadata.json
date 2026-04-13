@@ -1,0 +1,128 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "fix": "Add the missing section elements in the manuscript front matter.",
+    "source": "heuristic_fallback",
+    "body": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods Fix: Add the missing section elements in the manuscript front matter."
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "No conventional in-text citation markers detected.",
+    "fix": "Add explicit citation markers near evidence-backed claims.",
+    "source": "heuristic_fallback",
+    "body": "No conventional in-text citation markers detected. Fix: Add explicit citation markers near evidence-backed claims."
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Statistical language exists, but control/baseline evidence is weak.",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Statistical language exists, but control/baseline evidence is weak. Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: State exact thresholds, controls, and reproducibility details."
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Statistical language exists, but control/baseline evidence is weak.",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Statistical language exists, but control/baseline evidence is weak. Fix: State exact thresholds, controls, and reproducibility details."
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "/Helv 0 Tf 0 g 2 0 1 1 \\ 2 0 0 7 \\ 2 0 1 9 \\ 2 0 2 0 \\ 2 0 2 1 \\ 2 0 2 2 \\ 2 0 2 1 \\ 1 9 6 5 \\ 2 0 1 7 \\ p i p e r i d i n y l \\ 2 0 1 8 \\\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: /Helv 0 Tf 0 g 2 0 1 1 \\ 2 0 0 7 \\ 2 0 1 9 \\ 2 0 2 0 \\ 2 0 2 1 \\ 2 0 2 2 \\ 2 0 2 1 \\ 1 9 6 5 \\ 2 0 1 7 \\ p i p e r i d i n y l \\ 2 0 1 8 \\\u2026"
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "Km\u0005T<\u001a t\u072fK\u0015\u0188D%C\u000eh\u0019U n\u001b\u0003LDTO}d43J*+oOB\u001a*\u0013sYkt\uec3e\u073bz\\>e;>;\u0003\u0002\u0452M\u001b` K:%\u0011x\u0708vMMq,q\u0283 JG \u0015c RZ\u0603\u0011\u0013-e} e*\u0005 d\u0362gJh3\u0719&;\u01c0\u0003\u04c1c\u000e\"\u016fo T\u195b=:t[&E?s\u001aT#$5\u0012#5e# R.%~/p!\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence Fix: Km\u0005T<\u001a t\u072fK\u0015\u0188D%C\u000eh\u0019U n\u001b\u0003LDTO}d43J*+oOB\u001a*\u0013sYkt\uec3e\u073bz\\>e;>;\u0003\u0002\u0452M\u001b` K:%\u0011x\u0708vMMq,q\u0283 JG \u0015c RZ\u0603\u0011\u0013-e} e*\u0005 d\u0362gJh3\u0719&;\u01c0\u0003\u04c1c\u000e\"\u016fo T\u195b=:t[&E?s\u001aT#$5\u0012#5e# R.%~/p!\u2026"
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  }
+]

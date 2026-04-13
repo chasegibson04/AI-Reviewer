@@ -1,0 +1,98 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/managed/20260329_174704_137524/project1_clean_native.docx",
+    "size_bytes": 46755,
+    "mtime_ns": 1774804358000000000,
+    "sha1_prefix": "a8deda41ecc154f356f72f0dbf980b0fb9e30e52"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/managed/20260329_174704_137524/project1_clean_native.docx",
+    "parse_engine": "zip-docx-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "designing-chemical-reaction-arrays-using-phactor-and-chatgpt",
+    "doi": "10.1021/acs.oprd.3c00186",
+    "year": "2023",
+    "authors": []
+  },
+  "matching_hints": {
+    "normalized_title": "designing chemical reaction arrays using phactor chatgpt",
+    "title_tokens": [
+      "designing",
+      "chemical",
+      "reaction",
+      "arrays",
+      "using",
+      "phactor",
+      "chatgpt"
+    ],
+    "author_tokens": [
+      "oprd",
+      "designing",
+      "chemical",
+      "reaction",
+      "arrays",
+      "using"
+    ],
+    "year": "2023",
+    "doi_variants": [
+      "10.1021/acs.oprd.3c00186"
+    ],
+    "source_name_tokens": [
+      "clean",
+      "native"
+    ]
+  },
+  "abstract": "designing-chemical-reaction-arrays-using-phactor-and-chatgpt\npubs.acs.org/OPRD\nArticle\n**==> picture [177 x 69] intentionally omitted <==**\n## **Designing Chemical Reaction Arrays Using Phactor and ChatGPT**\nBabak Mahjour, Jillian Hoffstadt, and Tim Cernak*\n**Cite This:** _Org. Process Res. Dev._ 2023, 27, 1510\u22121516 **Read Online** ACCESS Metrics & More Article Recommendations * **s\u0131** Supporting Information\nABSTRACT: High-throughput experimentation is a common practice in the optimization of chemical synthesis. Chemists design reaction arrays to optimize the yield of couplings between building blocks.",
+  "key_claims": [
+    "We show how the artificial intelligence (AI) language model ChatGPT can automatically formulate reaction arrays for these common reactions based on the literature corpus it was trained on."
+  ],
+  "methods_summary": "High-throughput experimentation (HTE) is a widely practiced method for the discovery and optimization of reaction conditions in medicinal chemistry campaigns.[1][ ][5] Chemists typically design reaction arrays based on conditions found in the literature using search tools such a The output can be fed directly into pha\u2026",
+  "quantitative_findings": [
+    "designing-chemical-reaction-arrays-using-phactor-and-chatgpt pubs.acs.org/OPRD Article **==> picture [177 x 69] intentionally omitted <==** ## **Designing Chemical Reaction Arrays Using Phactor and ChatGPT** Babak Mahjour, Jillian Hoffstadt, and Tim Cernak* **Cite This:** _Org.",
+    "Dev._ 2023, 27, 1510 1516 **Read Online** ACCESS Metrics & More Article Recommendations * **s ** Supporting Information ABSTRACT: High-throughput experimentation is a common practice in the optimization of chemical synthesis.",
+    "High-throughput experimentation (HTE) is a widely practiced method for the discovery and optimization of reaction conditions in medicinal chemistry campaigns.[1][ ][5] Chemists typically design reaction arrays based on conditions found in the literature using search tools such a\u2026"
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "reaction",
+    "chatgpt",
+    "array",
+    "phactor",
+    "coupling",
+    "was",
+    "model",
+    "omitted",
+    "picture",
+    "intentionally",
+    "design",
+    "acs"
+  ],
+  "citation_anchors": [
+    "10.1021/acs.oprd.3c00186",
+    "2023"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "project1_clean_native-1",
+      "text": "designing-chemical-reaction-arrays-using-phactor-and-chatgpt pubs.acs.org/OPRD Article **==> picture [177 x 69] intentionally omitted <==** ## **Designing Chemical Reaction Arrays Using Phactor and ChatGPT** Babak Mahjour, Jillian Hoffstadt, and Tim Cernak* **Cite This:** _Org. Process Res. Dev._ 2023, 27, 1510 1516 **Read Online** ACCESS Metrics & More Article Recommendations * **s ** Supporting Information ABSTRACT: High-throughput experimentation is a common practice in the optimization of chemical synthesis. Chemists design reaction arrays to optimize the yield of couplings between building blocks. Popular reactions used in pharmaceutical research include the amide coupling, Suzuki coupling, and Buchwald Hartwig coupling. We show how the artific\u2026",
+      "keywords": [
+        "reaction",
+        "chatgpt",
+        "array",
+        "phactor",
+        "coupling"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:04:37.277053+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

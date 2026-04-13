@@ -1,0 +1,15 @@
+{
+  "findings": [
+    "Missing explicit transition markers for: in contrast, moreover, consequently, in summary"
+  ],
+  "avg_sentence_length": 10.5,
+  "transition_markers": {
+    "however": 3,
+    "therefore": 6,
+    "in contrast": 0,
+    "moreover": 0,
+    "consequently": 0,
+    "in summary": 0,
+    "overall": 2
+  }
+}

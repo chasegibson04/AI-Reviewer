@@ -1,0 +1,11 @@
+{
+  "findings": [
+    "Missing common manuscript sections: has_abstract, has_keywords"
+  ],
+  "checks": {
+    "has_abstract": false,
+    "has_references": true,
+    "has_keywords": false,
+    "has_methods": true
+  }
+}

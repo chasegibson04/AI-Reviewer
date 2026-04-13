@@ -1,0 +1,12 @@
+{
+  "claim_count": 2,
+  "claims_checked": 22,
+  "likely_overstated": 0,
+  "unsupported_or_unclear": 0,
+  "missing_citation": 20,
+  "status": "line_by_line",
+  "status_counts": {
+    "could_not_map_reference": 2,
+    "missing_citation": 20
+  }
+}

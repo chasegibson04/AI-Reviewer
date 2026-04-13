@@ -1,0 +1,82 @@
+[
+  {
+    "id": "suggested-change-1",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-2",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-3",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-4",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-5",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-6",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-7",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-8",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-9",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-10",
+    "target": "body",
+    "original": "This evidence-bearing sentence may need an explicit citation.",
+    "suggested": "Add a citation that directly supports this sentence.",
+    "stage": "citation_verification",
+    "severity": "medium"
+  }
+]

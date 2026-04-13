@@ -1,0 +1,50 @@
+[
+  {
+    "id": "edit-1",
+    "target": "body",
+    "original": "Acronym reuse detected; verify first-use definitions are present and consistent.",
+    "suggested": "Acronym reuse detected; verify first-use definitions are present and consistent."
+  },
+  {
+    "id": "edit-2",
+    "target": "body",
+    "original": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "suggested": "Missing explicit transition markers for: however, therefore, in contrast, moreover"
+  },
+  {
+    "id": "edit-3",
+    "target": "body",
+    "original": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "suggested": "Average sentence length is high; prose may be hard to follow in dense sections."
+  },
+  {
+    "id": "edit-4",
+    "target": "body",
+    "original": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "suggested": "Missing explicit methods evidence: sample_size, controls, reproducibility"
+  },
+  {
+    "id": "edit-5",
+    "target": "body",
+    "original": "Statistical language exists, but control/baseline evidence is weak.",
+    "suggested": "Statistical language exists, but control/baseline evidence is weak."
+  },
+  {
+    "id": "edit-6",
+    "target": "body",
+    "original": "No figure/table references detected.",
+    "suggested": "No figure/table references detected."
+  },
+  {
+    "id": "edit-7",
+    "target": "body",
+    "original": "No DOI strings detected in manuscript text.",
+    "suggested": "No DOI strings detected in manuscript text."
+  },
+  {
+    "id": "edit-8",
+    "target": "body",
+    "original": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "suggested": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "profile": "balanced_local",
+  "transport": "local_mcp_bridge",
+  "stages": [],
+  "model_target": "gemma4:31b"
+}

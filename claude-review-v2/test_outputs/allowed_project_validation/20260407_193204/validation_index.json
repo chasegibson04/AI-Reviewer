@@ -1,0 +1,343 @@
+{
+  "created_at": "2026-04-07T19:32:04.405261+00:00",
+  "allowed_projects_only": [
+    "20260325163524_test-existingphactorpaper",
+    "20260327051312_miniaturization_d2b"
+  ],
+  "runs": [
+    {
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/manuscript/designing-chemical-reaction-arrays-using-phactor-and-chatgpt.pdf",
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_193204/moe_allowed_project_a",
+      "validation": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "run_summary": {
+        "timestamp": "2026-04-07T19:32:04.370167+00:00",
+        "status": "completed",
+        "profile": "local_moe",
+        "mode": "deep_review",
+        "reasoning_mode_requested": "moe",
+        "reasoning_mode_effective": "moe",
+        "degraded": false,
+        "fallback_reason": "",
+        "model_target": "local_moe",
+        "stage_model_map": [
+          {
+            "stage": "structural_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "high_level_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "methods_verification",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "style_alignment",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "reconciliation",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          }
+        ],
+        "comment_count": 7,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "routing_trace": {
+        "profile": "local_moe",
+        "transport": "local_mcp_bridge",
+        "model_target": "local_moe",
+        "reasoning_mode_requested": "moe",
+        "reasoning_mode_effective": "moe",
+        "degraded": false,
+        "fallback_reason": "",
+        "stage_model_map": [
+          {
+            "stage": "structural_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "high_level_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "methods_verification",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "style_alignment",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "reconciliation",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "local_moe",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          }
+        ],
+        "stages": [
+          "structural_review",
+          "high_level_review",
+          "hostile_review",
+          "methods_verification",
+          "line_by_line_edits",
+          "style_alignment",
+          "reconciliation",
+          "final_arbitration"
+        ]
+      },
+      "comment_samples": [
+        "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions.",
+        "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion.",
+        "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed.",
+        "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed.",
+        "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods Fix: Add the missing section elements in the manuscript front matter."
+      ]
+    },
+    {
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_193204/gemma_single_allowed_project_b",
+      "validation": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": []
+      },
+      "run_summary": {
+        "timestamp": "2026-04-07T19:32:04.401822+00:00",
+        "status": "completed",
+        "profile": "one_big_model",
+        "mode": "deep_review",
+        "reasoning_mode_requested": "gemma_single",
+        "reasoning_mode_effective": "gemma_single_degraded",
+        "degraded": true,
+        "fallback_reason": "Gemma 4 unavailable; requested single-model Gemma mode degraded to fallback model.",
+        "model_target": "gemma4:31b",
+        "stage_model_map": [
+          {
+            "stage": "structural_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "high_level_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "methods_verification",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "style_alignment",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          }
+        ],
+        "comment_count": 8,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "routing_trace": {
+        "profile": "one_big_model",
+        "transport": "local_mcp_bridge",
+        "model_target": "gemma4:31b",
+        "reasoning_mode_requested": "gemma_single",
+        "reasoning_mode_effective": "gemma_single_degraded",
+        "degraded": true,
+        "fallback_reason": "Gemma 4 unavailable; requested single-model Gemma mode degraded to fallback model.",
+        "stage_model_map": [
+          {
+            "stage": "structural_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "high_level_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "methods_verification",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "style_alignment",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 2
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "fallback_error",
+            "error": "OLLAMA_UNREACHABLE",
+            "finding_count": 1
+          }
+        ],
+        "stages": [
+          "structural_review",
+          "high_level_review",
+          "hostile_review",
+          "methods_verification",
+          "line_by_line_edits",
+          "style_alignment",
+          "reconciliation",
+          "final_arbitration"
+        ]
+      },
+      "comment_samples": [
+        "Missing explicit methods evidence: sample_size, controls, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions.",
+        "Statistical language exists, but control/baseline evidence is weak. Fix: Clarify controls, sample rationale, and statistical assumptions.",
+        "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion.",
+        "Missing explicit transition markers for: however, therefore, in contrast, moreover Fix: Tighten transitions and split dense sentences where needed.",
+        "Average sentence length is high; prose may be hard to follow in dense sections. Fix: Tighten transitions and split dense sentences where needed."
+      ]
+    }
+  ]
+}

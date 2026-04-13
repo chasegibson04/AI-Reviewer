@@ -70,7 +70,12 @@ def inspect_docx_annotation_state(path: Path) -> dict:
         except Exception:
             continue
     ai_reviewer_comment_count = sum(1 for author in comment_authors if "ai-reviewer" in author.lower())
-    ai_reviewer_comment_count += sum(1 for text in comment_texts if "issue:" in text.lower() and "suggested revision:" in text.lower())
+    ai_reviewer_comment_count += sum(
+        1
+        for text in comment_texts
+        if ("issue:" in text.lower() and "suggested revision:" in text.lower())
+        or (text.strip().startswith("[") and ("fix:" in text.lower() or "review round:" in text.lower()))
+    )
     non_ai_comment_count = max(0, len(comment_texts) - ai_reviewer_comment_count) if comment_texts else max(0, len(comments) - ai_reviewer_comment_count)
 
     track_changes = {"insertions": 0, "deletions": 0, "moves": 0}
@@ -99,7 +104,10 @@ def inspect_docx_annotation_state(path: Path) -> dict:
                 if extracted_texts:
                     comment_texts = extracted_texts
                     ai_reviewer_comment_count = sum(
-                        1 for text in extracted_texts if "issue:" in text.lower() and "suggested revision:" in text.lower()
+                        1
+                        for text in extracted_texts
+                        if ("issue:" in text.lower() and "suggested revision:" in text.lower())
+                        or (text.strip().startswith("[") and ("fix:" in text.lower() or "review round:" in text.lower()))
                     ) + sum(1 for author in comment_authors if "ai-reviewer" in author.lower())
     except Exception:
         pass
@@ -133,6 +141,94 @@ def inspect_docx_annotation_state(path: Path) -> dict:
         "comments_xml_present": comments_xml_present,
         "review_artifact_text_blocks_removed_for_analysis": sum(1 for raw, clean in zip(paragraphs, normalized) if raw.strip() != clean.strip()),
     }
+
+
+def extract_existing_docx_comments(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    try:
+        with zipfile.ZipFile(str(path), "r") as zf:
+            if "word/comments.xml" not in zf.namelist() or "word/document.xml" not in zf.namelist():
+                return []
+            comments_root = ET.fromstring(zf.read("word/comments.xml"))
+            document_root = ET.fromstring(zf.read("word/document.xml"))
+    except Exception:
+        return []
+
+    comment_meta: dict[str, dict] = {}
+    for node in comments_root.findall(".//w:comment", W_NS):
+        cid = node.attrib.get(f"{{{W_NS['w']}}}id", "").strip()
+        if not cid:
+            continue
+        text_parts = [t.text or "" for t in node.findall(".//w:t", W_NS)]
+        comment_meta[cid] = {
+            "comment_id": cid,
+            "author": node.attrib.get(f"{{{W_NS['w']}}}author", "").strip(),
+            "initials": node.attrib.get(f"{{{W_NS['w']}}}initials", "").strip(),
+            "date": node.attrib.get(f"{{{W_NS['w']}}}date", "").strip(),
+            "comment_text": "".join(text_parts).strip(),
+        }
+
+    paragraphs = document_root.findall(".//w:body/w:p", W_NS)
+    active_comment_ids: set[str] = set()
+    anchor_parts: dict[str, list[str]] = {}
+    first_paragraph_index: dict[str, int] = {}
+    paragraph_text: dict[int, str] = {}
+
+    tag_comment_start = f"{{{W_NS['w']}}}commentRangeStart"
+    tag_comment_end = f"{{{W_NS['w']}}}commentRangeEnd"
+    tag_comment_ref = f"{{{W_NS['w']}}}commentReference"
+    tag_text = f"{{{W_NS['w']}}}t"
+
+    for pidx, paragraph in enumerate(paragraphs):
+        parts: list[str] = []
+        for node in paragraph.iter():
+            if node.tag == tag_comment_start:
+                cid = node.attrib.get(f"{{{W_NS['w']}}}id", "").strip()
+                if cid:
+                    active_comment_ids.add(cid)
+                    first_paragraph_index.setdefault(cid, pidx)
+                    anchor_parts.setdefault(cid, [])
+                continue
+            if node.tag == tag_comment_end:
+                cid = node.attrib.get(f"{{{W_NS['w']}}}id", "").strip()
+                if cid and cid in active_comment_ids:
+                    active_comment_ids.remove(cid)
+                continue
+            if node.tag == tag_comment_ref:
+                cid = node.attrib.get(f"{{{W_NS['w']}}}id", "").strip()
+                if cid:
+                    first_paragraph_index.setdefault(cid, pidx)
+                    anchor_parts.setdefault(cid, [])
+                continue
+            if node.tag == tag_text:
+                text_value = node.text or ""
+                if text_value:
+                    parts.append(text_value)
+                    for cid in active_comment_ids:
+                        anchor_parts.setdefault(cid, []).append(text_value)
+        paragraph_text[pidx] = "".join(parts).strip()
+
+    def _order_key(value: str) -> tuple[int, str]:
+        if value.isdigit():
+            return (0, f"{int(value):08d}")
+        return (1, value)
+
+    rows: list[dict] = []
+    for cid in sorted(comment_meta.keys(), key=_order_key):
+        meta = dict(comment_meta[cid])
+        pidx = first_paragraph_index.get(cid)
+        anchor = "".join(anchor_parts.get(cid, [])).strip()
+        excerpt = ""
+        if isinstance(pidx, int):
+            excerpt = paragraph_text.get(pidx, "")
+        if not anchor:
+            anchor = excerpt[:220].strip()
+        meta["paragraph_index"] = pidx
+        meta["anchor_text"] = anchor
+        meta["paragraph_excerpt"] = excerpt[:300]
+        rows.append(meta)
+    return rows
 
 
 def parse_docx_structured(path: Path) -> dict:
@@ -225,21 +321,20 @@ def create_commented_docx_copy(
                 first_run, last_run = anchored_first, anchored_last
             elif paragraph.runs:
                 first_run, last_run = paragraph.runs[0], paragraph.runs[-1]
-            body_parts = [
-                f"Review round: {comment_tag}" if comment_tag else "",
-                f"Issue: {item.get('issue_type', 'general')}",
-                f"Severity: {item.get('severity', 'medium')}",
-                f"Critique: {item.get('critique', '')}",
-                f"Suggested revision: {item.get('suggested_revision', '')}",
-                f"Rationale: {item.get('rationale', '')}",
-            ]
+            critique = str(item.get("critique", "")).strip()
+            suggestion = str(item.get("suggested_revision", "")).strip()
+            issue = str(item.get("issue_type", "general")).strip() or "general"
+            header = f"[{issue}] {critique}" if critique else f"[{issue}]"
+            body_parts = [f"Review round: {comment_tag}" if comment_tag else "", header]
+            if suggestion:
+                body_parts.append(f"Fix: {suggestion}")
             evidence = item.get("evidence_source")
             if evidence:
                 body_parts.append(f"Evidence: {evidence}")
             quote = item.get("manuscript_quote")
             if quote:
                 body_parts.append(f"Quote: {quote}")
-            
+
             body = "\n".join([p for p in body_parts if p]).strip()
             comment = doc.comments.add_comment(text=body, author=author, initials=initials)
             first_run.mark_comment_range(last_run, comment.comment_id)
@@ -431,6 +526,9 @@ def create_suggested_changes_docx(
     applied_indices: list[int] = []
     tracked_change_elements_added = 0
     paragraph_rewrites: dict[int, tuple[str, str]] = {}
+    def _norm(text: str) -> str:
+        t = re.sub(r"[\W_]+", " ", (text or "").lower())
+        return re.sub(r"\s+", " ", t).strip()
     for change in changes:
         if change.get("status") != "applied":
             continue
@@ -445,6 +543,10 @@ def create_suggested_changes_docx(
         if not original_text:
             original_text = existing_text
         if not original_text or revised == original_text:
+            continue
+        if _norm(revised) == _norm(original_text):
+            continue
+        if difflib.SequenceMatcher(None, _norm(original_text), _norm(revised)).ratio() >= 0.985:
             continue
         paragraph_rewrites[idx] = (original_text, revised)
         applied += 1

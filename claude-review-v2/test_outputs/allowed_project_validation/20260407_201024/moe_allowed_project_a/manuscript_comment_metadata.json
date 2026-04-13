@@ -1,0 +1,155 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN"
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: High-throughput experimentation (HTE) is a widely practiced method for the discovery and op",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: High-throughput experimentation (HTE) is a widely practiced method for the discovery and op"
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Then, we should translate the output from ChatGPT into an input file for the HTE management",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Then, we should translate the output from ChatGPT into an input file for the HTE management"
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testin",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testin"
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: The top-performing reaction condition was repeated on a 0.2 For each class of reactions (am",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: The top-performing reaction condition was repeated on a 0.2 For each class of reactions (am"
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, consequently",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, consequently"
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "Introduction detected without a clear Methods heading.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Introduction detected without a clear Methods heading."
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "Core manuscript sections found by heuristic checks.",
+    "fix": "Add the missing section elements in the manuscript front matter.",
+    "source": "heuristic_fallback",
+    "body": "Core manuscript sections found by heuristic checks."
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "No conventional in-text citation markers detected.",
+    "fix": "Add explicit citation markers near evidence-backed claims.",
+    "source": "heuristic_fallback",
+    "body": "No conventional in-text citation markers detected."
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "fix": "Clarify controls, sample rationale, and statistical assumptions.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility Fix: Clarify controls, sample rationale, and statistical assumptions."
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility",
+    "fix": "State exact thresholds, controls, and reproducibility details.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit methods evidence: sample_size, controls, statistics, reproducibility"
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "High-throughput experimentation (HTE) is a widely practiced method for the discovery and optimization of reaction conditions in medicinal c\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence"
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "Long sentence",
+    "fix": "Verbal arrays to optimize or discover a coupling reaction between two input is given by a human to have ChatGPT generate a reaction array s\u2026",
+    "source": "heuristic_fallback",
+    "body": "Long sentence"
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Missing explicit transition markers for: however, therefore, in contrast, consequently",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Missing explicit transition markers for: however, therefore, in contrast, consequently"
+  },
+  {
+    "id": "comment-detail-15",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "Introduction detected without a clear Methods heading.",
+    "fix": "Tighten transitions and split dense sentences where needed.",
+    "source": "heuristic_fallback",
+    "body": "Introduction detected without a clear Methods heading."
+  },
+  {
+    "id": "comment-detail-16",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  },
+  {
+    "id": "comment-detail-17",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "Findings require a tighter final synthesis with explicit confidence boundaries.",
+    "fix": "Separate confirmed evidence from assumptions in the conclusion.",
+    "source": "heuristic_fallback",
+    "body": "Findings require a tighter final synthesis with explicit confidence boundaries. Fix: Separate confirmed evidence from assumptions in the conclusion."
+  }
+]

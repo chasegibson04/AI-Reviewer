@@ -1,0 +1,308 @@
+[
+  {
+    "id": "comment-detail-1",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "Checked against abstract only; support for this sentence may be incomplete. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb",
+    "fix": "Provide the full text or the specific results section of the Nature Synthesis article (Volume 2, November 2023, pp. 1082 1091) to verify th\u2026",
+    "source": "citation_verifier",
+    "body": "Checked against abstract only; support for this sentence may be incomplete. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb"
+  },
+  {
+    "id": "comment-detail-2",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "This sentence could not be verified against an accessible source. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb",
+    "fix": "Provide accessible source text or tighten this claim to verifiable evidence.",
+    "source": "citation_verifier",
+    "body": "This sentence could not be verified against an accessible source. Sentence: We interrogated three solvent systems that contained Nature Synthesis | Volume 2 | Novemb Fix: Provide accessible source text or tighten this claim to verifiable evidence."
+  },
+  {
+    "id": "comment-detail-3",
+    "stage": "citation_verification",
+    "severity": "high",
+    "issue": "Citation marker 100 50 100 50 could not be mapped for this sentence: AcOH 100 50 100 50 Conc.",
+    "fix": "Check numbering/author-year format and ensure this citation appears in References.",
+    "source": "citation_verifier",
+    "body": "Citation marker 100 50 100 50 could not be mapped for this sentence: AcOH 100 50 100 50 Conc. Fix: Check numbering/author-year format and ensure this citation appears in References."
+  },
+  {
+    "id": "comment-detail-4",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: nature synthesis Article https://doi.org/10.1038/s44160-023-00351-1 Miniaturization of popu"
+  },
+  {
+    "id": "comment-detail-5",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Here we demonstrate the miniaturization of popular reactions used in drug discovery such as"
+  },
+  {
+    "id": "comment-detail-6",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: e-mail: tcernak@med.umich.edu Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1082"
+  },
+  {
+    "id": "comment-detail-7",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.103",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: Nature Synthesis | Volume 2 | November 2023 | 1082 1091 1084 Article https://doi.org/10.103"
+  },
+  {
+    "id": "comment-detail-8",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: See Supplementary Section 5.1 for full list of aldehydes and ketones.",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: See Supplementary Section 5.1 for full list of aldehydes and ketones."
+  },
+  {
+    "id": "comment-detail-9",
+    "stage": "citation_verification",
+    "severity": "medium",
+    "issue": "This sentence may need a citation: 4a; see Supplementary Section 5.2 for struc- yield or greater using XPhos with aqueous K3PO",
+    "fix": "Add a citation that directly supports this sentence.",
+    "source": "citation_verifier",
+    "body": "This sentence may need a citation: 4a; see Supplementary Section 5.2 for struc- yield or greater using XPhos with aqueous K3PO"
+  },
+  {
+    "id": "comment-detail-10",
+    "stage": "structural_review",
+    "severity": "high",
+    "issue": "The manuscript lacks a formal Introduction section to frame the scientific gap.",
+    "fix": "Insert a dedicated Introduction section before the Background to explicitly state the research objective.",
+    "source": "model",
+    "body": "The manuscript lacks a formal Introduction section to frame the scientific gap."
+  },
+  {
+    "id": "comment-detail-11",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "The transition from Background to Methods is abrupt and lacks a logical bridge.",
+    "fix": "Add a concluding paragraph to the Background section that outlines the specific experimental approach.",
+    "source": "model",
+    "body": "The transition from Background to Methods is abrupt and lacks a logical bridge."
+  },
+  {
+    "id": "comment-detail-12",
+    "stage": "structural_review",
+    "severity": "high",
+    "issue": "There is no explicit Results section preceding the presentation of Figure 2.",
+    "fix": "Create a Results section to interpret the data shown in the Suzuki coupling heatmaps.",
+    "source": "model",
+    "body": "There is no explicit Results section preceding the presentation of Figure 2. Fix: Create a Results section to interpret the data shown in the Suzuki coupling heatmaps."
+  },
+  {
+    "id": "comment-detail-13",
+    "stage": "structural_review",
+    "severity": "medium",
+    "issue": "The Methods section is fragmented and lacks a clear structural hierarchy.",
+    "fix": "Organize the Methods into subsections such as 'Reagent Preparation' and 'Analytical Validation'.",
+    "source": "model",
+    "body": "The Methods section is fragmented and lacks a clear structural hierarchy."
+  },
+  {
+    "id": "comment-detail-14",
+    "stage": "high_level_review",
+    "severity": "medium",
+    "issue": "The claim that miniaturization accelerates discovery is presented as a general fact without citing specific throughput metrics.",
+    "fix": "Quantify the acceleration by comparing the time/material cost of 1.2 l droplets versus standard scales.",
+    "source": "model",
+    "body": "The claim that miniaturization accelerates discovery is presented as a general fact without citing specific throughput metrics."
+  },
+  {
+    "id": "comment-detail-15",
+    "stage": "high_level_review",
+    "severity": "low",
+    "issue": "The analogy to Moore's Law is conceptual and lacks a direct quantitative correlation to chemical synthesis scaling.",
+    "fix": "Clarify that the analogy refers to the trend of miniaturization rather than a predictable doubling of capacity.",
+    "source": "model",
+    "body": "The analogy to Moore's Law is conceptual and lacks a direct quantitative correlation to chemical synthesis scaling."
+  },
+  {
+    "id": "comment-detail-16",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "The assumption that 1.2 l droplets maintain consistent stoichiometry is fragile due to evaporation risks in high-boiling solvents.",
+    "fix": "Provide evaporation rate data or describe the sealing mechanism used to prevent volume loss.",
+    "source": "model",
+    "body": "The assumption that 1.2 l droplets maintain consistent stoichiometry is fragile due to evaporation risks in high-boiling solvents. Fix: Provide evaporation rate data or describe the sealing mechanism used to prevent volume loss."
+  },
+  {
+    "id": "comment-detail-17",
+    "stage": "hostile_review",
+    "severity": "medium",
+    "issue": "The leap from standard reactions to miniaturized droplets ignores potential surface-to-volume ratio effects on catalyst activity.",
+    "fix": "Compare reaction kinetics and yields between 1.2 l droplets and standard bulk scales.",
+    "source": "model",
+    "body": "The leap from standard reactions to miniaturized droplets ignores potential surface-to-volume ratio effects on catalyst activity."
+  },
+  {
+    "id": "comment-detail-18",
+    "stage": "hostile_review",
+    "severity": "medium",
+    "issue": "The use of staurosporine as a proof-of-concept is limited by a small sample size of complex substrates.",
+    "fix": "Expand the substrate scope to include a broader range of natural products to prove generalizability.",
+    "source": "model",
+    "body": "The use of staurosporine as a proof-of-concept is limited by a small sample size of complex substrates."
+  },
+  {
+    "id": "comment-detail-19",
+    "stage": "hostile_review",
+    "severity": "high",
+    "issue": "The reliance on UPLC-MS for assay yield in ultraHTE may introduce significant sampling errors at the microliter scale.",
+    "fix": "Validate the assay yield with an internal standard for every droplet to ensure quantitative accuracy.",
+    "source": "model",
+    "body": "The reliance on UPLC-MS for assay yield in ultraHTE may introduce significant sampling errors at the microliter scale."
+  },
+  {
+    "id": "comment-detail-20",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "The provided excerpt lacks explicit details on the statistical methods used to determine 'outlying points' in Figure 2b.",
+    "fix": "Define the statistical threshold or algorithm used to identify and categorize outliers.",
+    "source": "model",
+    "body": "The provided excerpt lacks explicit details on the statistical methods used to determine 'outlying points' in Figure 2b."
+  },
+  {
+    "id": "comment-detail-21",
+    "stage": "methods_verification",
+    "severity": "high",
+    "issue": "There is no mention of the number of replicates performed for the 1.2 l reaction droplets to ensure reproducibility.",
+    "fix": "Specify the number of technical and biological replicates for each reaction condition.",
+    "source": "model",
+    "body": "There is no mention of the number of replicates performed for the 1.2 l reaction droplets to ensure reproducibility. Fix: Specify the number of technical and biological replicates for each reaction condition."
+  },
+  {
+    "id": "comment-detail-22",
+    "stage": "methods_verification",
+    "severity": "medium",
+    "issue": "The method for calculating 'Normalized % conversion' relative to an internal standard is not fully detailed in the text.",
+    "fix": "Provide the exact mathematical formula used for normalization and the choice of internal standard.",
+    "source": "model",
+    "body": "The method for calculating 'Normalized % conversion' relative to an internal standard is not fully detailed in the text."
+  },
+  {
+    "id": "comment-detail-23",
+    "stage": "line_by_line_edits",
+    "severity": "low",
+    "issue": "The phrase 'miniaturization is a tactic' is imprecise for a scientific context.",
+    "fix": "Change 'tactic' to 'strategy'.",
+    "source": "model",
+    "body": "The phrase 'miniaturization is a tactic' is imprecise for a scientific context."
+  },
+  {
+    "id": "comment-detail-24",
+    "stage": "line_by_line_edits",
+    "severity": "low",
+    "issue": "The sentence regarding 'limits of chemoanalytical and bioanalytical detection' is slightly wordy.",
+    "fix": "Change to 'the detection limits of chemoanalytical and bioanalytical assays'.",
+    "source": "model",
+    "body": "The sentence regarding 'limits of chemoanalytical and bioanalytical detection' is slightly wordy."
+  },
+  {
+    "id": "comment-detail-25",
+    "stage": "line_by_line_edits",
+    "severity": "medium",
+    "issue": "The term 'evolved' is used colloquially to describe method development.",
+    "fix": "Replace 'evolved' with 'optimized'.",
+    "source": "model",
+    "body": "The term 'evolved' is used colloquially to describe method development."
+  },
+  {
+    "id": "comment-detail-26",
+    "stage": "style_alignment",
+    "severity": "low",
+    "issue": "The phrase 'tactic employed in many technologies' is vague.",
+    "fix": "Replace with 'strategy used across various disciplines'.",
+    "source": "model",
+    "body": "The phrase 'tactic employed in many technologies' is vague."
+  },
+  {
+    "id": "comment-detail-27",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "The sentence regarding 'limits of chemoanalytical and bioanalytical detection' is wordy.",
+    "fix": "Change to 'miniaturizing chemical synthesis to the detection limits of chemo- and bioanalytical assays'.",
+    "source": "model",
+    "body": "The sentence regarding 'limits of chemoanalytical and bioanalytical detection' is wordy."
+  },
+  {
+    "id": "comment-detail-28",
+    "stage": "style_alignment",
+    "severity": "medium",
+    "issue": "The term 'popular reactions' is imprecise for a scientific context.",
+    "fix": "Replace with 'widely utilized reactions' or 'standard transformations'.",
+    "source": "model",
+    "body": "The term 'popular reactions' is imprecise for a scientific context."
+  },
+  {
+    "id": "comment-detail-29",
+    "stage": "style_alignment",
+    "severity": "low",
+    "issue": "The phrase 'evolved to perform' is anthropomorphic.",
+    "fix": "Change to 'optimized for use'.",
+    "source": "model",
+    "body": "The phrase 'evolved to perform' is anthropomorphic."
+  },
+  {
+    "id": "comment-detail-30",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "The provided text is a fragmented excerpt containing OCR errors and incomplete sentences.",
+    "fix": "Provide the full, clean manuscript text for a comprehensive reconciliation analysis.",
+    "source": "model",
+    "body": "The provided text is a fragmented excerpt containing OCR errors and incomplete sentences. Fix: Provide the full, clean manuscript text for a comprehensive reconciliation analysis."
+  },
+  {
+    "id": "comment-detail-31",
+    "stage": "reconciliation",
+    "severity": "high",
+    "issue": "The Methods section is missing, preventing reconciliation between experimental design and results.",
+    "fix": "Include the complete Methods section to verify the 1.2 l droplet protocol.",
+    "source": "model",
+    "body": "The Methods section is missing, preventing reconciliation between experimental design and results. Fix: Include the complete Methods section to verify the 1.2 l droplet protocol."
+  },
+  {
+    "id": "comment-detail-32",
+    "stage": "reconciliation",
+    "severity": "medium",
+    "issue": "Figure 2 captions and data labels are truncated and illegible.",
+    "fix": "Provide high-resolution figures or complete data tables for the Suzuki coupling performance.",
+    "source": "model",
+    "body": "Figure 2 captions and data labels are truncated and illegible."
+  },
+  {
+    "id": "comment-detail-33",
+    "stage": "final_arbitration",
+    "severity": "high",
+    "issue": "The provided text contains significant OCR corruption and fragmented characters in the figure legends and data tables.",
+    "fix": "Perform a comprehensive manual audit of all figure labels and table data against the original source files.",
+    "source": "model",
+    "body": "The provided text contains significant OCR corruption and fragmented characters in the figure legends and data tables."
+  },
+  {
+    "id": "comment-detail-34",
+    "stage": "final_arbitration",
+    "severity": "medium",
+    "issue": "The Methods section is truncated and lacks detailed experimental protocols for the 1.2 l droplet handling.",
+    "fix": "Include full detailed procedures for droplet generation and sampling to ensure reproducibility.",
+    "source": "model",
+    "body": "The Methods section is truncated and lacks detailed experimental protocols for the 1.2 l droplet handling."
+  }
+]

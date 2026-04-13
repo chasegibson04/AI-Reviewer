@@ -1,0 +1,205 @@
+{
+  "schema_version": "support_ingest_v2",
+  "source_fingerprint": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization.pdf",
+    "size_bytes": 2124770,
+    "mtime_ns": 1775510155255557265,
+    "sha1_prefix": "a59f9a93d730bead97234ca38b17388edc181b19"
+  },
+  "source_provenance": {
+    "path": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/other/A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization.pdf",
+    "parse_engine": "pdftotext-cli-fallback",
+    "warnings": []
+  },
+  "identity": {
+    "title": "Jose Garrido Torres , Sii Hong Lau , Pranay Anchuri , Jason Stevens , Jose Tabora , Jun Li , Alina Borovika , Ryan",
+    "doi": "10.26434/chemrxiv-2022-cljcp",
+    "year": "2022",
+    "authors": [
+      "Jose",
+      "Garrido",
+      "Torres",
+      "Hong",
+      "Pranay",
+      "Anchuri"
+    ]
+  },
+  "matching_hints": {
+    "normalized_title": "jose garrido torres hong pranay anchuri jason stevens tabora alina borovika ryan",
+    "title_tokens": [
+      "jose",
+      "garrido",
+      "torres",
+      "hong",
+      "pranay",
+      "anchuri",
+      "jason",
+      "stevens",
+      "tabora",
+      "alina",
+      "borovika",
+      "ryan"
+    ],
+    "author_tokens": [
+      "jose",
+      "garrido",
+      "torres",
+      "hong",
+      "pranay",
+      "anchuri"
+    ],
+    "year": "2022",
+    "doi_variants": [
+      "10.26434/chemrxiv-2022-cljcp"
+    ],
+    "source_name_tokens": [
+      "multi",
+      "objective",
+      "active",
+      "learning",
+      "platform",
+      "reaction",
+      "optimization"
+    ]
+  },
+  "abstract": "We report the development of an open-source Experimental Design via Bayesian Optimization platform for multi-objective reaction optimization. Using high-throughput experimentation (HTE) and virtual screening datasets contain- ing high-dimensional continuous and discrete variables, we optimized the performance of the platform by fine-tuning the algorithm components such as reaction encodings, surrogate model parameters and initialization techniques. Having estab- lished the framework, we applied the optimizer to real-word test scenarios for the simultaneous optimization of reaction yield and enantioselectivity in a Ni/photoredox-catalyzed enantioselective cross-electrophile coupling of styrene oxide with two different aryl iodide substrates. Starting with no previous experimental data, the Bayesian optimizer identified reaction conditions that surpassed the previously human-driven optimization campaigns within 15 and 24 experiments, for each sub- strate, among 1,728 possible configurations available in each optimization. To make the platform more accessible to non- experts, we developed a Graphical User Interface (GUI) that can be accessed online through a web-based application and incorporated features such as conditions modification on-the-fly and data visualization. This web-application does not re- quire software installation, removing any programming barrier to use the platform, which enables chemists to integrate Bayesian optimization routines into their everyday laboratory practices.",
+  "key_claims": [
+    "Iterations of the active learning cycle will increase the accuracy of the regression predic- Figure 2.",
+    "The dashed gray lines show the Optimizer Development.",
+    "3A show the evolution of the objective values in each of the five optimization runs and the right panels indicate the den- sity of the objective values after completing these cam- Figure 3.",
+    "3A, in green) show that, in the optimization campaigns when using DFT featurization (in absence of a predictive model, there is a high probability of blue) and random sampling (in green) are shown in the left panels finding low yield and selectivity values in this dataset."
+  ],
+  "methods_summary": "coupling35,36 dataset involves the reaction of an indazole- Herein, we report EDBO+, an open-source multi-objective containing boronic acid and 6-bromoquinoline, in which the active-learning platform based on Bayesian theory and its objectives are to maximize the conversion and The online platform tive.39 41 This data\u2026",
+  "quantitative_findings": [
+    "16 August 2022 A Multi-Objective Active Learning Platform and Web App for Reaction Optimization 2 2,1 2 3 3 3 3 Jose Garrido Torres , Sii Hong Lau , Pranay Anchuri , Jason Stevens , Jose Tabora , Jun Li , Alina Borovika , Ryan 2 1,2 Adams , Abigail Doyle 1.",
+    "University of California, Los Angeles 2.",
+    "Princeton University 3."
+  ],
+  "limitations": [],
+  "terminology_entities": [
+    "optimization",
+    "reaction",
+    "conditions",
+    "edbo",
+    "experimental",
+    "yield",
+    "experiments",
+    "bayesian",
+    "values",
+    "multi-objective",
+    "chemistry",
+    "chem"
+  ],
+  "citation_anchors": [
+    "10.26434/chemrxiv-2022-cljcp",
+    "2022",
+    "Jose",
+    "Garrido",
+    "Torres",
+    "10.1021/acs.oprd.3c00186"
+  ],
+  "evidence_chunks": [
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-2",
+      "text": "A Multi-Objective Active Learning Platform and Web App for Reaction Optimization 2 2,1 2 3 3 3 3 Jose Garrido Torres , Sii Hong Lau , Pranay Anchuri , Jason Stevens , Jose Tabora , Jun Li , Alina Borovika , Ryan 2 1,2 Adams , Abigail Doyle",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "multi-objective"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-7",
+      "text": "We report the development of an open-source Experimental Design via Bayesian Optimization platform for multi-objective reaction optimization. Using high-throughput experimentation (HTE) and virtual screening datasets containing high-dimensional continuous and discrete variables, we optimized the performance of the platform by ne-tuning the algorithm components such as reaction encodings, surrogate model parameters and initialization techniques. Having established the framework, we applied the optimizer to real-word test scenarios for the simultaneous optimization of reaction yield and enantioselectivity in a Ni/photoredox-catalyzed enantioselective cross-electrophile coupling of styrene oxide with two di erent aryl iodide substrates. Starting with n\u2026",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "experimental",
+        "yield",
+        "bayesian"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-9",
+      "text": "machine learning, reaction optimization, synthetic chemistry",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "chemistry",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-10",
+      "text": "Posted on 16 August 2022 CC-BY-NC-ND 4.0 This is a preprint and has not been peer reviewed. Data may be preliminary. https:// doi.org/10.26434/chemrxiv-2022-cljcp A Multi-Objective Active Learning Platform and Web App for Reac- tion Optimization Jose A. Garrido Torres , Sii Hong Lau , Pranay Anchuri , Jason M. Stevens, Jose E. Tabora, Jun Li, Alina Borovika, Ryan P. Adams, and Abigail G. Doyle* Department of Chemistry, Princeton University, Princeton, New Jersey 08544, United States Department of Chemistry & Biochemistry, University of California, Los Angeles, California 90095, United States Chemical Process Development, Bristol Myers Squibb, New Brunswick, New Jersey 08901, United States Center of Information Technology Policy, Princeton University\u2026",
+      "keywords": [
+        "optimization",
+        "multi-objective",
+        "chemistry",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-11",
+      "text": "Supporting Information Placeholder ABSTRACT: We report the development of an open-source Experimental Design via Bayesian Optimization platform for multi-objective reaction optimization. Using high-throughput experimentation (HTE) and virtual screening datasets contain- ing high-dimensional continuous and discrete variables, we optimized the performance of the platform by fine-tuning the algorithm components such as reaction encodings, surrogate model parameters and initialization techniques. Having estab- lished the framework, we applied the optimizer to real-word test scenarios for the simultaneous optimization of reaction yield and enantioselectivity in a Ni/photoredox-catalyzed enantioselective cross-electrophile coupling of styrene oxide with t\u2026",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "experimental",
+        "yield",
+        "bayesian"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-12",
+      "text": "INTRODUCTION thousands of components. As a result, given limited time and material resources, evaluating the entire condition Reaction optimization is essential to synthetic chemistry. space is often inefficient from an economic and environ- Typically, an optimization campaign requires the explora- mental standpoint. tion of reaction conditions consisting of multiple categorical The simultaneous improvement of multiple reaction ob- and continuous reaction variables, such as catalyst, addi- jectives adds another layer of complexity to the existing tive, solvent, temperature, etc. In a synthetic chemistry la- multidimensional challenge in reaction optimization.3 In boratory, a common optimization strategy involves search- fact, many optimization probl\u2026",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "conditions",
+        "chemistry",
+        "chem"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-13",
+      "text": "Figure 1. (A) Example of a multi-objective optimization problem in chemistry. R1 = pyrrole fragment, R2 = imidazole fragment, or Br,5 (B) Previous workflow: single-objective Experimental Design via Bayesian Optimization (EDBO). (C) Current workflow: multi-objective reaction optimization framework using EDBO+ through its web application. Miyaura coupling,34 and (b) Pd-catalyzed C H arylation18 as visualization and access to the predictive estimates of the ground truth. The condition space for these two datasets surrogate models can enable the adoption of Bayesian tools consists of a combination of continuous (e.g., temperature in chemistry. Furthermore, the requirement of prior coding and concentration) and categorical variables (e.g., solvent, knowl\u2026",
+      "keywords": [
+        "optimization",
+        "reaction",
+        "edbo",
+        "experimental",
+        "bayesian"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-15",
+      "text": "General Workflow. The general workflow for EDBO+ be- gins with input from the synthetic chemist on identifying (a) the reaction conditions space (e.g., catalysts, temperatures and concentrations) that will be explored in the optimiza- tion campaign, (b) the featurization for categorical varia- bles (i.e., mathematical representation of the reaction com- ponents), (c) the objectives and accompanying thresholds to be optimized, and (d) the number of experiments to be evaluated in parallel per round (batch size). This initial search space can be modified at any stage of the optimiza- tion (expanding or reducing the number of components to consider). Once these are defined, the algorithm will sug- gest an initial set of experimental conditions (followin\u2026",
+      "keywords": [
+        "reaction",
+        "conditions",
+        "edbo",
+        "experimental",
+        "experiments"
+      ]
+    },
+    {
+      "chunk_id": "A_Multi-Objective_Active_Learning_Platform_and_Web_App_for_Reaction_Optimization-16",
+      "text": "Figure 4. Model performance for the Pd-catalyzed C H arylation dataset. (A) Overview of the objectives (yield and cost) values, the dashed lines highlight the Pareto front. The different ligands are color-coded while and different symbols are used to distinguish between solvents. (B) Hypervolume covered by the experimental values collected at each stage of the optimization campaign when using different initialization methods and batch sizes. (C) Mean Absolute Error (MAE) for the different initialization methods and batch sizes. (D) the distribution of yield (in blue) and cost (in red) values at each optimization step when initializing the optimizations using the different sampling methods. In Figure 4D, we show the distribution of the yield and phot\u2026",
+      "keywords": [
+        "optimization",
+        "experimental",
+        "yield",
+        "values"
+      ]
+    }
+  ],
+  "ingest": {
+    "timestamp": "2026-04-08T00:05:17.353714+00:00",
+    "model_requested": "gemma4:31b",
+    "model_mode": "model_assisted",
+    "cache_status": "refreshed",
+    "status": "fallback_heuristic",
+    "error": "timed out"
+  }
+}

@@ -1,0 +1,16 @@
+{"timestamp": "2026-04-07T20:09:04.616887+00:00", "tool": "parse_pdf", "status": "start", "meta": {"arguments": ["file_path"]}}
+{"timestamp": "2026-04-07T20:09:04.710648+00:00", "tool": "parse_pdf", "status": "ok", "meta": {"chars": 26859}}
+{"timestamp": "2026-04-07T20:09:04.710670+00:00", "tool": "parse_pdf", "status": "complete", "meta": {"elapsed_ms": 93.78}}
+{"timestamp": "2026-04-07T20:09:04.711181+00:00", "tool": "map_sections", "status": "start", "meta": {"arguments": ["content"]}}
+{"timestamp": "2026-04-07T20:09:04.711864+00:00", "tool": "map_sections", "status": "ok", "meta": {"section_count": 2}}
+{"timestamp": "2026-04-07T20:09:04.711868+00:00", "tool": "map_sections", "status": "complete", "meta": {"elapsed_ms": 0.69}}
+{"timestamp": "2026-04-07T20:09:04.712033+00:00", "tool": "digest_manuscript", "status": "start", "meta": {"arguments": ["content"]}}
+{"timestamp": "2026-04-07T20:09:04.712579+00:00", "tool": "digest_manuscript", "status": "ok", "meta": {"word_count": 1319}}
+{"timestamp": "2026-04-07T20:09:04.712583+00:00", "tool": "digest_manuscript", "status": "complete", "meta": {"elapsed_ms": 0.55}}
+{"timestamp": "2026-04-07T20:09:04.712882+00:00", "tool": "generate_deep_review", "status": "start", "meta": {"arguments": ["content", "profile", "reasoning_mode", "model_target", "section_map", "manuscript_path", "allow_abstract_fallback"]}}
+{"timestamp": "2026-04-07T20:09:04.853501+00:00", "tool": "generate_deep_review", "status": "ok", "meta": {"comment_count": 11, "effective_mode": "moe"}}
+{"timestamp": "2026-04-07T20:09:04.853509+00:00", "tool": "generate_deep_review", "status": "complete", "meta": {"elapsed_ms": 140.62}}
+{"timestamp": "2026-04-07T20:09:04.854352+00:00", "tool": "arbitrate_review", "status": "start", "meta": {"arguments": ["findings", "profile"]}}
+{"timestamp": "2026-04-07T20:09:04.854384+00:00", "tool": "arbitrate_review", "status": "ok", "meta": {"recommendation": "major_revision"}}
+{"timestamp": "2026-04-07T20:09:04.854386+00:00", "tool": "arbitrate_review", "status": "complete", "meta": {"elapsed_ms": 0.03}}
+{"timestamp": "2026-04-07T20:09:04.855051+00:00", "tool": "render_outputs", "status": "start", "meta": {"arguments": ["review_data", "output_dir"]}}

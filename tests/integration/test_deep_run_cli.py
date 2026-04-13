@@ -77,7 +77,7 @@ def test_deep_run_cli_happy_path(monkeypatch, tmp_path: Path):
     def fake_store():
         return store
 
-    def fake_provider_and_config(config_path, output_dir_override, command_name, debug=False):
+    def fake_provider_and_config(config_path, output_dir_override, command_name, debug=False, **kwargs):
         from ai_reviewer.config import load_config
         from ai_reviewer.logging_utils import configure_logging, create_run_dir
 

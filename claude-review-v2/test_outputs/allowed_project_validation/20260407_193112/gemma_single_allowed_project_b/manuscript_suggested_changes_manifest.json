@@ -1,0 +1,82 @@
+[
+  {
+    "id": "suggested-change-1",
+    "target": "body",
+    "original": "Missing explicit transition markers for: however, therefore, in contrast, moreover",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "structural_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-2",
+    "target": "body",
+    "original": "Average sentence length is high; prose may be hard to follow in dense sections.",
+    "suggested": "Tighten transitions and split dense sentences where needed.",
+    "stage": "structural_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-3",
+    "target": "body",
+    "original": "Missing common manuscript sections: has_abstract, has_references, has_keywords, has_methods",
+    "suggested": "Add the missing section elements in the manuscript front matter.",
+    "stage": "high_level_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-4",
+    "target": "body",
+    "original": "No conventional in-text citation markers detected.",
+    "suggested": "Add explicit citation markers near evidence-backed claims.",
+    "stage": "high_level_review",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-5",
+    "target": "body",
+    "original": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "suggested": "Clarify controls, sample rationale, and statistical assumptions.",
+    "stage": "hostile_review",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-6",
+    "target": "body",
+    "original": "Statistical language exists, but control/baseline evidence is weak.",
+    "suggested": "Clarify controls, sample rationale, and statistical assumptions.",
+    "stage": "hostile_review",
+    "severity": "high"
+  },
+  {
+    "id": "suggested-change-7",
+    "target": "body",
+    "original": "Missing explicit methods evidence: sample_size, controls, reproducibility",
+    "suggested": "State exact thresholds, controls, and reproducibility details.",
+    "stage": "methods_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-8",
+    "target": "body",
+    "original": "Statistical language exists, but control/baseline evidence is weak.",
+    "suggested": "State exact thresholds, controls, and reproducibility details.",
+    "stage": "methods_verification",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-9",
+    "target": "body",
+    "original": "Long sentence",
+    "suggested": "/Helv 0 Tf 0 g 2 0 1 1 \\ 2 0 0 7 \\ 2 0 1 9 \\ 2 0 2 0 \\ 2 0 2 1 \\ 2 0 2 2 \\ 2 0 2 1 \\ 1 9 6 5 \\ 2 0 1 7 \\ p i p e r i d i n y l \\ 2 0 1 8 \\ 2 0 2 1 \\ 2 0 1 9 \\ 2 0 1 5 \\ 2 0 1 8 \\\u2026",
+    "stage": "line_by_line_edits",
+    "severity": "medium"
+  },
+  {
+    "id": "suggested-change-10",
+    "target": "body",
+    "original": "Long sentence",
+    "suggested": "Km\u0005T<\u001a t\u072fK\u0015\u0188D%C\u000eh\u0019U n\u001b\u0003LDTO}d43J*+oOB\u001a*\u0013sYkt\uec3e\u073bz\\>e;>;\u0003\u0002\u0452M\u001b` K:%\u0011x\u0708vMMq,q\u0283 JG \u0015c RZ\u0603\u0011\u0013-e} e*\u0005 d\u0362gJh3\u0719&;\u01c0\u0003\u04c1c\u000e\"\u016fo T\u195b=:t[&E?s\u001aT#$5\u0012#5e# R.%~/p!j\u010d.Ef $\u0017\\ nB$?,R M QR7h`hTur>8\u0019\u0014'\u000f&,^\u075a6|\u2026",
+    "stage": "line_by_line_edits",
+    "severity": "medium"
+  }
+]

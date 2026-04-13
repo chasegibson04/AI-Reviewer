@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-04-05T22:02:22.176919+00:00",
+  "status": "completed",
+  "profile": "balanced_local",
+  "mode": "standard_review",
+  "model_target": "gemma4:31b",
+  "comment_count": 8,
+  "suggested_change_count": 8,
+  "artifact_version": "v2-review-bridge"
+}

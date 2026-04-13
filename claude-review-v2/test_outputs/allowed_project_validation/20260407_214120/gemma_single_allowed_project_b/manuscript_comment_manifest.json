@@ -1,0 +1,16 @@
+[
+  "The manuscript lacks a formal Introduction section to frame the scientific gap.",
+  "There is no explicit Results section preceding the presentation of Figure 2. Fix: Create a Results section to interpret the data shown in the Suzuki coupling heatmaps.",
+  "The assumption that 1.2 l droplets maintain consistent stoichiometry is fragile due to evaporation risks in high-boiling solvents. Fix: Provide evaporation rate data or describe t\u2026",
+  "The reliance on UPLC-MS for assay yield in ultraHTE may introduce significant sampling errors at the microliter scale.",
+  "There is no mention of the number of replicates performed for the 1.2 l reaction droplets to ensure reproducibility. Fix: Specify the number of technical and biological replicates\u2026",
+  "The provided text is a fragmented excerpt containing OCR errors and incomplete sentences. Fix: Provide the full, clean manuscript text for a comprehensive reconciliation analysis.",
+  "The Methods section is missing, preventing reconciliation between experimental design and results. Fix: Include the complete Methods section to verify the 1.2 l droplet protocol.",
+  "The provided text contains significant OCR corruption and fragmented characters in the figure legends and data tables.",
+  "The transition from Background to Methods is abrupt and lacks a logical bridge.",
+  "The Methods section is fragmented and lacks a clear structural hierarchy.",
+  "The claim that miniaturization accelerates discovery is presented as a general fact without citing specific throughput metrics.",
+  "The leap from standard reactions to miniaturized droplets ignores potential surface-to-volume ratio effects on catalyst activity.",
+  "The use of staurosporine as a proof-of-concept is limited by a small sample size of complex substrates.",
+  "The provided excerpt lacks explicit details on the statistical methods used to determine 'outlying points' in Figure 2b."
+]

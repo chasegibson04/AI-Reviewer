@@ -1,0 +1,776 @@
+{
+  "created_at": "2026-04-07T23:36:58.164978+00:00",
+  "allowed_projects_only": [
+    "20260325163524_test-existingphactorpaper",
+    "20260327051312_miniaturization_d2b"
+  ],
+  "runs": [
+    {
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260325163524_test-existingphactorpaper/materials/manuscript/designing-chemical-reaction-arrays-using-phactor-and-chatgpt.pdf",
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_232545/moe_allowed_project_a",
+      "validation": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": [],
+        "allowed_remote_metadata_events": [],
+        "disallowed_remote_events": []
+      },
+      "run_summary": {
+        "timestamp": "2026-04-07T23:30:15.241949+00:00",
+        "status": "completed",
+        "profile": "local_moe",
+        "mode": "deep_review",
+        "reasoning_mode_requested": "moe",
+        "reasoning_mode_effective": "moe",
+        "degraded": false,
+        "fallback_reason": "",
+        "model_target": "gemma4:31b",
+        "stage_model_map": [
+          {
+            "stage": "supporting_paper_ingest",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 18
+          },
+          {
+            "stage": "citation_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 6
+          },
+          {
+            "stage": "structural_review",
+            "model": "qwen3:8b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "high_level_review",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "hostile_review",
+            "model": "phi4-reasoning:plus",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "methods_verification",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "qwen2.5:7b-instruct",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "style_alignment",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          }
+        ],
+        "comment_count": 14,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "routing_trace": {
+        "profile": "local_moe",
+        "transport": "local_mcp_bridge",
+        "model_target": "gemma4:31b",
+        "reasoning_mode_requested": "moe",
+        "reasoning_mode_effective": "moe",
+        "degraded": false,
+        "fallback_reason": "",
+        "support_ingest_model": "gemma4:31b",
+        "citation_verification_model": "gemma4:31b",
+        "support_ingest_cache_root": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.runtime/support_ingest_cache",
+        "stage_model_map": [
+          {
+            "stage": "supporting_paper_ingest",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 18
+          },
+          {
+            "stage": "citation_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 6
+          },
+          {
+            "stage": "structural_review",
+            "model": "qwen3:8b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "high_level_review",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "hostile_review",
+            "model": "phi4-reasoning:plus",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "methods_verification",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "qwen2.5:7b-instruct",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "style_alignment",
+            "model": "mistral-small3.2:latest",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          }
+        ],
+        "stages": [
+          "supporting_paper_ingest",
+          "citation_verification",
+          "structural_review",
+          "high_level_review",
+          "hostile_review",
+          "methods_verification",
+          "line_by_line_edits",
+          "style_alignment",
+          "reconciliation",
+          "final_arbitration"
+        ]
+      },
+      "support_ingest_report": {
+        "available_support_docs": 18,
+        "selected_support_docs": 18,
+        "ingested_docs": 18,
+        "cache_reused_docs": 18,
+        "cache_refreshed_docs": 0,
+        "failed_docs": 0,
+        "selection_basis": "local_discovery_near_manuscript",
+        "reasoning_mode": "moe",
+        "model_requested": "gemma4:31b",
+        "model_usable_for_ingest": true,
+        "ingest_mode": "model_assisted"
+      },
+      "claim_verification_summary": {
+        "claim_count": 1,
+        "claims_checked": 6,
+        "likely_overstated": 0,
+        "unsupported_or_unclear": 1,
+        "missing_citation": 5,
+        "status": "line_by_line",
+        "status_counts": {
+          "unverifiable": 1,
+          "missing_citation": 5
+        }
+      },
+      "citation_status": "line_by_line",
+      "comment_samples": [
+        "The introduction lacks a clear statement of the study's objective. Fix: Add a concise objective statement in the introduction.",
+        "The results section is incomplete and lacks detailed experimental outcomes. Fix: Expand the results section with comprehensive data and analysis.",
+        "The manuscript lacks a discussion section to interpret the results and implications. Fix: Include a discussion section to analyze the significance of the findings.",
+        "The discussion of the Suzuki coupling results relies on an unsupported leap from experimental yield data to general performance claims without statistical analysis.",
+        "The claim that the unusual combination of Pd(dppf)Cl2 and BrettPhos generated the best hit is based on a single experimental observation without broader validation."
+      ]
+    },
+    {
+      "manuscript": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/projects/20260327051312_miniaturization_d2b/materials/manuscript/s44160-023-00351-1.pdf",
+      "output_dir": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/test_outputs/allowed_project_validation/20260407_232545/gemma_single_allowed_project_b",
+      "validation": {
+        "valid": true,
+        "missing": [],
+        "json_errors": [],
+        "front_matter_violations": [],
+        "remote_network_events": [
+          {
+            "timestamp": "2026-04-07T23:32:09.780283+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:11.048238+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:26.515792+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:27.281184+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:27.281463+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:28.095233+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:40.055568+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:40.341174+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:50.329735+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:51.138379+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:59.891563+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:00.608209+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:00.608478+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:01.579158+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:01.579415+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:02.513744+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:02.513991+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.195832+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.196109+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.514185+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.514480+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.777709+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          }
+        ],
+        "allowed_remote_metadata_events": [
+          {
+            "timestamp": "2026-04-07T23:32:09.780283+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:11.048238+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:26.515792+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:27.281184+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:27.281463+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:28.095233+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:40.055568+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:40.341174+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:50.329735+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:51.138379+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:32:59.891563+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:00.608209+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:00.608478+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:01.579158+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:01.579415+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:02.513744+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:02.513991+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.195832+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.196109+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.514185+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.514480+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "start"
+          },
+          {
+            "timestamp": "2026-04-07T23:33:03.777709+00:00",
+            "action": "openalex_lookup",
+            "host": "api.openalex.org",
+            "protocol": "https",
+            "status": "ok"
+          }
+        ],
+        "disallowed_remote_events": []
+      },
+      "run_summary": {
+        "timestamp": "2026-04-07T23:36:58.160011+00:00",
+        "status": "completed",
+        "profile": "one_big_model",
+        "mode": "deep_review",
+        "reasoning_mode_requested": "gemma_single",
+        "reasoning_mode_effective": "gemma_single",
+        "degraded": false,
+        "fallback_reason": "",
+        "model_target": "gemma4:31b",
+        "stage_model_map": [
+          {
+            "stage": "supporting_paper_ingest",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 6
+          },
+          {
+            "stage": "citation_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 12
+          },
+          {
+            "stage": "structural_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "high_level_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "methods_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "style_alignment",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          }
+        ],
+        "comment_count": 14,
+        "suggested_change_count": 10,
+        "artifact_version": "v2-review-bridge"
+      },
+      "routing_trace": {
+        "profile": "one_big_model",
+        "transport": "local_mcp_bridge",
+        "model_target": "gemma4:31b",
+        "reasoning_mode_requested": "gemma_single",
+        "reasoning_mode_effective": "gemma_single",
+        "degraded": false,
+        "fallback_reason": "",
+        "support_ingest_model": "gemma4:31b",
+        "citation_verification_model": "gemma4:31b",
+        "support_ingest_cache_root": "/Users/chasegibson/Library/CloudStorage/Dropbox-UniversityofMichigan/Chase Gibson/AI-Reviewer/claude-review-v2/.runtime/support_ingest_cache",
+        "stage_model_map": [
+          {
+            "stage": "supporting_paper_ingest",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 6
+          },
+          {
+            "stage": "citation_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 12
+          },
+          {
+            "stage": "structural_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "high_level_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          },
+          {
+            "stage": "hostile_review",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "methods_verification",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "line_by_line_edits",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "style_alignment",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 4
+          },
+          {
+            "stage": "reconciliation",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 3
+          },
+          {
+            "stage": "final_arbitration",
+            "model": "gemma4:31b",
+            "status": "ok",
+            "error": "",
+            "finding_count": 2
+          }
+        ],
+        "stages": [
+          "supporting_paper_ingest",
+          "citation_verification",
+          "structural_review",
+          "high_level_review",
+          "hostile_review",
+          "methods_verification",
+          "line_by_line_edits",
+          "style_alignment",
+          "reconciliation",
+          "final_arbitration"
+        ]
+      },
+      "support_ingest_report": {
+        "available_support_docs": 6,
+        "selected_support_docs": 6,
+        "ingested_docs": 6,
+        "cache_reused_docs": 6,
+        "cache_refreshed_docs": 0,
+        "failed_docs": 0,
+        "selection_basis": "local_discovery_near_manuscript",
+        "reasoning_mode": "gemma_single",
+        "model_requested": "gemma4:31b",
+        "model_usable_for_ingest": true,
+        "ingest_mode": "model_assisted"
+      },
+      "claim_verification_summary": {
+        "claim_count": 10,
+        "claims_checked": 28,
+        "likely_overstated": 0,
+        "unsupported_or_unclear": 16,
+        "missing_citation": 12,
+        "status": "line_by_line",
+        "status_counts": {
+          "abstract_only": 4,
+          "unverifiable": 12,
+          "missing_citation": 12
+        }
+      },
+      "citation_status": "line_by_line",
+      "comment_samples": [
+        "The manuscript lacks a formal Introduction section to frame the scientific gap.",
+        "There is no explicit Results section preceding the presentation of Figure 2. Fix: Create a Results section to interpret the data shown in the Suzuki coupling heatmaps.",
+        "The assumption that 1.2 l droplets maintain consistent stoichiometry is fragile due to evaporation risks in high-boiling solvents. Fix: Provide evaporation rate data or describe the sealing mechanism used to prevent volume loss.",
+        "The reliance on UPLC-MS for assay yield in ultraHTE may introduce significant sampling errors at the microliter scale.",
+        "There is no mention of the number of replicates performed for the 1.2 l reaction droplets to ensure reproducibility. Fix: Specify the number of technical and biological replicates for each reaction condition."
+      ]
+    }
+  ]
+}

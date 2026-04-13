@@ -1,0 +1,35 @@
+{
+  "claim_count": 6,
+  "claims": [
+    {
+      "sentence_index": 52,
+      "sentence": "coupling between 2-methylbenzoic acid (1) and p-toluidine Amide Coupling on Complex Molecule Sitagliptin.",
+      "marker": "(1)"
+    },
+    {
+      "sentence_index": 8,
+      "sentence": "We show how the artificial intelligence (AI) language model Downloaded via UNIV OF MICHIGAN ANN ARBOR on March 25, 2026 at 16:34:36 (UTC).",
+      "marker": ""
+    },
+    {
+      "sentence_index": 13,
+      "sentence": "High-throughput experimentation (HTE) is a widely practiced method for the discovery and optimization of reaction conditions in medicinal chemistry campaigns.1 5 Chemists typicall\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 29,
+      "sentence": "Then, we should translate the output from ChatGPT into an input file for the HTE management software 2023 American Chemical Society https://doi.org/10.1021/acs.oprd.3c00186 1510 O\u2026",
+      "marker": ""
+    },
+    {
+      "sentence_index": 32,
+      "sentence": "2023, 27, 1510 1516 Organic Process Research & Development pubs.acs.org/OPRD Article testing variability in model output can be found in the Supporting Information.",
+      "marker": ""
+    },
+    {
+      "sentence_index": 40,
+      "sentence": "The top-performing reaction condition was repeated on a 0.2 For each class of reactions (amide, Suzuki, and Buchwald mmol scale to afford 3 in a 94% isolated yield.",
+      "marker": ""
+    }
+  ]
+}
